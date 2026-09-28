@@ -1,44 +1,113 @@
-<div align="center">
+<p align="center">
   <img src="assets/banner.svg" alt="Qev — decisions, grounded in Qwen" width="100%">
-  <p><strong>Qwen-based decision models with candidate branches and a shared decision head.</strong></p>
-  <p><a href="README.zh-CN.md">中文</a> · <a href="#quick-start">Quick start</a> · <a href="docs/architecture.md">Architecture</a> · <a href="docs/evaluation.md">Evaluation</a> · <a href="docs/training.md">Training</a></p>
-</div>
+</p>
 
-Qev scores the choices you give it. Supply a shared context, questions, and candidate answers; get a probability distribution for each question. The same model handles categorical choices, yes/no judgments, and ordered ratings.
+<p align="center">
+  <a href="pyproject.toml"><img src="assets/badges/python.svg" alt="Python 3.12"></a>
+  <a href="docs/model-card.md"><img src="assets/badges/model.svg" alt="Built on Qwen3.5"></a>
+  <a href="LICENSE"><img src="assets/badges/license.svg" alt="Apache-2.0"></a>
+</p>
 
-**Qev-9B** fine-tunes **Qwen3.5-9B-Base** with rank-64 LoRA, candidate-specific readouts, and a 256-dimensional decision head. On the 231 public JevBench questions, the selected checkpoint answers **188 correctly (81.39%)**, compared with 175 (75.76%) for the pinned Kev-9B baseline; Jev scores 198 (85.71%) as a hosted reference. [Protocol and provenance →](docs/evaluation.md)
+<p align="center"><strong>English</strong> | <a href="README.zh-CN.md">简体中文</a></p>
 
-This repository contains the model, training and evaluation code, portable checkpoint tools, tests, and reproducible examples. Qev was called **BranchKev** during research; its existing record and checkpoint formats remain readable. A public model-hosting URL has not been assigned yet. The selected checkpoint can be exported locally using the instructions below; the full research training corpus is not bundled.
+**Qev fine-tunes Qwen into a decision model.** Give it context, a question, and candidate answers; get a choice and a probability for every option. One model handles **Choice**, **Noul** (yes/no), and **Score** (ordered ratings).
 
-## Quick start
+This repository provides the model architecture, training and evaluation code, Python interface, and checkpoint tools. Train on your own examples or load a Qev checkpoint for inference.
 
-Use Python 3.12 and install PyTorch 2.8.0 for your hardware. From this checkout:
+| Start here | What you can do |
+|---|---|
+| **[Train a model](#training)** | Prepare labelled data, train from Qwen, or fine-tune an existing Qev checkpoint |
+| **[Run a model](#inference)** | Get decisions and option probabilities through Python or JSONL |
+
+## Demos
+
+The opening gallery is reserved for actual Snake and Crafter recordings. These cards are placeholders to be replaced with Qev gameplay footage.
+
+<!-- DEMO SLOTS: replace each placeholder src with the real GIF/poster; optionally link it to a full recording. -->
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="assets/demos/snake-placeholder.svg" alt="Snake gameplay recording coming soon" width="100%">
+      <br><strong>Snake · Sequential action selection</strong>
+    </td>
+    <td width="50%" align="center">
+      <img src="assets/demos/crafter-placeholder.svg" alt="Crafter gameplay recording coming soon" width="100%">
+      <br><strong>Crafter · Survival and crafting</strong>
+    </td>
+  </tr>
+</table>
+
+[Recording slots and replacement guide](docs/demos.md).
+
+## Installation
+
+Use Python 3.12. From the repository root, create an environment, install a hardware-compatible PyTorch 2.8.0 build inside it, then install Qev:
 
 ```bash
-python -m pip install -e '.[test]'
+python3.12 -m venv .venv
+source .venv/bin/activate
+# Install the PyTorch 2.8.0 build for your hardware in this environment first.
+python -m pip install -e .
 ```
 
-**Try the complete pipeline on CPU, without downloading a model:**
+For development and testing, use `python -m pip install -e '.[test]'`. You can first check the complete pipeline on CPU without downloading a model:
 
 ```bash
 python scripts/smoke.py --out runs/smoke
 ```
 
-This creates a tiny random Qwen model, prepares the included examples, trains, resumes, and predicts. It checks the software pipeline; its predictions are not Qev-9B quality measurements.
+This uses a tiny random Qwen to exercise data preparation, training, resume and inference. See the [training guide](docs/training.md) for environment and device details.
 
-**Run a trained checkpoint:** put an exported Qev checkpoint in `checkpoints/qev-9b`, then:
+## Training
+
+### Prepare data
+
+Training examples use the same `state` and `questions` as inference, with a `label` on each question. Choice labels are candidate IDs, Noul labels are booleans, and Score labels are zero-based level indices. Related records should share a `group_id`.
+
+| Data | Contents | Entry point |
+|---|---|---|
+| Included examples | Six training and two validation requests, covering all three tasks | [examples/](examples/README.md) |
+| Your data | Labelled or soft-target JSONL requests | [Data format](docs/data.md) |
+| Research recipe | 34,546 main and 1,783 late records; the full corpus is not bundled | [Composition and availability](docs/data.md#research-recipe-and-availability) |
 
 ```bash
-python -m qev.predict \
-  --checkpoint checkpoints/qev-9b \
-  --input examples/requests.jsonl \
-  --out runs/predictions.jsonl \
-  --device cuda --weights-dtype checkpoint
+python -m qev.prepare \
+  --input examples/train.jsonl --validation examples/dev.jsonl \
+  --out data/support
 ```
 
-Outputs are created in a new file. For the reference execution used in the reported Qev results, add `--reference`. A pinned Hub checkpoint can also be supplied as `owner/repository@commit` once hosted; Qev downloads the inference artifacts and loads the specified Qwen base. [Checkpoint export and loading →](docs/checkpoints.md)
+Without an explicit validation file, the preparer splits by group deterministically. It checks train/dev overlap in IDs, groups and exact inputs. The small included examples demonstrate the workflow; they cannot establish training gains.
 
-### Python
+### Supervised fine-tuning
+
+On a CUDA GPU, initialize a new domain-training run from a Qev-9B checkpoint:
+
+```bash
+python -m qev.train \
+  --config configs/qev-9b-finetune.json \
+  --data data/support --out runs/support \
+  --init-checkpoint checkpoints/qev-9b
+```
+
+`--init-checkpoint` loads model parameters and starts a fresh optimizer and schedule. `--resume` continues the same run with its original data checks. Omit initialization to start from the Qwen base in the configuration.
+
+The [formal four-GPU recipe](configs/qev-9b.json) uses rank 64, global batch 32, two epochs, and a late-training partition. Single-GPU use, distributed training, resume and full fine-tuning are documented in the [training guide](docs/training.md).
+
+## Model and checkpoints
+
+| Model | Base and architecture | Availability |
+|---|---|---|
+| **Qev-9B** | Qwen3.5-9B-Base, rank-64 LoRA, two-layer 256-dimensional set head | Locally exported `checkpoints/qev-9b`; a public Hub URL has not been assigned |
+
+The selected checkpoint is seed 17, step 2327. It was called BranchKev during research; those record and checkpoint formats remain readable. An inference export contains LoRA, the decision head, joint gate, tokenizer and metadata, excluding base weights and optimizer state.
+
+See [checkpoint export and loading](docs/checkpoints.md) for local exports, base-model cache overrides, and pinned Hub loading after hosting. The [model card](docs/model-card.md) records the selected model's identity and limits.
+
+## Inference
+
+### Python API
+
+Load the model once in your process, then submit requests:
 
 ```python
 from qev import Qev
@@ -49,57 +118,50 @@ answers = model.predict({
     "questions": {
         "department": {
             "type": "choice",
-            "instructions": "Which team should handle this request?",
-            "criteria": {
-                "billing": "Charges and refunds",
-                "shipping": "Delivery and tracking",
-                "account": "Sign-in and account access",
-            },
-        },
-        "urgent": {
-            "type": "noul",
-            "instructions": "Does the message explicitly request immediate help?",
-        },
-        "priority": {
-            "type": "score",
-            "instructions": "Rate the requested response speed.",
-            "criteria": ["No urgency stated", "Soon", "Immediately"],
-        },
+            "instructions": "Which team should handle this?",
+            "criteria": {"billing": "Charges and refunds", "shipping": "Delivery problems"},
+        }
     },
 })
+print(answers["department"]["choice"])
 print(answers["department"]["probabilities"])
-print(answers["urgent"]["noul"])       # P(true)
-print(answers["priority"]["score"])   # Expected zero-based level
 ```
 
-Each answer includes `prediction` and `probabilities`. Choice adds `choice`, Noul adds `noul`, and Score adds `score`. [Input and output contract →](docs/data.md)
+Use `noul` for a yes/no question and receive `P(true)`. Use `score` for a rubric and receive its level distribution and expectation. [All three tasks](examples/requests.jsonl) · [Input/output contract](docs/data.md).
 
-## How it works
+### JSONL inference
 
-<img src="assets/architecture.svg" alt="A message is compared with Billing, Shipping, and Account answer options. Numeric summaries of the options are compared and scored." width="100%">
+```bash
+python -m qev.predict \
+  --checkpoint checkpoints/qev-9b \
+  --input examples/requests.jsonl --out runs/predictions.jsonl \
+  --device cuda --weights-dtype checkpoint
+```
 
-In the diagram, **options** are the possible answers: Billing, Shipping, and Account. `e₁`, `e₂`, and `e₃` are their context-aware numeric summaries; `h_q` summarizes the message and question. A vector is a list of numbers that encodes meaning.
+The default uses shared-prefix caching. Add `--reference` for the execution used in the reported evaluation. Output files must be new; precision and length options are in the [loading guide](docs/checkpoints.md).
 
-A request forms a tree: **state → question → candidate**. Each candidate has its own causal branch and terminal readout marker. Question readouts summarize the state and question; candidate readouts summarize the corresponding branch. The final Qwen attention layer can also let a candidate readout attend to sibling candidates through a learned gate.
+## How decisions are made
 
-The decision head turns these summaries into scores:
+<p align="center">
+  <img src="assets/architecture.svg" alt="Qev encodes the context, question and answer options into numeric summaries, then applies four decision-head stages. The diagram explains candidates and vectors e1, e2 and e3." width="100%">
+</p>
 
-1. **Project each vector.** Apply the same LayerNorm and linear projection to the question and every candidate, mapping 4,096 channels to 256. Add a learned role vector to the question. This step operates on each vector independently.
-2. **Compare within the question.** Stack the question and its K candidates into `[1, K+1, 256]`. Two Transformer layers let these vectors exchange information. There are no candidate-index embeddings, positional encodings, or causal masks inside this head.
-3. **Score each candidate with one shared function.** Concatenate each updated candidate with the updated question into 512 channels. Apply `LayerNorm → Linear(512,256) → GELU → Linear(256,1)`. K controls the number of input rows; the scorer always produces one scalar per row.
-4. **Normalize across candidates.** Softmax gives the decision distribution. Yes/no uses two candidates; a rating uses the rubric's ordered levels.
+Qev organizes inputs as **state → question → candidate**. Candidate branches read the shared context and produce their own summaries. The set head combines the question and option summaries, using the same scoring function for variable numbers of options. The implementation provides full causal reference execution, prefix caching, and tree execution with branched DeltaNet state.
 
-The scorer is shared across candidates and task types. Reordering the same candidate IDs and text permutes the outputs in ideal arithmetic. Adding or removing an option can change the contextual representations and probabilities.
-
-Qev includes a full-path reference implementation, prefix-cache inference, and tree execution with branched DeltaNet state. The set head and joint-attention reductions stay in FP32 while the backbone uses BF16; the exported LoRA tensors are FP32.
-
-[Detailed architecture and equations](docs/architecture.md) · [Interactive Chinese explanation](docs/decision-head.html#set-head)
+[Architecture and equations](docs/architecture.md) · [Interactive Chinese decision-head walkthrough](docs/decision-head.html#set-head)
 
 ## Evaluation
 
-Accuracy (%), using the pinned models and protocols described in [evaluation.md](docs/evaluation.md). **Clean** rows match the clean-subset reporting convention in Kev's README. Bold scores identify the higher result **between Qev and Kev**; Jev is shown as a reference.
+**Precision: Qev-9B uses BF16 backbone computation; Kev-9B uses FP32.** Qev retains FP32 for the head and key reductions, and its exported LoRA tensors are stored in FP32.
 
-**Precision: Kev-9B uses FP32; Qev-9B uses BF16 backbone computation.** Qev keeps its decision head and key reductions in FP32; exported LoRA tensors are also stored in FP32. The reported scores therefore compare different precision settings.
+<p align="center">
+  <img src="assets/evaluation.svg" alt="Paired Qev and Kev bars on seven benchmarks, with accuracy labels and question counts." width="100%">
+</p>
+
+Qev-9B answers **188/231 public JevBench questions (81.39%)** correctly; the pinned Kev-9B baseline answers 175/231 (75.76%). This is public-set accuracy, not the official JevBench composite score. Bold scores compare Qev with Kev; Jev and the Qwen base are references in the full table below.
+
+<details>
+<summary><strong>Full comparison table and evaluation protocol</strong></summary>
 
 | Benchmark | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Jev (reference) |
 |---|---:|---:|---:|---:|
@@ -111,45 +173,18 @@ Accuracy (%), using the pinned models and protocols described in [evaluation.md]
 | WANLI · 256 | **72.66** | 70.31 | 67.97 | 75.78 |
 | JevBench public · 231 | **81.39** | 75.76 | 75.76 | 85.71 |
 
-<img src="assets/jevbench.svg" alt="Qev-9B with BF16 backbone: 188/231; Kev-9B with FP32: 175/231. Jev is a reference at 198/231; Qwen base scores 175/231." width="100%">
+Percent accuracy; clean subsets follow the convention used in Kev's README. Kev's eight unanswered MMLU-Pro questions count as incorrect. SemIf includes only the 144 handwritten questions. JevBench was run by this project, with Jev accessed through its API. Kev and Jev results on the other suites come from pinned author reports.
 
-JevBench was run locally for all four models, with Jev accessed through its hosted API. Kev and Jev numbers on the other suites come from the pinned Kev author's reports. Kev uses FP32; Qev and the base baseline use BF16. Kev's eight unanswered MMLU-Pro questions count as incorrect. This is **public-set argmax accuracy**, not the official JevBench composite score.
+The selected Qev checkpoint is one seed. Data, rank and recipe differ, so these results do not isolate architecture gains. Single-seed ablations did not establish a measurable benefit from the extra candidate interaction or set-head attention; Qev trails Kev on scienthoon.
 
-The selected Qev checkpoint uses one seed. Data, LoRA rank, and training differ from Kev; these results do not isolate the effect of the architecture. In our single-seed ablations, disabling the final candidate interaction and set-head attention produced comparable accuracy. Qev also trails Kev on scienthoon. [Full results, ablations, and limits →](docs/evaluation.md)
+</details>
 
-## Train on your data
+[Full results, ablations and settings](docs/evaluation.md) · [Machine-readable metrics](results/benchmarks.json) · [All 231 predictions](results/qev-9b/jevbench-predictions.jsonl)
 
-Start with the request format above, adding a `label` to each question. Choice labels are candidate IDs, Noul labels are booleans, and Score labels are zero-based level indices. Related examples should share a `group_id`.
+## Documentation and contributions
 
-```bash
-python -m qev.prepare \
-  --input examples/train.jsonl --validation examples/dev.jsonl \
-  --out data/support
+[Architecture](docs/architecture.md) · [Training](docs/training.md) · [Checkpoints](docs/checkpoints.md) · [Data and outputs](docs/data.md) · [Evaluation](docs/evaluation.md) · [Contributing](CONTRIBUTING.md)
 
-# Initialize from the exported Qev-9B adapter and head; use new optimizer state.
-python -m qev.train \
-  --config configs/qev-9b-finetune.json \
-  --data data/support --out runs/support \
-  --init-checkpoint checkpoints/qev-9b
-```
+Run `python -m pytest -q` and `python scripts/check_release.py` to check the code and documentation. The [validation record](docs/validation.md) lists the actual checks and GPU skips.
 
-The examples demonstrate the format; they are far too small to establish model quality. `--init-checkpoint` starts a new training run on new data. `--resume` continues a run with its optimizer, schedule, and original data checks. To start from Qwen itself, omit `--init-checkpoint`.
-
-The reported Qev-9B recipe is in [configs/qev-9b.json](configs/qev-9b.json): four GPUs, global batch 32, two epochs, rank 64, seed 17, and a repeated late-training partition. It expects the research dataset partitions, which are separate from the toy examples. [Training recipes](docs/training.md) · [Data composition and availability](docs/data.md)
-
-## Reproduce and contribute
-
-```bash
-python -m pytest -q
-python scripts/check_release.py
-```
-
-Tests cover candidate permutation, question isolation, full/cache/tree agreement, gradients, training/resume, portable checkpoints, and data split guards. FSDP tests require two CUDA GPUs; CPU runs skip those tests. The exact checks performed for this source release are recorded in [validation.md](docs/validation.md).
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for changes and [the model card](docs/model-card.md) for Qev-9B's identity, limits, and release status.
-
-## Acknowledgments and license
-
-Qev builds on Qwen and is inspired by [Jared Palmer's Kev](https://github.com/jaredpalmer/kev). Its delimiter convention, rendering conventions, LoRA targets, and cache-fork approach adapt Kev's Apache-2.0 implementation. Qev's candidate branches, set readout, and training pipeline were developed in the research workspace recorded in [provenance.json](provenance.json).
-
-Code is licensed under [Apache-2.0](LICENSE). See [NOTICE](NOTICE) for attribution. Model weights and datasets retain their respective licenses; source-code publication does not redistribute the full research corpus.
+Qev builds on Qwen and adapts delimiter, rendering, LoRA-target and cache-fork conventions from [Jared Palmer's Kev](https://github.com/jaredpalmer/kev). Code is licensed under [Apache-2.0](LICENSE); see [NOTICE](NOTICE) and [provenance.json](provenance.json) for attribution. Weights and datasets retain their respective terms.

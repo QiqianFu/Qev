@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1480" height="892" viewBox="0 0 1480 892" role="img" aria-labelledby="title description">
-<title id="title">Qev · From a question to a decision</title>
+<title id="title">Qev · 从问题到决策</title>
 <desc id="description">A shared message and question are combined with Billing, Shipping and Account answer options. Qwen computes a numeric summary vector e1, e2 or e3 for each option. Four decision-head stages turn summaries into scores.</desc>
 <defs>
   <linearGradient id="background" x1="0%" y1="0%" x2="100%" y2="100%"><stop stop-color="#f0f3fa"/><stop offset="1" stop-color="#e9eff5"/></linearGradient>
@@ -13,18 +13,18 @@
   <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9a9bb8" stroke-width="1.7" stroke-linejoin="round"/></marker>
 </defs>
 <rect x="1" y="1" width="1478" height="890" rx="30" fill="url(#background)" stroke="#e2e7f0"/>
-<g font-family="Inter,Segoe UI,Arial,sans-serif">
+<g font-family="Noto Sans CJK SC,Segoe UI,Arial,sans-serif">
 <text x="59" y="108" font-size="83" fill="url(#mark)" font-weight="800" text-anchor="start" letter-spacing="-4" font-family="Inter,Segoe UI,Arial,sans-serif">Qev</text>
-<text x="282" y="69" font-size="31" fill="#29374f" font-weight="700" text-anchor="start" >From a question to a decision</text>
-<text x="284" y="104" font-size="16" fill="#73809a" font-weight="400" text-anchor="start" >Understand each answer option. Compare its meaning. Return probabilities.</text>
+<text x="282" y="69" font-size="31" fill="#29374f" font-weight="700" text-anchor="start" >从问题到决策</text>
+<text x="284" y="104" font-size="16" fill="#73809a" font-weight="400" text-anchor="start" >理解每个选项的含义，结合问题进行比较，输出选择概率。</text>
 <rect x="1215" y="47" width="199" height="43" rx="21" fill="#e8e2f8" stroke="#f9f7ff"/>
-<text x="1314" y="74" font-size="14" fill="#71549d" font-weight="600" text-anchor="middle" >Qwen-based decisions</text>
+<text x="1314" y="74" font-size="14" fill="#71549d" font-weight="600" text-anchor="middle" >基于 Qwen 微调</text>
 <path d="M64 150H1414" stroke="#dce3ef"/>
-<text x="64" y="191" font-size="13" fill="#8290a6" font-weight="700" text-anchor="start" letter-spacing="1.2">SHARED CONTEXT</text>
-<text x="425" y="191" font-size="13" fill="#498780" font-weight="700" text-anchor="start" letter-spacing="1.2">ANSWER OPTIONS</text>
-<text x="425" y="217" font-size="13" fill="#7d8a9e" font-weight="400" text-anchor="start" >Candidates = the answers you provide</text>
-<text x="1000" y="191" font-size="13" fill="#8266ab" font-weight="700" text-anchor="start" letter-spacing="1.2">NUMERIC SUMMARIES</text>
-<text x="1000" y="217" font-size="14" fill="#7d8a9e" font-weight="400" text-anchor="start" >Each option gets its own vector</text>
+<text x="64" y="191" font-size="13" fill="#8290a6" font-weight="700" text-anchor="start" letter-spacing="1.2">共享上下文</text>
+<text x="425" y="191" font-size="13" fill="#498780" font-weight="700" text-anchor="start" letter-spacing="1.2">候选答案 / 选项</text>
+<text x="425" y="217" font-size="13" fill="#7d8a9e" font-weight="400" text-anchor="start" >Candidate 就是我们提供的备选答案</text>
+<text x="1000" y="191" font-size="13" fill="#8266ab" font-weight="700" text-anchor="start" letter-spacing="1.2">选项的数值摘要</text>
+<text x="1000" y="217" font-size="14" fill="#7d8a9e" font-weight="400" text-anchor="start" >每个选项对应一个摘要向量</text>
 <path d="M350 412 H390 V290 H420" fill="none" stroke="#9a9bb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M350 412 H420" fill="none" stroke="#9a9bb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M390 412 V534 H420" fill="none" stroke="#9a9bb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
@@ -38,21 +38,21 @@
 <rect x="61" y="307" width="286" height="210" rx="21" fill="#ffffff" opacity=".8" filter="url(#light)"/>
 <rect x="65" y="314" width="286" height="210" rx="21" fill="#cfd6e5" opacity=".72"/>
 <rect x="64" y="310" width="286" height="210" rx="21" fill="url(#face)" stroke="#ffffff" stroke-opacity=".85" stroke-width="1.2"/>
-<text x="88" y="347" font-size="12" fill="#8290a6" font-weight="700" text-anchor="start" letter-spacing="1">MESSAGE</text>
-<text x="88" y="380" font-size="19" fill="#35435b" font-weight="600" text-anchor="start" >“I was charged twice.”</text>
+<text x="88" y="347" font-size="12" fill="#8290a6" font-weight="700" text-anchor="start" letter-spacing="1">输入消息</text>
+<text x="88" y="380" font-size="19" fill="#35435b" font-weight="600" text-anchor="start" >“同一订单被扣款两次。”</text>
 <path d="M88 409H325" stroke="#dbe2ed"/>
-<text x="88" y="440" font-size="12" fill="#8290a6" font-weight="700" text-anchor="start" letter-spacing="1">QUESTION</text>
-<text x="88" y="473" font-size="17" fill="#35435b" font-weight="600" text-anchor="start" >Which team should help?</text>
-<text x="64" y="560" font-size="14" fill="#8190a5" font-weight="400" text-anchor="start" >The same message and question</text>
-<text x="64" y="583" font-size="14" fill="#8190a5" font-weight="400" text-anchor="start" >are used for every option.</text>
+<text x="88" y="440" font-size="12" fill="#8290a6" font-weight="700" text-anchor="start" letter-spacing="1">问题</text>
+<text x="88" y="473" font-size="17" fill="#35435b" font-weight="600" text-anchor="start" >应该由哪个团队处理？</text>
+<text x="64" y="560" font-size="14" fill="#8190a5" font-weight="400" text-anchor="start" >同一份消息和问题</text>
+<text x="64" y="583" font-size="14" fill="#8190a5" font-weight="400" text-anchor="start" >供每个选项共同使用。</text>
 <rect x="433" y="255" width="288" height="92" rx="21" fill="#8797af" opacity=".24" filter="url(#shadow)"/>
 <rect x="422" y="241" width="288" height="92" rx="21" fill="#ffffff" opacity=".8" filter="url(#light)"/>
 <rect x="426" y="248" width="288" height="92" rx="21" fill="#cfd6e5" opacity=".72"/>
 <rect x="425" y="244" width="288" height="92" rx="21" fill="url(#mint-face)" stroke="#ffffff" stroke-opacity=".85" stroke-width="1.2"/>
 <rect x="443" y="263" width="53" height="53" rx="15" fill="#d1e9e1" stroke="#effaf5"/>
 <g transform="translate(457 274)" stroke="#4c8d80" stroke-width="2" fill="none"><rect width="25" height="30" rx="4"/><path d="M6 9H19M6 15H19M6 21H14"/></g>
-<text x="514" y="276" font-size="12" fill="#749189" font-weight="600" text-anchor="start" >Option 1</text>
-<text x="514" y="309" font-size="24" fill="#3d746c" font-weight="600" text-anchor="start" >Billing</text>
+<text x="514" y="276" font-size="12" fill="#749189" font-weight="600" text-anchor="start" >选项 1</text>
+<text x="514" y="309" font-size="24" fill="#3d746c" font-weight="600" text-anchor="start" >账单团队</text>
 <rect x="1008" y="255" width="414" height="92" rx="21" fill="#8797af" opacity=".24" filter="url(#shadow)"/>
 <rect x="997" y="241" width="414" height="92" rx="21" fill="#ffffff" opacity=".8" filter="url(#light)"/>
 <rect x="1001" y="248" width="414" height="92" rx="21" fill="#cfd6e5" opacity=".72"/>
@@ -60,8 +60,8 @@
 <rect x="1020" y="264" width="57" height="57" rx="17" fill="#dcd2f1"/>
 <rect x="1018" y="261" width="57" height="57" rx="17" fill="#eee8fb" stroke="#ffffff"/>
 <text x="1047" y="300" font-size="27" fill="#8061b1" font-weight="600" text-anchor="middle" >e₁</text>
-<text x="1096" y="284" font-size="20" fill="#655082" font-weight="600" text-anchor="start" >Billing summary</text>
-<text x="1096" y="311" font-size="14" fill="#9684aa" font-weight="400" text-anchor="start" >A vector of 4,096 numbers</text>
+<text x="1096" y="284" font-size="20" fill="#655082" font-weight="600" text-anchor="start" >账单选项的摘要</text>
+<text x="1096" y="311" font-size="14" fill="#9684aa" font-weight="400" text-anchor="start" >向量 · 由 4,096 个数字组成</text>
 <rect x="1361" y="271" width="5" height="6" rx="2" fill="#9b83c6" opacity="0.27"/>
 <rect x="1361" y="281" width="5" height="6" rx="2" fill="#9b83c6" opacity="0.4"/>
 <rect x="1361" y="291" width="5" height="6" rx="2" fill="#9b83c6" opacity="0.53"/>
@@ -77,8 +77,8 @@
 <rect x="425" y="366" width="288" height="92" rx="21" fill="url(#mint-face)" stroke="#ffffff" stroke-opacity=".85" stroke-width="1.2"/>
 <rect x="443" y="385" width="53" height="53" rx="15" fill="#d1e9e1" stroke="#effaf5"/>
 <g transform="translate(456 397)" stroke="#4c8d80" stroke-width="2" fill="none" stroke-linejoin="round"><path d="M0 7L14 0L28 7V24L14 31L0 24ZM0 7L14 14L28 7M14 14V31M7 3.5L21 10.5"/></g>
-<text x="514" y="398" font-size="12" fill="#749189" font-weight="600" text-anchor="start" >Option 2</text>
-<text x="514" y="431" font-size="24" fill="#3d746c" font-weight="600" text-anchor="start" >Shipping</text>
+<text x="514" y="398" font-size="12" fill="#749189" font-weight="600" text-anchor="start" >选项 2</text>
+<text x="514" y="431" font-size="24" fill="#3d746c" font-weight="600" text-anchor="start" >物流团队</text>
 <rect x="1008" y="377" width="414" height="92" rx="21" fill="#8797af" opacity=".24" filter="url(#shadow)"/>
 <rect x="997" y="363" width="414" height="92" rx="21" fill="#ffffff" opacity=".8" filter="url(#light)"/>
 <rect x="1001" y="370" width="414" height="92" rx="21" fill="#cfd6e5" opacity=".72"/>
@@ -86,8 +86,8 @@
 <rect x="1020" y="386" width="57" height="57" rx="17" fill="#dcd2f1"/>
 <rect x="1018" y="383" width="57" height="57" rx="17" fill="#eee8fb" stroke="#ffffff"/>
 <text x="1047" y="422" font-size="27" fill="#8061b1" font-weight="600" text-anchor="middle" >e₂</text>
-<text x="1096" y="406" font-size="20" fill="#655082" font-weight="600" text-anchor="start" >Shipping summary</text>
-<text x="1096" y="433" font-size="14" fill="#9684aa" font-weight="400" text-anchor="start" >A vector of 4,096 numbers</text>
+<text x="1096" y="406" font-size="20" fill="#655082" font-weight="600" text-anchor="start" >物流选项的摘要</text>
+<text x="1096" y="433" font-size="14" fill="#9684aa" font-weight="400" text-anchor="start" >向量 · 由 4,096 个数字组成</text>
 <rect x="1361" y="393" width="5" height="6" rx="2" fill="#9b83c6" opacity="0.4"/>
 <rect x="1361" y="403" width="5" height="6" rx="2" fill="#9b83c6" opacity="0.53"/>
 <rect x="1361" y="413" width="5" height="6" rx="2" fill="#9b83c6" opacity="0.27"/>
@@ -103,8 +103,8 @@
 <rect x="425" y="488" width="288" height="92" rx="21" fill="url(#mint-face)" stroke="#ffffff" stroke-opacity=".85" stroke-width="1.2"/>
 <rect x="443" y="507" width="53" height="53" rx="15" fill="#d1e9e1" stroke="#effaf5"/>
 <g transform="translate(455 518)" stroke="#4c8d80" stroke-width="2" fill="none"><circle cx="15" cy="8" r="7"/><path d="M2 31V27C2 15 28 15 28 27V31Z"/></g>
-<text x="514" y="520" font-size="12" fill="#749189" font-weight="600" text-anchor="start" >Option 3</text>
-<text x="514" y="553" font-size="24" fill="#3d746c" font-weight="600" text-anchor="start" >Account</text>
+<text x="514" y="520" font-size="12" fill="#749189" font-weight="600" text-anchor="start" >选项 3</text>
+<text x="514" y="553" font-size="24" fill="#3d746c" font-weight="600" text-anchor="start" >账户团队</text>
 <rect x="1008" y="499" width="414" height="92" rx="21" fill="#8797af" opacity=".24" filter="url(#shadow)"/>
 <rect x="997" y="485" width="414" height="92" rx="21" fill="#ffffff" opacity=".8" filter="url(#light)"/>
 <rect x="1001" y="492" width="414" height="92" rx="21" fill="#cfd6e5" opacity=".72"/>
@@ -112,8 +112,8 @@
 <rect x="1020" y="508" width="57" height="57" rx="17" fill="#dcd2f1"/>
 <rect x="1018" y="505" width="57" height="57" rx="17" fill="#eee8fb" stroke="#ffffff"/>
 <text x="1047" y="544" font-size="27" fill="#8061b1" font-weight="600" text-anchor="middle" >e₃</text>
-<text x="1096" y="528" font-size="20" fill="#655082" font-weight="600" text-anchor="start" >Account summary</text>
-<text x="1096" y="555" font-size="14" fill="#9684aa" font-weight="400" text-anchor="start" >A vector of 4,096 numbers</text>
+<text x="1096" y="528" font-size="20" fill="#655082" font-weight="600" text-anchor="start" >账户选项的摘要</text>
+<text x="1096" y="555" font-size="14" fill="#9684aa" font-weight="400" text-anchor="start" >向量 · 由 4,096 个数字组成</text>
 <rect x="1361" y="515" width="5" height="6" rx="2" fill="#9b83c6" opacity="0.53"/>
 <rect x="1361" y="525" width="5" height="6" rx="2" fill="#9b83c6" opacity="0.27"/>
 <rect x="1361" y="535" width="5" height="6" rx="2" fill="#9b83c6" opacity="0.4"/>
@@ -138,34 +138,34 @@
 <path d="M871 346V359L924 331V318Z" fill="#8566b2" opacity=".7"/>
 <text x="871" y="435" font-size="25" fill="#725397" font-weight="700" text-anchor="middle" >Qwen</text>
 <text x="871" y="463" font-size="15" fill="#9a83b5" font-weight="600" text-anchor="middle" >+ LoRA</text>
-<text x="871" y="548" font-size="13" fill="#9a83b5" font-weight="400" text-anchor="middle" >shared model</text>
-<text x="64" y="641" font-size="15" fill="#63798b" font-weight="600" text-anchor="start" >A vector is a list of numbers</text>
-<text x="64" y="665" font-size="14" fill="#8190a5" font-weight="400" text-anchor="start" >that represents meaning.</text>
+<text x="871" y="548" font-size="13" fill="#9a83b5" font-weight="400" text-anchor="middle" >共享的模型</text>
+<text x="64" y="641" font-size="15" fill="#63798b" font-weight="600" text-anchor="start" >向量就是一组数字</text>
+<text x="64" y="665" font-size="14" fill="#8190a5" font-weight="400" text-anchor="start" >用来表示模型理解到的含义。</text>
 <rect x="425" y="615" width="989" height="64" rx="18" fill="#e5e3f2" stroke="#f9f8ff"/>
-<text x="450" y="640" font-size="13" fill="#8d7fa5" font-weight="600" text-anchor="start" >Readouts sent to the head</text>
-<text x="450" y="664" font-size="17" fill="#76608e" font-weight="500" text-anchor="start" >Question summary h_q  +  option summaries e₁, e₂, e₃</text>
-<text x="64" y="731" font-size="13" fill="#85729f" font-weight="700" text-anchor="start" letter-spacing="1.7">DECISION HEAD</text>
+<text x="450" y="640" font-size="13" fill="#8d7fa5" font-weight="600" text-anchor="start" >传入决策头的数值表示</text>
+<text x="450" y="664" font-size="17" fill="#76608e" font-weight="500" text-anchor="start" >问题摘要 h_q  +  三个选项摘要 e₁、e₂、e₃</text>
+<text x="64" y="731" font-size="13" fill="#85729f" font-weight="700" text-anchor="start" letter-spacing="1.7">决策头</text>
 <rect x="72" y="769" width="299" height="85" rx="21" fill="#8797af" opacity=".24" filter="url(#shadow)"/>
 <rect x="61" y="755" width="299" height="85" rx="21" fill="#ffffff" opacity=".8" filter="url(#light)"/>
 <rect x="65" y="762" width="299" height="85" rx="21" fill="#cfd6e5" opacity=".72"/>
 <rect x="64" y="758" width="299" height="85" rx="21" fill="url(#face)" stroke="#ffffff" stroke-opacity=".85" stroke-width="1.2"/>
-<text x="213.5" y="809" font-size="20" fill="#62718a" font-weight="600" text-anchor="middle" >Compact summaries</text>
+<text x="213.5" y="809" font-size="20" fill="#62718a" font-weight="600" text-anchor="middle" >压缩摘要</text>
 <path d="M370 800 H405" fill="none" stroke="#9a9bb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <rect x="421" y="769" width="299" height="85" rx="21" fill="#8797af" opacity=".24" filter="url(#shadow)"/>
 <rect x="410" y="755" width="299" height="85" rx="21" fill="#ffffff" opacity=".8" filter="url(#light)"/>
 <rect x="414" y="762" width="299" height="85" rx="21" fill="#cfd6e5" opacity=".72"/>
 <rect x="413" y="758" width="299" height="85" rx="21" fill="url(#face)" stroke="#ffffff" stroke-opacity=".85" stroke-width="1.2"/>
-<text x="562.5" y="809" font-size="20" fill="#62718a" font-weight="600" text-anchor="middle" >Compare options</text>
+<text x="562.5" y="809" font-size="20" fill="#62718a" font-weight="600" text-anchor="middle" >比较选项</text>
 <path d="M719 800 H754" fill="none" stroke="#9a9bb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <rect x="770" y="769" width="299" height="85" rx="21" fill="#8797af" opacity=".24" filter="url(#shadow)"/>
 <rect x="759" y="755" width="299" height="85" rx="21" fill="#ffffff" opacity=".8" filter="url(#light)"/>
 <rect x="763" y="762" width="299" height="85" rx="21" fill="#cfd6e5" opacity=".72"/>
 <rect x="762" y="758" width="299" height="85" rx="21" fill="url(#face)" stroke="#ffffff" stroke-opacity=".85" stroke-width="1.2"/>
-<text x="911.5" y="809" font-size="20" fill="#62718a" font-weight="600" text-anchor="middle" >Pair with question</text>
+<text x="911.5" y="809" font-size="20" fill="#62718a" font-weight="600" text-anchor="middle" >结合问题</text>
 <path d="M1068 800 H1103" fill="none" stroke="#9a9bb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <rect x="1119" y="769" width="303" height="85" rx="21" fill="#8797af" opacity=".24" filter="url(#shadow)"/>
 <rect x="1108" y="755" width="303" height="85" rx="21" fill="#ffffff" opacity=".8" filter="url(#light)"/>
 <rect x="1112" y="762" width="303" height="85" rx="21" fill="#cfd6e5" opacity=".72"/>
 <rect x="1111" y="758" width="303" height="85" rx="21" fill="url(#mint-face)" stroke="#ffffff" stroke-opacity=".85" stroke-width="1.2"/>
-<text x="1262.5" y="809" font-size="20" fill="#467f75" font-weight="600" text-anchor="middle" >Score each option</text>
+<text x="1262.5" y="809" font-size="20" fill="#467f75" font-weight="600" text-anchor="middle" >逐项打分</text>
 </g></svg>

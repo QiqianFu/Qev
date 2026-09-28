@@ -1,39 +1,113 @@
-<div align="center">
+<p align="center">
   <img src="assets/banner.svg" alt="Qev — 基于 Qwen 的决策模型" width="100%">
-  <p><strong>共享上下文，独立候选分支，统一决策头。</strong></p>
-  <p><a href="README.md">English</a> · <a href="docs/decision-head.html#set-head">交互式决策头图解</a> · <a href="docs/evaluation.md">评测协议</a> · <a href="docs/training.md">训练方法</a></p>
-</div>
+</p>
 
-Qev 从你提供的候选答案中做决策。输入共享上下文、问题和候选，输出每个问题的概率分布；同一个模型处理 **Choice 选择、Noul 是非判断、Score 序数评分**。
+<p align="center">
+  <a href="pyproject.toml"><img src="assets/badges/python.svg" alt="Python 3.12"></a>
+  <a href="docs/model-card.md"><img src="assets/badges/model.svg" alt="基于 Qwen3.5"></a>
+  <a href="LICENSE"><img src="assets/badges/license.svg" alt="Apache-2.0"></a>
+</p>
 
-**Qev-9B** 基于 **Qwen3.5-9B-Base**，使用 rank-64 LoRA、候选分支读出与 256 维集合决策头。选定检查点在 JevBench 的 231 道公开题上答对 **188 题（81.39%）**；固定版本 Kev-9B 为 175 题（75.76%），托管模型 Jev 的参考成绩为 198 题（85.71%）。[详细口径与来源](docs/evaluation.md)
+<p align="center"><a href="README.md">English</a> | <strong>简体中文</strong></p>
 
-本仓库包含模型、训练和评测代码、可移植检查点工具、测试与示例。研究阶段的名称是 BranchKev，旧数据和检查点格式仍可读取。目前尚未分配公开权重下载地址；可按下文导出本地检查点，完整研究训练集也未随代码分发。
+**Qev 是从 Qwen 微调而来的决策模型。** 给定上下文、问题和候选答案，模型直接返回选择及各选项的概率。同一套模型支持 **Choice 选择、Noul 是非判断、Score 序数评分**。
 
-## 快速开始
+本仓库提供模型架构、训练与评测代码、Python 接口和检查点工具。你可以在自己的数据上训练，也可以加载已有的 Qev 检查点进行推理。
 
-使用 Python 3.12，先安装适合硬件的 PyTorch 2.8.0。在本仓库根目录执行：
+| 从这里开始 | 可以做什么 |
+|---|---|
+| **[训练模型](#训练)** | 准备标注数据，从 Qwen 底座训练，或在 Qev 检查点上继续微调 |
+| **[运行模型](#推理)** | 通过 Python 或 JSONL 接口，获取选项概率和决策 |
+
+## 演示
+
+开头预留贪吃蛇与 Crafter 的实际运行录屏，下面的卡片是待替换的展示位置。
+
+<!-- DEMO SLOTS: replace each placeholder src with the real GIF/poster; optionally link it to a full recording. -->
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="assets/demos/snake-placeholder.svg" alt="贪吃蛇真实录屏待补充" width="100%">
+      <br><strong>贪吃蛇 · 连续动作选择</strong>
+    </td>
+    <td width="50%" align="center">
+      <img src="assets/demos/crafter-placeholder.svg" alt="Crafter真实录屏待补充" width="100%">
+      <br><strong>Crafter · 生存与建造</strong>
+    </td>
+  </tr>
+</table>
+
+[录屏替换位置与说明](docs/demos.md)。
+
+## 安装
+
+使用 Python 3.12。在仓库根目录创建环境，激活后安装适合硬件的 PyTorch 2.8.0，再安装 Qev：
 
 ```bash
-python -m pip install -e '.[test]'
-# 无需下载模型，在CPU验证准备数据、训练、续训和推理。
+python3.12 -m venv .venv
+source .venv/bin/activate
+# 先在这个环境中安装适合硬件的 PyTorch 2.8.0。
+python -m pip install -e .
+```
+
+开发和测试使用 `python -m pip install -e '.[test]'`。确认环境后，可先运行无需下载模型的 CPU 短试跑：
+
+```bash
 python scripts/smoke.py --out runs/smoke
 ```
 
-短试跑使用随机初始化的小型 Qwen，只验证软件流程，不代表 Qev-9B 的效果。
+它使用随机初始化的小型 Qwen 验证数据准备、训练、续训和推理流程；完整安装与设备说明见[训练文档](docs/training.md)。
 
-将导出的正式检查点放在 `checkpoints/qev-9b` 后运行：
+## 训练
+
+### 准备数据
+
+训练数据沿用推理请求中的 `state` 和 `questions`，在每个问题上增加 `label`。Choice 填候选 ID，Noul 填布尔值，Score 填从 0 开始的等级编号。相关样本应共用 `group_id`。
+
+| 数据 | 内容 | 入口 |
+|---|---|---|
+| 随包示例 | 6 条训练请求、2 条验证请求，覆盖三种任务 | [examples/](examples/README.md) |
+| 自己的数据 | 带标签或软目标的 JSONL 请求 | [数据格式](docs/data.md) |
+| 正式研究配方 | 主分区 34,546 条，收尾分区 1,783 条；完整数据尚未随代码分发 | [数据构成](docs/data.md#research-recipe-and-availability) |
 
 ```bash
-python -m qev.predict \
-  --checkpoint checkpoints/qev-9b \
-  --input examples/requests.jsonl --out runs/predictions.jsonl \
-  --device cuda --weights-dtype checkpoint
+python -m qev.prepare \
+  --input examples/train.jsonl --validation examples/dev.jsonl \
+  --out data/support
 ```
 
-输出文件必须使用新名字。默认使用共享前缀缓存；复现正式评测的执行路径时加 `--reference`。也支持发布后以 `owner/repository@commit` 加载固定版本的Hub检查点。[检查点导出与加载](docs/checkpoints.md)
+未提供独立验证文件时，工具按 `group_id` 做确定性划分，并检查训练／验证之间的 ID、分组和精确输入重合。随包示例用于熟悉流程，数量不足以评价训练收益。
 
-Python 接口：
+### 监督微调
+
+在 CUDA GPU 上，从已有的 Qev-9B 检查点开始新的领域训练：
+
+```bash
+python -m qev.train \
+  --config configs/qev-9b-finetune.json \
+  --data data/support --out runs/support \
+  --init-checkpoint checkpoints/qev-9b
+```
+
+`--init-checkpoint` 加载模型参数，重新建立优化器与学习率计划；`--resume` 恢复同一次训练及其原数据校验。省略初始化参数则从配置中的 Qwen 底座开始。
+
+[正式四卡配置](configs/qev-9b.json)使用 rank 64、全局 batch 32、两轮训练和收尾分区混入。单卡、多卡、断点恢复与全参训练见[训练指南](docs/training.md)。
+
+## 模型与检查点
+
+| 模型 | 底座与结构 | 当前入口 |
+|---|---|---|
+| **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | 本地导出的 `checkpoints/qev-9b`；公开 Hub 地址尚未发布 |
+
+正式检查点为 seed 17、step 2327。研究阶段名称是 BranchKev，旧数据与检查点格式仍可加载。推理导出包含 LoRA、决策头、交互 gate、tokenizer 与元数据，不包含底座和优化器状态。
+
+从研究检查点导出、使用本地底座缓存，以及发布后通过固定 Hub revision 加载的方法见[检查点指南](docs/checkpoints.md)；完整模型信息见[模型卡](docs/model-card.md)。
+
+## 推理
+
+### Python 接口
+
+模型在进程内加载一次，随后可以反复提交请求：
 
 ```python
 from qev import Qev
@@ -46,47 +120,48 @@ answers = model.predict({
             "type": "choice",
             "instructions": "应该由哪个团队处理？",
             "criteria": {"billing": "账单和退款", "shipping": "物流配送"},
-        },
-        "urgent": {"type": "noul", "instructions": "是否明确要求立即处理？"},
-        "priority": {
-            "type": "score", "instructions": "评价请求的响应时效。",
-            "criteria": ["未提出紧迫要求", "尽快", "立即"],
-        },
+        }
     },
 })
+print(answers["department"]["choice"])
 print(answers["department"]["probabilities"])
-print(answers["urgent"]["noul"])       # P(true)
-print(answers["priority"]["score"])   # 从0开始的等级期望
 ```
 
-所有答案保留 `prediction` 和 `probabilities`，并按类型附带 `choice`、`noul` 或 `score`。[输入输出约定](docs/data.md)
+是非问题使用 `noul`，返回 `P(true)`；评分问题使用 `score`，返回等级分布及其期望。[三种任务的完整示例](examples/requests.jsonl)与[输入输出约定](docs/data.md)。
+
+### JSONL 批量推理
+
+```bash
+python -m qev.predict \
+  --checkpoint checkpoints/qev-9b \
+  --input examples/requests.jsonl --out runs/predictions.jsonl \
+  --device cuda --weights-dtype checkpoint
+```
+
+默认使用共享前缀缓存；复现正式评测的执行路径时加 `--reference`。输出文件使用新名字，精度与长度选项见[加载说明](docs/checkpoints.md)。
 
 ## 模型怎样作出决策
 
-<img src="assets/architecture.svg" alt="消息与账单、物流、账户三个选项结合，形成选项摘要向量，再比较并输出选项概率" width="100%">
+<p align="center">
+  <img src="assets/architecture.zh-CN.svg" alt="Qev将消息、问题和候选答案编码为数值摘要，再经过四步决策头得到选项分数。图内解释候选答案与e₁、e₂、e₃的含义。" width="100%">
+</p>
 
-图中的 **Option 就是候选答案／选项**，例子里分别是账单（Billing）、物流（Shipping）和账户（Account）团队。`e₁`、`e₂`、`e₃` 是模型结合上下文为这三个选项计算的摘要向量，`h_q` 是消息与问题的摘要向量；向量就是一组编码语义的数字。
+Qev 按 **state → question → candidate** 组织输入。候选分支读取共享上下文，各自形成摘要；集合决策头将问题与候选摘要结合，为不同数量的选项使用同一个打分函数。实现同时提供完整因果参考路径、前缀缓存和带 DeltaNet 分支状态的树形执行。
 
-输入组织为 **state → question → candidate**。每个候选有自己的因果分支和末尾读出标记；问题标记总结上下文与问题，候选标记总结自己的分支。正式模型的最后一层还允许候选读出通过可学习门控读取兄弟候选。
+[模型设计与公式](docs/architecture.md) · [交互式决策头图解](docs/decision-head.html#set-head)
 
-集合决策头接收的是 **1个问题向量和K个候选向量**。这里的K+1个位置已经是主干汇总后的向量：
+## 评测
 
-1. **分别投影。** 问题与候选共用 LayerNorm 和线性投影，从4096维变为256维；问题另加一个可学习角色向量。这一步按向量通道计算，没有混合候选。
-2. **集合内交换信息。** 堆成 `[1, K+1, 256]`，经过两层 Transformer。问题和候选可以相互读取；头内没有候选序号embedding、位置编码或因果mask。
-3. **每个候选使用同一个打分函数。** 将更新后的候选向量与更新后的问题向量拼成512维，经过 `LayerNorm → Linear(512,256) → GELU → Linear(256,1)`，每行输出一个logit。K只改变输入行数，最后一层始终输出一个标量。
-4. **在候选之间归一化。** softmax产生概率。是非题使用false／true两个候选，评分题使用按顺序排列的等级。
+**精度对比：Qev-9B 的主干计算使用 BF16，Kev-9B 使用 FP32。** Qev 的决策头与关键归约保持 FP32，导出的 LoRA 张量也存为 FP32。
 
-保持ID与文本不变，仅重排候选，理想计算中的输出随之重排。增删候选会改变交互和归一化，因此已有候选的分数也可能变化。候选数量可变，评分函数和参数共用。
+<p align="center">
+  <img src="assets/evaluation.svg" alt="七组评测的Qev与Kev成组柱状图，柱顶为准确率，横轴标明题量。" width="100%">
+</p>
 
-代码保留完整因果参考路径、前缀缓存推理和带 DeltaNet 分支状态的树形执行。正式模型主干使用BF16；导出的LoRA、集合头与交互gate张量为FP32，集合头和末层交互的关键归约也保持FP32。
+Qev-9B 在 JevBench 公开 231 题上答对 **188 题（81.39%）**，固定版本 Kev-9B 为 175 题（75.76%）。这是公开题准确率，不是 JevBench 官方综合分数。加粗只比较 Qev 与 Kev；Jev 与 Qwen 底座作为参考列在下表。
 
-[详细架构公式](docs/architecture.md) · [交互式中文图解](docs/decision-head.html#set-head)
-
-## 评测结果
-
-准确率%，模型版本、题目范围与推理设置固定；clean子集对应Kev README采用的口径。**加粗只比较 Qev 与 Kev，标出两者中较高的成绩；Jev 仅作参考。**
-
-**精度对比：Kev-9B 使用 FP32，Qev-9B 的主干计算使用 BF16。** Qev 的决策头和关键归约仍使用 FP32，导出的 LoRA 张量也保存为 FP32；下表是在不同精度设置下得到的结果。
+<details>
+<summary><strong>查看完整对比表与评测口径</strong></summary>
 
 | 评测 | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Jev（参考） |
 |---|---:|---:|---:|---:|
@@ -98,38 +173,18 @@ print(answers["priority"]["score"])   # 从0开始的等级期望
 | WANLI · 256题 | **72.66** | 70.31 | 67.97 | 75.78 |
 | JevBench公开题 · 231题 | **81.39** | 75.76 | 75.76 | 85.71 |
 
-<img src="assets/jevbench.svg" alt="Qev-9B（BF16主干）188/231，Kev-9B（FP32）175/231；Jev仅作参考" width="100%">
+准确率%，clean 子集与 Kev README 口径一致。Kev 在 MMLU-Pro 中未作答的 8 题计错；SemIf 只统计 144 道手写题。JevBench 由本项目运行，Jev 通过官方 API 调用；其他评测中 Kev 和 Jev 的数字来自固定版本的作者报告。
 
-JevBench由我们运行，Jev通过官方服务调用；其余评测中Kev和Jev的数字来自固定版本的作者报告。Kev使用FP32，Qev和底座为BF16；Kev在MMLU-Pro中未作答的8题计错。这里是公开题的argmax准确率，不是JevBench官方综合榜单分数。
+Qev 正式检查点是单 seed，数据、rank 与配方也不同，以上结果不能单独归因于架构。现有单 seed 消融未证明候选交互或集合头 attention 带来明确收益；scienthoon 上 Qev 低于 Kev。
 
-Qev正式检查点只有一个seed。数据、LoRA rank和训练配方同时变化，不能把整体差距单独归因于架构。当前单seed消融中，关闭末层候选交互和集合头attention也得到相近准确率；scienthoon上Qev低于Kev。[完整结果、消融与限制](docs/evaluation.md)
+</details>
 
-## 使用自己的数据训练
+[完整结果、消融与评测设置](docs/evaluation.md) · [机器可读指标](results/benchmarks.json) · [231 题原始预测](results/qev-9b/jevbench-predictions.jsonl)
 
-在上述请求格式的每个问题上增加 `label`：Choice填候选ID，Noul填布尔值，Score填从0开始的等级编号。相关或改写样本共用 `group_id`。
+## 文档与贡献
 
-```bash
-python -m qev.prepare \
-  --input examples/train.jsonl --validation examples/dev.jsonl \
-  --out data/support
+[架构](docs/architecture.md) · [训练](docs/training.md) · [检查点](docs/checkpoints.md) · [数据与输出](docs/data.md) · [评测](docs/evaluation.md) · [贡献指南](CONTRIBUTING.md)
 
-python -m qev.train \
-  --config configs/qev-9b-finetune.json \
-  --data data/support --out runs/support \
-  --init-checkpoint checkpoints/qev-9b
-```
+运行 `python -m pytest -q` 和 `python scripts/check_release.py` 检查代码与文档；实际验证范围和 GPU 跳过项见[验证记录](docs/validation.md)。
 
-示例数据只用于说明格式，数量不足以评价效果。`--init-checkpoint`加载LoRA与决策头，重新开始优化器和调度；`--resume`恢复同一次训练及其原数据校验。省略初始化参数则从Qwen底座开始。
-
-[正式配置](configs/qev-9b.json)使用四卡、全局batch 32、两轮训练、rank 64、seed 17和收尾数据分区，需要研究数据的对应分区。完整研究训练集未随代码打包。[训练说明](docs/training.md) · [数据构成](docs/data.md)
-
-## 验证与贡献
-
-```bash
-python -m pytest -q
-python scripts/check_release.py
-```
-
-测试覆盖候选换序、问题隔离、参考／缓存／树形路径、梯度、训练／恢复、可移植检查点与数据隔离。FSDP测试需要两张CUDA GPU，CPU运行会跳过；本次实际验证范围见[验证记录](docs/validation.md)。
-
-Qev基于Qwen，并参考[Jared Palmer的Kev](https://github.com/jaredpalmer/kev)实现中的标记约定、文本渲染、LoRA目标和缓存分叉方式。代码按[Apache-2.0](LICENSE)发布，来源与署名见[NOTICE](NOTICE)和[provenance.json](provenance.json)。权重与数据保留各自适用的条款。[贡献指南](CONTRIBUTING.md) · [模型卡](docs/model-card.md)
+Qev 基于 Qwen，并参考 [Jared Palmer 的 Kev](https://github.com/jaredpalmer/kev) 中的标记约定、文本渲染、LoRA 目标和缓存分叉方式。代码采用 [Apache-2.0](LICENSE)，来源与署名见 [NOTICE](NOTICE) 和 [provenance.json](provenance.json)。权重与数据保留各自适用的条款。

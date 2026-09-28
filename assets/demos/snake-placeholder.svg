@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="405" viewBox="0 0 720 405" role="img" aria-labelledby="title desc">
+<title id="title">Qev · Snake · Recording coming soon</title><desc id="desc">An empty video slot, reserved for a future real Qev gameplay recording. This is not a screenshot of a completed run.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#202a40"/><stop offset="1" stop-color="#111b2e"/></linearGradient><linearGradient id="light"><stop stop-color="#8c70db" stop-opacity=".18"/><stop offset="1" stop-color="#8c70db" stop-opacity=".02"/></linearGradient></defs>
+<rect x="1" y="1" width="718" height="403" rx="24" fill="url(#bg)" stroke="#384560"/>
+<rect x="28" y="28" width="664" height="349" rx="17" fill="url(#light)" stroke="#52617d" stroke-opacity=".25"/>
+<g font-family="Inter,Segoe UI,Arial,sans-serif"><text x="48" y="74" fill="#b8a6ed" font-size="29" font-weight="800" letter-spacing="-1">Qev</text>
+<text x="667" y="69" fill="#7e8da7" font-size="12" font-weight="600" text-anchor="end" letter-spacing="2">DEMO SLOT</text>
+<circle cx="360" cy="178" r="49" fill="#d7ddf2" fill-opacity=".045" stroke="#ccd5ef" stroke-opacity=".18"/><path d="M350 157L378 178L350 199Z" fill="#8c70db"/>
+<text x="360" y="285" fill="#e4e9f4" font-size="32" font-weight="600" text-anchor="middle">Snake</text>
+<text x="360" y="326" fill="#91a0b9" font-size="16" text-anchor="middle" font-family="Noto Sans CJK SC,Segoe UI,Arial,sans-serif">录屏待补充 · Recording coming soon</text></g></svg>
