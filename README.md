@@ -6,7 +6,7 @@
 
 Qev scores the choices you give it. Supply a shared context, questions, and candidate answers; get a probability distribution for each question. The same model handles categorical choices, yes/no judgments, and ordered ratings.
 
-**Qev-9B** fine-tunes **Qwen3.5-9B-Base** with rank-64 LoRA, candidate-specific readouts, and a 256-dimensional decision head. On the 231 public JevBench questions, the selected checkpoint answers **188 correctly (81.39%)**, compared with **175 (75.76%)** for the pinned Kev-9B baseline and **198 (85.71%)** for Jev. [Protocol and provenance →](docs/evaluation.md)
+**Qev-9B** fine-tunes **Qwen3.5-9B-Base** with rank-64 LoRA, candidate-specific readouts, and a 256-dimensional decision head. On the 231 public JevBench questions, the selected checkpoint answers **188 correctly (81.39%)**, compared with 175 (75.76%) for the pinned Kev-9B baseline; Jev scores 198 (85.71%) as a hosted reference. [Protocol and provenance →](docs/evaluation.md)
 
 This repository contains the model, training and evaluation code, portable checkpoint tools, tests, and reproducible examples. Qev was called **BranchKev** during research; its existing record and checkpoint formats remain readable. A public model-hosting URL has not been assigned yet. The selected checkpoint can be exported locally using the instructions below; the full research training corpus is not bundled.
 
@@ -76,7 +76,9 @@ Each answer includes `prediction` and `probabilities`. Choice adds `choice`, Nou
 
 ## How it works
 
-<img src="assets/architecture.svg" alt="Shared state and question prefixes branch into candidate readouts, followed by a set decision head and a shared scalar scorer." width="100%">
+<img src="assets/architecture.svg" alt="A message is compared with Billing, Shipping, and Account answer options. Numeric summaries of the options are compared and scored." width="100%">
+
+In the diagram, **options** are the possible answers: Billing, Shipping, and Account. `e₁`, `e₂`, and `e₃` are their context-aware numeric summaries; `h_q` summarizes the message and question. A vector is a list of numbers that encodes meaning.
 
 A request forms a tree: **state → question → candidate**. Each candidate has its own causal branch and terminal readout marker. Question readouts summarize the state and question; candidate readouts summarize the corresponding branch. The final Qwen attention layer can also let a candidate readout attend to sibling candidates through a learned gate.
 
@@ -95,19 +97,21 @@ Qev includes a full-path reference implementation, prefix-cache inference, and t
 
 ## Evaluation
 
-Accuracy (%), using the pinned models and protocols described in [evaluation.md](docs/evaluation.md). **Clean** rows match the clean-subset reporting convention in Kev's README.
+Accuracy (%), using the pinned models and protocols described in [evaluation.md](docs/evaluation.md). **Clean** rows match the clean-subset reporting convention in Kev's README. Bold scores identify the higher result **between Qev and Kev**; Jev is shown as a reference.
 
-| Benchmark | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Jev |
+**Precision: Kev-9B uses FP32; Qev-9B uses BF16 backbone computation.** Qev keeps its decision head and key reductions in FP32; exported LoRA tensors are also stored in FP32. The reported scores therefore compare different precision settings.
+
+| Benchmark | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Jev (reference) |
 |---|---:|---:|---:|---:|
 | Decision development · clean | **87.42** | 87.18 | 77.69 | 84.49 |
-| Transfer development · clean | 83.99 | 82.16 | 74.39 | **85.67** |
-| MMLU-Pro · 1,000 | 54.60 | 51.10 | 50.40 | **83.50** |
-| SemIf · 144 handwritten | 93.75 | 90.97 | 90.28 | **96.53** |
+| Transfer development · clean | **83.99** | 82.16 | 74.39 | 85.67 |
+| MMLU-Pro · 1,000 | **54.60** | 51.10 | 50.40 | 83.50 |
+| SemIf · 144 handwritten | **93.75** | 90.97 | 90.28 | 96.53 |
 | scienthoon · 873 | 72.28 | **75.49** | 68.84 | 75.26 |
-| WANLI · 256 | 72.66 | 70.31 | 67.97 | **75.78** |
-| JevBench public · 231 | 81.39 | 75.76 | 75.76 | **85.71** |
+| WANLI · 256 | **72.66** | 70.31 | 67.97 | 75.78 |
+| JevBench public · 231 | **81.39** | 75.76 | 75.76 | 85.71 |
 
-<img src="assets/jevbench.svg" alt="Public JevBench accuracy: Jev 198/231, Qev-9B 188/231, Kev-9B and Qwen base 175/231." width="100%">
+<img src="assets/jevbench.svg" alt="Qev-9B with BF16 backbone: 188/231; Kev-9B with FP32: 175/231. Jev is a reference at 198/231; Qwen base scores 175/231." width="100%">
 
 JevBench was run locally for all four models, with Jev accessed through its hosted API. Kev and Jev numbers on the other suites come from the pinned Kev author's reports. Kev uses FP32; Qev and the base baseline use BF16. Kev's eight unanswered MMLU-Pro questions count as incorrect. This is **public-set argmax accuracy**, not the official JevBench composite score.
 

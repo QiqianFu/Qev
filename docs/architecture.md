@@ -4,6 +4,8 @@ Qev-9B fine-tunes Qwen3.5-9B-Base into a model that scores explicit candidates. 
 
 ![Architecture](../assets/architecture.svg)
 
+In the diagram, a **candidate** is an answer option, such as Billing, Shipping, or Account. `e₁`–`e₃` are the model's context-aware summaries of those options, represented as lists of numbers (vectors). `h_q` is the corresponding message-and-question summary.
+
 ## 1. Context becomes a candidate tree
 
 A record contains a state and one or more questions. Each question has instructions and candidates. The encoder uses reserved Qwen delimiters and a terminal readout marker:

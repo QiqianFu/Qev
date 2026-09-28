@@ -17,30 +17,32 @@ The pinned Kev reports include `night2-9b-du`, `r4-kev-9b-*-raw`, and `kev-9b-ek
 
 ## Full accuracy table
 
-Percent accuracy. The selected Qev model is a single seed.
+Percent accuracy. The selected Qev model is a single seed. Bold scores mark the higher result between Qev and Kev; ties are unbolded. Jev is a hosted reference.
 
-| Scope | Qev-9B | Kev-9B | Qwen base | Jev |
+**Precision comparison: Kev-9B uses FP32; Qev-9B uses BF16 backbone computation.** Qev retains FP32 for its decision head and key reductions; its exported LoRA tensors are stored in FP32. These are not identical precision settings.
+
+| Scope | Qev-9B | Kev-9B | Qwen base | Jev (reference) |
 |---|---:|---:|---:|---:|
-| decision_dev all · 1468 | 88.28 | 87.81 | 75.75 | 83.17 |
-| decision_dev clean · 1264 | 87.42 | 87.18 | 77.69 | 84.49 |
-| transfer_dev all · 764 | 82.46 | 81.15 | 73.43 | 84.69 |
-| transfer_dev clean · 656 | 83.99 | 82.16 | 74.39 | 85.67 |
-| MMLU-Pro · 1000 | 54.60 | 51.10 | 50.40 | 83.50 |
-| SemIf handwritten · 144 | 93.75 | 90.97 | 90.28 | 96.53 |
-| scienthoon · 873 | 72.28 | 75.49 | 68.84 | 75.26 |
-| WANLI · 256 | 72.66 | 70.31 | 67.97 | 75.78 |
-| JevBench public · 231 | 81.39 | 75.76 | 75.76 | 85.71 |
+| decision_dev all · 1468 | **88.28** | 87.81 | 75.75 | 83.17 |
+| decision_dev clean · 1264 | **87.42** | 87.18 | 77.69 | 84.49 |
+| transfer_dev all · 764 | **82.46** | 81.15 | 73.43 | 84.69 |
+| transfer_dev clean · 656 | **83.99** | 82.16 | 74.39 | 85.67 |
+| MMLU-Pro · 1000 | **54.60** | 51.10 | 50.40 | 83.50 |
+| SemIf handwritten · 144 | **93.75** | 90.97 | 90.28 | 96.53 |
+| scienthoon · 873 | 72.28 | **75.49** | 68.84 | 75.26 |
+| WANLI · 256 | **72.66** | 70.31 | 67.97 | 75.78 |
+| JevBench public · 231 | **81.39** | 75.76 | 75.76 | 85.71 |
 
 The all-question dev rows include clean examples and candidate-permutation / None-present / None-absent variants. Clean rows match the clean reporting convention in Kev's README. Kev's MMLU-Pro author report answered 992 items: 511 correct out of all 1000 gives 51.10%; the eight unanswered items count as wrong. SemIf uses 144 handwritten questions. Qev's broader 252-question research run also included 108 perturbations; its 95.63% overall score is not the 144-question comparison above.
 
 ## Public JevBench breakdown
 
-| Subset | Questions | Qev-9B correct | Kev-9B correct | Qwen base correct | Jev correct |
+| Subset | Questions | Qev-9B correct | Kev-9B correct | Qwen base correct | Jev correct (reference) |
 |---|---:|---:|---:|---:|---:|
 | original | 72 | 65 | 65 | 59 | 71 |
 | easy | 48 | 48 | 48 | 48 | 48 |
-| hard | 111 | 75 | 62 | 68 | 79 |
-| all | 231 | 188 | 175 | 175 | 198 |
+| hard | 111 | **75** | 62 | 68 | 79 |
+| all | 231 | **188** | 175 | 175 | 198 |
 
 This is local argmax accuracy on the public v1.4.2 tasks. It is not the official composite score, which includes other dimensions and nonpublic tasks. The public benchmark was observed during research iteration, so these results are not an untouched final blind test.
 
