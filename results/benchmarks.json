@@ -1,0 +1,259 @@
+{
+  "date": "2026-09-28",
+  "metric": "argmax_accuracy",
+  "models": {
+    "jev": {
+      "description": "Hosted service; JevBench tested locally at Jev 1.13.0, other suites from Kev authors"
+    },
+    "kev_9b": {
+      "revision": "2629c06a",
+      "code_revision": "557598fced1dada75dfbf36ed144dce309ac6ceb",
+      "dtype": "fp32",
+      "temperature": 1.0,
+      "source": "JevBench locally rerun; other suites from author reports"
+    },
+    "qev_9b": {
+      "base": "Qwen/Qwen3.5-9B-Base",
+      "base_revision": "68c46c4b3498877f3ef123c856ecfde50c39f404",
+      "research_name": "BranchKev",
+      "run": "c21-science-wk-late1783-9b-4gpu-r64-late50x3-s17",
+      "step": 2327,
+      "dtype": "bf16",
+      "execution": "reference",
+      "seed": 17,
+      "temperature": 1.0
+    },
+    "qwen35_9b_base": {
+      "description": "Frozen native LM head; zero-shot candidate code probabilities",
+      "dtype": "bf16"
+    }
+  },
+  "results": {
+    "decision_dev_all": {
+      "total": 1468,
+      "models": {
+        "jev": {
+          "correct": 1221,
+          "accuracy": 0.8317438692098093
+        },
+        "kev_9b": {
+          "correct": 1289,
+          "accuracy": 0.8780653950953679
+        },
+        "qev_9b": {
+          "correct": 1296,
+          "accuracy": 0.8828337874659401
+        },
+        "qwen35_9b_base": {
+          "correct": 1112,
+          "accuracy": 0.7574931880108992
+        }
+      }
+    },
+    "decision_dev_clean": {
+      "total": 1264,
+      "models": {
+        "jev": {
+          "correct": 1068,
+          "accuracy": 0.8449367088607594
+        },
+        "kev_9b": {
+          "correct": 1102,
+          "accuracy": 0.8718354430379747
+        },
+        "qev_9b": {
+          "correct": 1105,
+          "accuracy": 0.8742088607594937
+        },
+        "qwen35_9b_base": {
+          "correct": 982,
+          "accuracy": 0.7768987341772152
+        }
+      }
+    },
+    "transfer_dev_all": {
+      "total": 764,
+      "models": {
+        "jev": {
+          "correct": 647,
+          "accuracy": 0.8468586387434555
+        },
+        "kev_9b": {
+          "correct": 620,
+          "accuracy": 0.8115183246073299
+        },
+        "qev_9b": {
+          "correct": 630,
+          "accuracy": 0.824607329842932
+        },
+        "qwen35_9b_base": {
+          "correct": 561,
+          "accuracy": 0.7342931937172775
+        }
+      }
+    },
+    "transfer_dev_clean": {
+      "total": 656,
+      "models": {
+        "jev": {
+          "correct": 562,
+          "accuracy": 0.8567073170731707
+        },
+        "kev_9b": {
+          "correct": 539,
+          "accuracy": 0.8216463414634146
+        },
+        "qev_9b": {
+          "correct": 551,
+          "accuracy": 0.8399390243902439
+        },
+        "qwen35_9b_base": {
+          "correct": 488,
+          "accuracy": 0.7439024390243902
+        }
+      }
+    },
+    "mmlupro": {
+      "total": 1000,
+      "models": {
+        "jev": {
+          "correct": 835,
+          "accuracy": 0.835
+        },
+        "kev_9b": {
+          "correct": 511,
+          "accuracy": 0.511
+        },
+        "qev_9b": {
+          "correct": 546,
+          "accuracy": 0.546
+        },
+        "qwen35_9b_base": {
+          "correct": 504,
+          "accuracy": 0.504
+        }
+      }
+    },
+    "semif_handwritten": {
+      "total": 144,
+      "models": {
+        "jev": {
+          "correct": 139,
+          "accuracy": 0.9652777777777778
+        },
+        "kev_9b": {
+          "correct": 131,
+          "accuracy": 0.9097222222222222
+        },
+        "qev_9b": {
+          "correct": 135,
+          "accuracy": 0.9375
+        },
+        "qwen35_9b_base": {
+          "correct": 130,
+          "accuracy": 0.9027777777777778
+        }
+      }
+    },
+    "scienthoon": {
+      "total": 873,
+      "models": {
+        "jev": {
+          "correct": 657,
+          "accuracy": 0.7525773195876289
+        },
+        "kev_9b": {
+          "correct": 659,
+          "accuracy": 0.7548682703321878
+        },
+        "qev_9b": {
+          "correct": 631,
+          "accuracy": 0.722794959908362
+        },
+        "qwen35_9b_base": {
+          "correct": 601,
+          "accuracy": 0.6884306987399771
+        }
+      }
+    },
+    "wanli": {
+      "total": 256,
+      "models": {
+        "jev": {
+          "correct": 194,
+          "accuracy": 0.7578125
+        },
+        "kev_9b": {
+          "correct": 180,
+          "accuracy": 0.703125
+        },
+        "qev_9b": {
+          "correct": 186,
+          "accuracy": 0.7265625
+        },
+        "qwen35_9b_base": {
+          "correct": 174,
+          "accuracy": 0.6796875
+        }
+      }
+    },
+    "jevbench_public": {
+      "total": 231,
+      "models": {
+        "jev": {
+          "correct": 198,
+          "accuracy": 0.8571428571428571
+        },
+        "kev_9b": {
+          "correct": 175,
+          "accuracy": 0.7575757575757576
+        },
+        "qev_9b": {
+          "correct": 188,
+          "accuracy": 0.8138528138528138
+        },
+        "qwen35_9b_base": {
+          "correct": 175,
+          "accuracy": 0.7575757575757576
+        }
+      }
+    }
+  },
+  "jevbench_subsets": {
+    "original": {
+      "total": 72,
+      "correct": {
+        "jev": 71,
+        "kev_9b": 65,
+        "qev_9b": 65,
+        "qwen35_9b_base": 59
+      }
+    },
+    "easy": {
+      "total": 48,
+      "correct": {
+        "jev": 48,
+        "kev_9b": 48,
+        "qev_9b": 48,
+        "qwen35_9b_base": 48
+      }
+    },
+    "hard": {
+      "total": 111,
+      "correct": {
+        "jev": 79,
+        "kev_9b": 62,
+        "qev_9b": 75,
+        "qwen35_9b_base": 68
+      }
+    }
+  },
+  "notes": [
+    "Public JevBench accuracy is not the official composite score.",
+    "MMLU-Pro: Kev answered 992/1000; its 8 unanswered items count as wrong.",
+    "SemIf: the 144 handwritten questions, excluding the 108 perturbations.",
+    "Cross-model precisions and execution implementations differ.",
+    "The Qev release is one seed, and these comparisons do not isolate architecture gains."
+  ],
+  "research_report_sha256": "6f094e2e35217089b1ef9365525d3ddbfa46d1354e2faff4b4a25e1bbcfa63d9"
+}

@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light">
+<title>Qev 决策头技术详解 · Attention Maps / Parallel Execution / Typed Decisions</title>
+<style>
+:root{--bg:#f6f7fa;--paper:#fff;--ink:#182532;--sub:#576779;--line:#dce3ea;--green:#176d55;--g-bg:#def0e8;--orange:#ba632d;--o-bg:#fce5cf;--blue:#316c9b;--b-bg:#e2effa;--purple:#6f5394;--p-bg:#eee6f7;--mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;--sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","Microsoft YaHei",sans-serif}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:82px}body{margin:0;font:14px/1.9 var(--sans);color:var(--ink);background:var(--bg)}a{color:var(--blue);text-underline-offset:3px}button,input,select{font:inherit}button,select,summary{cursor:pointer}button:focus-visible,input:focus-visible,a:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #bd8c25;outline-offset:3px}h1,h2,h3,h4{line-height:1.4;margin:0;font-weight:650}h1{font-size:36px;letter-spacing:-1px}h2{font-size:25px;letter-spacing:-.5px}h3{font-size:18px;margin:25px 0 12px}h4{font-size:14px;margin:14px 0 8px}p{margin:0 0 13px}code{font:.89em/1.8 var(--mono);overflow-wrap:anywhere}pre{margin:0;white-space:pre;overflow:auto;font:12px/1.75 var(--mono);tab-size:4}strong{font-weight:650}table{border-collapse:collapse}th{text-align:left;font-weight:550}td,th{vertical-align:top}button{border:1px solid var(--line);background:#fff;border-radius:5px;padding:7px 13px;color:var(--ink);font-size:12px}button:hover{border-color:#97b6ae;background:#f4f9f6}button.active{border-color:var(--green);background:var(--green);color:white}.top{position:sticky;top:0;z-index:30;background:rgba(246,247,250,.97);border-bottom:1px solid var(--line)}.top-inner{max-width:1560px;margin:auto;padding:15px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{font:600 17px var(--mono);color:var(--ink);text-decoration:none}.brand span{color:var(--green)}.top-caption{font-size:11px;color:var(--sub)}.layout{display:grid;grid-template-columns:185px minmax(0,1fr);gap:36px;max-width:1500px;margin:auto;padding:35px 32px 0}.toc{position:sticky;top:100px;align-self:start;font-size:12px}.toc-title{font:10px var(--mono);color:var(--sub);letter-spacing:1.4px;margin:8px 0 17px}.toc a{display:block;color:var(--sub);text-decoration:none;border-left:2px solid var(--line);padding:8px 0 8px 13px;line-height:1.7}.toc a:hover{color:var(--green);border-color:var(--green);background:#eff5f0}.toc small{display:block;font:10px/1.8 var(--mono);color:#88949f;margin-top:22px}.main{min-width:0}.hero{padding:8px 0 30px}.eyebrow{font:11px var(--mono);letter-spacing:1.5px;color:var(--green);margin-bottom:15px}.lead{font-size:16px;line-height:1.95;color:var(--sub);margin:17px 0 18px;max-width:1010px}.meta{display:flex;gap:9px;flex-wrap:wrap}.pill{display:inline-block;padding:3px 9px;border:1px solid var(--line);background:white;border-radius:4px;font:11px/1.6 var(--mono);color:var(--sub)}.notice{border-left:3px solid var(--blue);background:var(--b-bg);padding:14px 17px;font-size:13px;margin:20px 0}.notice.green{border-color:var(--green);background:#eaf4ed}.notice.orange{border-color:var(--orange);background:#fff3e8}.notice p:last-child{margin:0}.section{margin:0 0 42px;scroll-margin-top:90px}.section-heading{display:flex;gap:13px;align-items:baseline;margin-bottom:13px}.section-number{font:12px var(--mono);color:var(--green)}.sublead{font-size:13px;color:var(--sub);margin-bottom:19px}.panel{background:white;border:1px solid var(--line);border-radius:9px;overflow:hidden}.pad{padding:23px}.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.label{font:10px var(--mono);letter-spacing:1px;color:var(--sub);margin-bottom:10px}.equation{font:13px/2 var(--mono);overflow:auto;white-space:pre;padding:16px 19px;background:#f0f5f4;border:1px solid #d8e6de;border-radius:6px;margin:14px 0;color:#205646}.eq-orange{background:#fff4e9;border-color:#f0d8c1;color:#824722}.small{font-size:12px;color:var(--sub)}.tiny{font-size:11px;color:var(--sub)}.nowrap{white-space:nowrap}.ref{font-size:11px;color:var(--sub);margin-top:13px}.ref a{font-family:var(--mono)}.data-table{width:100%;font-size:12px}.data-table td,.data-table th{padding:10px 12px;border:1px solid var(--line);line-height:1.8}.data-table th{background:#f2f5f7;color:var(--sub)}.data-table code{font-size:11px}.scroll{overflow-x:auto;max-width:100%}.data-table .good{background:var(--g-bg);color:var(--green)}.data-table .cross-color{background:var(--o-bg);color:var(--orange)}.data-table .blocked{background:#f4f6f8;color:#95a1ad}.data-table .diag{background:var(--b-bg);color:var(--blue)}.block-matrix td,.block-matrix th{text-align:center;white-space:nowrap}.block-matrix td{font-family:var(--mono)}.mini-card{padding:17px;border:1px solid var(--line);border-radius:6px;background:#fff}.mini-card h4{margin:0 0 10px}.mini-card p{font-size:12px;color:var(--sub);margin-bottom:0}.mini-card code{font-size:11px}.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:18px 0}.flow span{padding:7px 11px;border:1px solid #bcd4c9;background:#eef6f1;border-radius:5px;font:11px/1.7 var(--mono)}.flow b{color:#8b9e95;font-weight:400}.inline-code{padding:12px 15px;background:#edf1f6;border-radius:5px;margin:12px 0;font:12px/1.8 var(--mono);overflow-x:auto;white-space:pre}.code-panel{margin:20px 0;border:1px solid var(--line);border-radius:7px;background:#fff;overflow:hidden}.code-panel summary{font-size:12px;padding:13px 16px;line-height:1.7;background:#f0f3f7}.code-panel summary strong{font-family:var(--mono);font-weight:600}.code-panel summary small{font-size:10px;color:var(--sub);margin-left:9px}.code-body{background:#172735;color:#e0edf3;padding:15px 0;overflow:auto}.code-line{display:block;white-space:pre;min-width:max-content;padding-right:20px}.line-no{display:inline-block;text-align:right;width:51px;color:#78909e;user-select:none;margin-right:18px;border-right:1px solid #354753;padding-right:13px}.code-caption{padding:10px 16px;font:10px/1.7 var(--mono);color:var(--sub);overflow-wrap:anywhere}.controls{padding:18px 20px;border-bottom:1px solid var(--line)}.stage-tabs{display:flex;gap:7px;flex-wrap:wrap}.secondary-controls{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:15px;font-size:12px}.secondary-controls label{display:flex;align-items:center;gap:7px}.secondary-controls select{padding:3px 7px;border:1px solid var(--line);border-radius:4px;background:#fff;max-width:200px}.secondary-controls input{accent-color:var(--green)}.matrix-grid{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:0}.matrix-area{padding:20px 15px;overflow-x:auto}.matrix-side{border-left:1px solid var(--line);background:#f8fafb;padding:21px 19px;min-width:0}.matrix-side h3{font-size:16px;margin:0 0 11px}.matrix-side p{font-size:12px;line-height:1.9}.matrix-stat{font:12px/1.9 var(--mono);color:var(--blue);border-top:1px solid var(--line);padding-top:11px;margin-top:13px}.cell-inspector{padding:13px;background:white;border:1px solid var(--line);border-radius:6px;font-size:11px;min-height:156px;margin-top:15px}.cell-inspector strong{display:block;color:var(--green);margin-bottom:6px}.cell-inspector code{font-size:10px}.matrix-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:13px 20px;border-top:1px solid var(--line);font-size:11px;color:var(--sub)}.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:var(--sub)}.legend i{display:inline-block;width:10px;height:10px;vertical-align:-1px;margin-right:5px;border:1px solid rgba(0,0,0,.08)}.legend .own{background:var(--g-bg)}.legend .cross{background:var(--o-bg)}.legend .negative{background:var(--p-bg)}.legend .no{background:#edf1f5}.matrix{border-collapse:separate;border-spacing:2px;margin:0 auto;font:10px/1.4 var(--mono)}.matrix th{padding:0;text-align:center;vertical-align:middle;font-weight:400}.matrix th.rowhead{min-width:75px;text-align:right;padding-right:7px;white-space:nowrap}.matrix .axis{font:10px var(--sans);color:var(--sub);padding:0 0 7px}.matrix .grouphead{font:10px/1.9 var(--mono);background:#e8eef2;color:#546578}.matrix .tokenhead{height:61px;vertical-align:bottom}.matrix .tokenhead span{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;font-size:9px;margin:auto;line-height:1.3}.matrix .poshead{font-size:9px;color:#718398;height:17px}.matrix td{min-width:25px;width:25px;height:25px;padding:0;border:1px solid #e5ebf0;background:#f0f3f6;text-align:center;vertical-align:middle;cursor:crosshair;font-size:9px;color:#778796}.matrix td.allow-own{background:var(--g-bg);border-color:#c1dece;color:var(--green)}.matrix td.allow-cross{background:var(--o-bg);border-color:#ebc2a1;color:var(--orange)}.matrix td.allow-negative{background:var(--p-bg);border-color:#d4bfe5;color:var(--purple)}.matrix td.cross-zero{background:repeating-linear-gradient(135deg,#fff4e9,#fff4e9 3px,#eadfce 3px,#eadfce 4px);color:#a2917c}.matrix td:hover,.matrix td:focus{outline:2px solid #183d59;outline-offset:-2px}.matrix tr.muted-row{opacity:.32}.matrix tr.selected-row th{font-weight:700;color:var(--ink)}.matrix .block-start{border-left:2px solid #8194a2}.matrix tr.boundary-row td{border-top:2px solid #8194a2}.matrix.set-map td{width:44px;min-width:44px;height:39px}.matrix.set-map .tokenhead{height:32px}.matrix.set-map .tokenhead span{writing-mode:horizontal-tb;transform:none}.matrix-caption{font-size:11px;color:var(--sub);margin:13px 0 0;text-align:center}.gate-control{display:flex;align-items:center;gap:9px;margin:13px 0;font-size:11px}.gate-control input{width:100%;min-width:60px;accent-color:var(--orange)}.gate-control output{font:11px var(--mono);min-width:57px}.layer-strip{display:grid;grid-template-columns:repeat(32,minmax(17px,1fr));gap:3px;min-width:700px;padding:10px 0}.layer-cell{background:#e8eff5;text-align:center;border:1px solid #d5e1ec;border-radius:3px;font:9px/1.8 var(--mono);padding:4px 0;color:var(--blue)}.layer-cell.full{background:var(--g-bg);border-color:#c3decc;color:var(--green)}.layer-cell.joint{background:var(--o-bg);border-color:#eec5a2;color:var(--orange)}.timeline{width:100%;min-width:680px;font-size:12px}.timeline th,.timeline td{border:1px solid var(--line);padding:12px;vertical-align:middle}.timeline th{font:11px var(--mono);background:#f2f5f7}.timeline .lane{font:11px var(--mono);width:115px}.task{display:block;text-align:center;padding:10px;background:var(--g-bg);border:1px solid #bfdacb;border-radius:5px;font:11px/1.8 var(--mono)}.task.blue{background:var(--b-bg);border-color:#bed3e5;color:var(--blue)}.task.orange{background:var(--o-bg);border-color:#e9c3a1;color:var(--orange)}.task.empty{background:none;border-style:dashed;color:#8b99a6}.stack{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.token-strip{display:flex;gap:2px;margin:8px 0;min-width:620px}.token-strip .segment{padding:9px 5px;text-align:center;font:11px/1.7 var(--mono);border:1px solid #bed3e5;background:var(--b-bg)}.token-strip .segment.candidate{background:var(--g-bg);border-color:#bedbc9}.token-strip .segment.q{background:var(--p-bg);border-color:#d6c5e2}.token-strip .segment small{display:block;font-size:9px;color:var(--sub)}.type-tabs{display:flex;gap:7px;margin-bottom:18px}.type-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.type-detail-grid pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f5f7;border-radius:6px;padding:15px;font-size:11px}.type-readout{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}.type-output{font:11px/1.9 var(--mono);overflow-wrap:anywhere}.bullet-list{padding-left:20px;margin:12px 0}.bullet-list li{margin:8px 0}.question-sets{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.question-set{border:1px solid var(--line);padding:16px;border-radius:6px;background:white}.question-set strong{font:12px var(--mono)}.question-set p{font-size:11px;color:var(--sub);margin:8px 0}.footer{border-top:1px solid var(--line);padding:20px 0 30px;font-size:11px;color:var(--sub)}.sources-list{display:grid;grid-template-columns:1fr 1fr;gap:15px}.sources-list a{font:11px var(--mono)}.sources-list p{font-size:11px;color:var(--sub);margin:3px 0}.screen-reader{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@media(min-width:1550px){.matrix td{min-width:29px;width:29px;height:29px}.matrix-grid{grid-template-columns:minmax(0,1fr) 310px}}
+@media(max-width:1200px){.layout{grid-template-columns:145px minmax(0,1fr);gap:23px;padding-left:22px;padding-right:22px}.matrix-grid{grid-template-columns:1fr}.matrix-side{border-left:0;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:0 22px}.cell-inspector{grid-column:2;grid-row:1/span 4;margin-top:0;min-height:130px}.matrix-stat{grid-column:1}.matrix-side .gate-control{grid-column:1}.three{grid-template-columns:1fr}.matrix td{min-width:27px;width:27px;height:27px}}
+@media(max-width:850px){.layout{display:block;padding:23px 18px 0}.toc{position:static;display:flex;gap:5px;overflow-x:auto;margin-bottom:25px;padding-bottom:8px}.toc-title,.toc small{display:none}.toc a{white-space:nowrap;border:1px solid var(--line);border-radius:4px;padding:5px 9px;background:white;font-size:10px}.top-inner{padding:13px 18px}.top-caption{display:none}h1{font-size:28px}.two,.type-detail-grid,.type-readout{grid-template-columns:1fr}.question-sets{grid-template-columns:1fr}.lead{font-size:14px}.pad{padding:18px}.section{margin-bottom:32px}h2{font-size:22px}.matrix-side{display:block;padding:17px}.cell-inspector{margin-top:13px}.stage-tabs button{font-size:10px;padding:7px 9px}.controls{padding:15px}.secondary-controls{gap:10px}.secondary-controls label{font-size:11px}.matrix-area{padding:15px 8px}.sources-list{grid-template-columns:1fr}.data-table td,.data-table th{padding:8px}.equation{font-size:11px;padding:13px}.type-tabs button{padding:7px 10px}.code-line{font-size:10px}.line-no{width:38px;margin-right:11px;padding-right:8px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+@media print{@page{size:A4 landscape;margin:12mm}body{background:white;font-size:11px}.top,.toc,.controls,.gate-control,.type-tabs,.cell-inspector{display:none}.layout{display:block;padding:0;max-width:none}.hero{padding-top:0}h1{font-size:25px}h2{font-size:20px}.lead{font-size:12px}.matrix-grid{grid-template-columns:1fr 260px}.matrix-side{display:block;border-left:1px solid var(--line);border-top:0}.matrix-area{overflow:visible}.matrix td{min-width:23px;height:23px}.section{break-inside:auto;margin-bottom:25px}.panel,.two,.code-panel,.scroll{break-inside:avoid}.code-body{overflow:visible}.code-line{font-size:9px;white-space:pre-wrap;min-width:0}.scroll{overflow:visible}.two,.type-detail-grid,.type-readout{grid-template-columns:1fr 1fr}.sources-list{grid-template-columns:1fr 1fr}details:not([open]){display:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@media(min-width:1201px){.matrix td{min-width:31px;width:31px;height:31px}.matrix .tokenhead span{font-size:10px}.matrix th.rowhead{font-size:11px}}
+.two>*,.three>*,.type-detail-grid>*,.type-readout>*{min-width:0}
+@media(max-width:850px){.top-inner .brand{font-size:13px}.top-inner>button{font-size:10px;padding:6px 9px;white-space:nowrap}.matrix-caption:after{content:" 小屏可横向滚动矩阵。"}}
+.reading-route{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.reading-route a{padding:7px 11px;border:1px solid #bbd4c8;border-radius:5px;background:#eef6f1;color:var(--green);font-size:12px;text-decoration:none}.readout-diagram{display:block;min-width:860px;width:100%;height:auto;background:#fafcfd;border:1px solid var(--line);border-radius:7px;margin:18px 0}.readout-diagram text{font-family:var(--sans);fill:var(--ink);font-size:13px}.readout-diagram .r-small{font-size:11px;fill:var(--sub)}.readout-diagram .r-mono{font-family:var(--mono);font-size:12px}.readout-diagram .r-title{font-size:15px;font-weight:600}.readout-walk{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}.readout-step{padding:16px;background:#f5f9f6;border:1px solid #d2e2d8;border-radius:6px}.readout-step strong{display:block;font-size:13px;margin:5px 0 9px}.readout-step p{font-size:12px;color:var(--sub);margin:0}.readout-step .step-number{font:11px var(--mono);color:var(--green)}#readout,#joint-walk{scroll-margin-top:95px}.token-marker{background:#e0efe7;color:var(--green);padding:2px 5px;border-radius:3px}.section-jump{font-size:12px;color:var(--sub)}
+@media(max-width:850px){.readout-walk{grid-template-columns:1fr 1fr}.readout-step{padding:12px}}
+@media(max-width:480px){.readout-walk{grid-template-columns:1fr}}
+@media print{.readout-diagram{min-width:0}.reading-route{display:none}.readout-walk{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-inner"><a class="brand" href="#top"><span>Qev</span> / Architecture Notes</a><span class="top-caption">Qev-9B · 计算过程与集合决策头</span><button id="print-button" type="button">打印 / 保存 PDF</button></div></header>
+<div class="layout">
+<nav class="toc" aria-label="章节目录"><div class="toc-title">TECHNICAL CONTENTS</div><a href="#maps">01 · Attention map</a><a href="#readout">02 · 为什么取末尾标记</a><a href="#parallel">03 · 并行计算与 DeltaNet</a><a href="#joint-walk">04 · 第 31 层完整路径</a><a href="#set-head">05 · 集合头张量计算</a><a href="#types">06 · Choice / Noul / Score</a><a href="#training">07 · Loss / 梯度 / 精度</a><a href="#cost">08 · 复杂度与边界</a><a href="#sources">09 · 源码与验证依据</a><small>HIDDEN = 4096<br>BACKBONE HEADS = 16<br>SET DIM = 256<br>SET HEADS = 4<br>SET LAYERS = 2</small></nav>
+<main class="main" id="top">
+<div class="hero"><div class="eyebrow">IMPLEMENTATION-LEVEL / ATTENTION & EXECUTION</div><h1>Candidate 1 / 2 / 3 到底怎样交互？</h1><p class="lead">从真实代码的 mask、物理 token 排列和 tensor shape 出发，拆开三种不同的关系：<strong>普通主干层的树形因果依赖</strong>、<strong>第 31 层读出 token 的双路注意力</strong>、<strong>集合头的双向 self-attention</strong>。再追到 choice、noul、score 的输入构造、共享打分与训练目标。</p><div class="meta"><span class="pill">candidate_interaction = last-full-attention</span><span class="pill">prefix_execution = tree-batched</span><span class="pill">SetDecisionHead(4096, 256, 4, 2)</span></div><div class="reading-route" aria-label="理解第 31 层的阅读顺序"><a href="#readout">① 为什么取末尾标记</a><a href="#joint-walk">② 两路 attention 加和以后</a><a href="#set-head">③ 向量如何变成候选分数</a></div><div class="notice"><strong>图的语义：</strong>下方画的是源码规定的 <strong>attention support / mask</strong>，表示哪些 query–key 对允许参与计算。绿色、橙色不代表训练后的注意力强弱；真实权重需要给定 checkpoint 与输入后采集 QKᵀ / softmax。本页没有加载权重。文中的小型 token 布局与概率是明确标注的教学例子。</div></div>
+
+<section class="section" id="maps"><div class="section-heading"><span class="section-number">01</span><h2>先看 token 级 attention map</h2></div><p class="sublead">行 = query，列 = key/value。示例：S 有 3 个 token，Q 有 2 个 token，C₁/C₂/C₃ 分别有 3/4/3 个 token，共 N=15；星号 * 表示输入中已有的专用标记：Q* 是 &lt;|fim_suffix|&gt;，Cᵢ* 是各候选的 &lt;|box_end|&gt;。点击格子查看“为什么可见 / 为什么隔离”。</p>
+<div class="panel">
+<div class="controls"><div class="stage-tabs" role="group" aria-label="Attention 阶段"><button class="active" data-stage="backbone" aria-pressed="true">普通 full attention · N×N</button><button data-stage="own" aria-pressed="false">末层 own · R×N</button><button data-stage="cross" aria-pressed="false">末层 cross · R×N</button><button data-stage="combined" aria-pressed="false">末层门控组合</button><button data-stage="set" aria-pressed="false">集合头 · (K+1)²</button></div><div class="secondary-controls"><label><input type="checkbox" id="second-question">加入同一 state 下的第二道问题</label><label for="query-select">关注 query <select id="query-select" aria-label="选择关注的 query"></select></label><button id="matrix-reset" type="button">恢复示例</button></div></div>
+<div class="matrix-grid"><div class="matrix-area"><div id="attention-matrix"></div><p class="matrix-caption" id="matrix-caption"></p><noscript><p>启用 JavaScript 可查看逐 token 可交互矩阵。下面第 02、04、05 节保留了静态矩阵与公式，可直接阅读。</p></noscript></div><aside class="matrix-side"><div><div class="label" id="map-tag">BACKBONE / ORDINARY FULL ATTENTION</div><h3 id="map-title">树形祖先 + 段内因果</h3><p id="map-explanation"></p></div><div class="gate-control"><label for="joint-gate">gₕ</label><input type="range" id="joint-gate" min="-2" max="2" value="0.6" step="0.1"><output id="gate-output">α=0.537</output></div><div class="matrix-stat" id="matrix-stats"></div><div class="cell-inspector" id="cell-inspector" aria-live="polite"><strong>点击任意格子</strong>查看 query / key 的物理下标、逻辑 position，以及源码中的允许条件。</div></aside></div>
+<div class="matrix-foot"><div class="legend"><span><i class="own"></i>own / 集合内允许</span><span><i class="cross"></i>cross 支持</span><span><i class="negative"></i>负 cross 系数</span><span><i class="no"></i>masked</span></div><span>普通 mask：允许 → 0；禁止 → −∞。图形仅标记 support。</span></div>
+</div>
+<div class="notice orange"><strong>这三种矩阵不能混用。</strong>普通层是 N×N 的树形因果 mask；主干最后一层只保留 R=Σⱼ(Kⱼ+1) 个 readout queries，形成两张 R×N 矩阵；集合头将每题压缩到 K+1 个向量，两层 attention 都是该题内部的全连接矩阵。24 个 DeltaNet 层的隔离由卷积历史和递归初态实现，没有这里这种显式 token softmax map。</div>
+</section>
+
+<section class="section" id="layout"><div class="section-heading"><span class="section-number">02</span><h2>为什么取末尾 token？先看读出标记从哪里来</h2></div>
+<div class="panel pad"><h3 id="readout" style="margin-top:0">2.1 标记从输入时就存在，表示在各层中逐步更新</h3>
+<p><strong>“第 31 层把一段文字融合成一个新 token”容易造成误解。</strong>实际做法是：编码输入时，就在问题末尾放一个专用读出标记，在每个候选末尾放一个结束标记。它们和其他 token 一起进入主干；最终取这些固定位置的隐藏向量，分别作为问题和候选的表示。</p>
+<div class="inline-code">问题前缀：   [state ...] [question ...] <span class="token-marker">&lt;|fim_suffix|&gt;</span> ← 问题读出位置
+候选 1 路径：[state ...] [question ...] &lt;|fim_suffix|&gt; [&lt;|box_start|&gt; 候选 1 文本 ...] <span class="token-marker">&lt;|box_end|&gt;</span>
+候选 2 路径：[state ...] [question ...] &lt;|fim_suffix|&gt; [&lt;|box_start|&gt; 候选 2 文本 ...] <span class="token-marker">&lt;|box_end|&gt;</span>
+候选 3 路径：[state ...] [question ...] &lt;|fim_suffix|&gt; [&lt;|box_start|&gt; 候选 3 文本 ...] <span class="token-marker">&lt;|box_end|&gt;</span></div>
+<p class="small">这里按根到叶的逻辑路径展开。候选 1/2/3 的 <code>&lt;|box_end|&gt;</code> 使用相同 token ID，但所在分支的前文不同，经过主干后得到的隐藏向量也不同。读出的是<strong>上下文化后的隐藏向量</strong>，不是该标记固定不变的 embedding。</p>
+<div class="scroll"><svg class="readout-diagram" viewBox="0 0 1100 455" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="readout-diagram-title readout-diagram-desc">
+<title id="readout-diagram-title">读出标记从输入经过前 31 层，再在第 31 层更新，最后交给集合头</title>
+<desc id="readout-diagram-desc">问题末标记和三个候选结束标记从输入开始就存在。第 0 至 30 层更新所有 token，包括这些位置。进入第 31 层后，全部 token 仍提供 K/V；问题末标记只走 own attention，候选末标记走 own 加门控 cross。随后输出投影、两次残差、MLP 和归一化更新四个标记的向量，得到 h_q 和 e1、e2、e3。没有在最后一层创造新 token。</desc>
+<defs><marker id="readout-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="#577e6d"/></marker></defs>
+<text x="30" y="30" class="r-title">① 输入就有这些位置</text><text x="295" y="30" class="r-title">② 第 0–30 层</text><text x="572" y="30" class="r-title">③ 第 31 层更新原有位置</text><text x="944" y="30" class="r-title">④ 交给集合头</text>
+<rect x="273" y="50" width="224" height="307" rx="8" fill="#eef3f8" stroke="#cbd9e5"/><text x="385" y="79" text-anchor="middle" class="r-small">所有 token 逐层计算</text>
+<rect x="551" y="50" width="349" height="307" rx="8" fill="#fff6ed" stroke="#ebcfb6"/><text x="725" y="79" text-anchor="middle" class="r-small">全部 token 保留为 K/V；只在标记位置产生 Q</text>
+<g fill="none" stroke="#577e6d" stroke-width="1.6" marker-end="url(#readout-arrow)"><path d="M230 123H296"/><path d="M473 123H575"/><path d="M877 123H960"/><path d="M230 193H296"/><path d="M473 193H575"/><path d="M877 193H960"/><path d="M230 263H296"/><path d="M473 263H575"/><path d="M877 263H960"/><path d="M230 333H296"/><path d="M473 333H575"/><path d="M877 333H960"/></g>
+<rect x="30" y="98" width="200" height="49" rx="5" fill="#e2effa" stroke="#b6cee1"/><text x="130" y="118" text-anchor="middle" class="r-small">问题末标记 Q*</text><text x="130" y="137" text-anchor="middle" class="r-mono">&lt;|fim_suffix|&gt;</text>
+<rect x="30" y="168" width="200" height="49" rx="5" fill="#def0e8" stroke="#bad7c7"/><text x="130" y="188" text-anchor="middle" class="r-small">候选 1 末标记 C₁*</text><text x="130" y="207" text-anchor="middle" class="r-mono">&lt;|box_end|&gt;</text>
+<rect x="30" y="238" width="200" height="49" rx="5" fill="#def0e8" stroke="#bad7c7"/><text x="130" y="258" text-anchor="middle" class="r-small">候选 2 末标记 C₂*</text><text x="130" y="277" text-anchor="middle" class="r-mono">&lt;|box_end|&gt;</text>
+<rect x="30" y="308" width="200" height="49" rx="5" fill="#def0e8" stroke="#bad7c7"/><text x="130" y="328" text-anchor="middle" class="r-small">候选 3 末标记 C₃*</text><text x="130" y="347" text-anchor="middle" class="r-mono">&lt;|box_end|&gt;</text>
+<g fill="#fff" stroke="#cbd9e5"><rect x="297" y="103" width="176" height="40" rx="5"/><rect x="297" y="173" width="176" height="40" rx="5"/><rect x="297" y="243" width="176" height="40" rx="5"/><rect x="297" y="313" width="176" height="40" rx="5"/></g>
+<text x="385" y="129" text-anchor="middle">Q* 的上下文化表示</text><text x="385" y="199" text-anchor="middle">C₁* 的上下文化表示</text><text x="385" y="269" text-anchor="middle">C₂* 的上下文化表示</text><text x="385" y="339" text-anchor="middle">C₃* 的上下文化表示</text>
+<g fill="#fff" stroke="#ebcfb6"><rect x="575" y="98" width="302" height="49" rx="5"/><rect x="575" y="168" width="302" height="49" rx="5"/><rect x="575" y="238" width="302" height="49" rx="5"/><rect x="575" y="308" width="302" height="49" rx="5"/></g>
+<text x="726" y="118" text-anchor="middle">own：读取 S + Q</text><text x="726" y="137" text-anchor="middle" class="r-small">再经输出投影、残差、MLP 与归一化</text>
+<text x="726" y="188" text-anchor="middle">own：S+Q+C₁；cross：C₂、C₃</text><text x="726" y="207" text-anchor="middle" class="r-small">再经输出投影、残差、MLP 与归一化</text>
+<text x="726" y="258" text-anchor="middle">own：S+Q+C₂；cross：C₁、C₃</text><text x="726" y="277" text-anchor="middle" class="r-small">再经输出投影、残差、MLP 与归一化</text>
+<text x="726" y="328" text-anchor="middle">own：S+Q+C₃；cross：C₁、C₂</text><text x="726" y="347" text-anchor="middle" class="r-small">再经输出投影、残差、MLP 与归一化</text>
+<g fill="#def0e8" stroke="#bad7c7"><rect x="960" y="103" width="104" height="40" rx="5"/><rect x="960" y="173" width="104" height="40" rx="5"/><rect x="960" y="243" width="104" height="40" rx="5"/><rect x="960" y="313" width="104" height="40" rx="5"/></g>
+<text x="1012" y="129" text-anchor="middle" class="r-mono">h_q</text><text x="1012" y="199" text-anchor="middle" class="r-mono">e₁</text><text x="1012" y="269" text-anchor="middle" class="r-mono">e₂</text><text x="1012" y="339" text-anchor="middle" class="r-mono">e₃</text>
+<path d="M30 383H1064" stroke="#dce3ea"/><text x="30" y="410" class="r-title">这里变少的是最后一层需要输出的位置：N 个 token → 4 个读出向量。</text><text x="30" y="433" class="r-small">全部 token 的第 31 层输入表示仍用于 K/V；每个 eᵢ 是原有候选结束标记的最终表示，不是新生成的 token。</text>
+</svg></div>
+<h4>为什么选段末？因果结构让这个位置能够利用完整前文。</h4>
+<div class="inline-code">A → B → C → &lt;结束标记&gt;
+A 的位置：没有后面的 B、C 信息
+B 的位置：没有后面的 C 信息
+结束标记：在因果计算图中可以依赖 A、B、C 的全部内容</div>
+<p>问题末标记可以利用完整的 state + question；候选末标记可以利用完整的 state + question + 当前候选。把专用标记放在段末，就给每段提供了一个<strong>可读完整本分支、且位置明确的固定维度接口</strong>。这是一种设计选择；也可另行设计均值池化或池化网络，并非 attention 只能取最后一个位置。</p>
+<h4>它为何能承担“摘要”？由任务训练推动，不由标记名字保证。</h4>
+<p>决策头依靠这些位置的向量打分，训练损失沿这条路径反向传播，推动可训练参数把<strong>对决策有用的信息</strong>保留在读出表示中。标记不是天然的总结器，也不保证无损保存整段文字。进入第 31 层前，这些位置已经积累了前面各层的信息；最后一层继续更新它们。</p>
+<div class="notice green"><strong>取一个位置的输出，不等于只让这一个位置提供信息。</strong>第 31 层中，候选结束标记产生 query，去读取许多位置的 K/V；最终只留下这个 query 对应的输出向量。其他候选既可以通过末标记提供上下文摘要，也可以通过中间 token 提供细粒度信息。</div>
+<p class="ref">输入标记见 <a href="../qev/encoding.py">encoding.py</a> 的 <code>SPECIAL</code>、<code>Encoder.candidate_tokens</code> 与 <code>Encoder.__call__</code>；段末下标见 <a href="../qev/tree.py">tree.py</a> 的 <code>TreeLayout._build</code>，最终读出见 <code>joint_readouts</code>。</p>
+<h3>2.2 物理拼接、逻辑位置与段末下标</h3><p>以下 token 数是为了看清 mask 而选的符号示例，包含边界 token 的角色，不声称某段真实自然语言恰好分词为这些长度。生产输入的路径仍然是 <code>S ∥ Qⱼ ∥ Cⱼᵢ</code>。其中 Q* 代表已有的 <code>&lt;|fim_suffix|&gt;</code>，C₁*/C₂*/C₃* 代表各自的 <code>&lt;|box_end|&gt;</code>。</p>
+<div class="scroll"><div class="token-strip"><div class="segment" style="flex:3">S₀ S₁ S₂<small>physical 0…2 / position 0…2</small></div><div class="segment q" style="flex:2">Q₀ Q*<small>physical 3…4 / position 3…4</small></div><div class="segment candidate" style="flex:3">C₁₀ C₁₁ C₁*<small>physical 5…7 / position 5…7</small></div><div class="segment candidate" style="flex:4">C₂₀ C₂₁ C₂₂ C₂*<small>physical 8…11 / position 5…8</small></div><div class="segment candidate" style="flex:3">C₃₀ C₃₁ C₃*<small>physical 12…14 / position 5…7</small></div></div></div>
+<div class="equation">physical IDs = [0,1,2, 3,4, 5,6,7, 8,9,10,11, 12,13,14]
+position IDs = [0,1,2, 3,4, 5,6,7, 5,6, 7, 8,  5, 6, 7]
+read_indices = [4, 7, 11, 14]                     # [Q*, C₁*, C₂*, C₃*]
+H₀ = embed_tokens(ids) ∈ ℝ^[1,15,4096]</div>
+<p><strong>物理上 C₂ 紧挨 C₁，不代表 C₂ 能看 C₁。</strong><code>TreeLayout</code> 给每个段记录 parent、depth、path 和 owner。允许关系用树祖先判断，不用全局下三角。<code>position_ids</code> 则表示根到当前 token 的逻辑深度，参与 RoPE；同题各候选从相同 P=|S|+|Q| 开始。</p>
+<div class="two"><div><h4>普通全注意力层：块级形式</h4><div class="scroll"><table class="data-table block-matrix"><thead><tr><th>query \ key</th><th>S</th><th>Q</th><th>C₁</th><th>C₂</th><th>C₃</th></tr></thead><tbody><tr><th>S</th><td class="diag">△</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><th>Q</th><td class="good">全</td><td class="diag">△</td><td>—</td><td>—</td><td>—</td></tr><tr><th>C₁</th><td class="good">全</td><td class="good">全</td><td class="diag">△</td><td>—</td><td>—</td></tr><tr><th>C₂</th><td class="good">全</td><td class="good">全</td><td>—</td><td class="diag">△</td><td>—</td></tr><tr><th>C₃</th><td class="good">全</td><td class="good">全</td><td>—</td><td>—</td><td class="diag">△</td></tr></tbody></table></div><p class="tiny">△ = 本段下三角。候选的共享前缀是完整 S+Q，兄弟候选是零可见块。</p></div><div><h4>逐 token 允许条件</h4><div class="equation">allow(u,v) =
+  owner(v) ∈ ancestors(owner(u))
+  OR
+  [owner(u)=owner(v) AND u≥v]</div><p class="small">代码在同一段内使用物理下标比较，因为段内物理次序与因果次序一致；跨段必须用祖先关系。跨记录的 roots 不互为祖先，因此自然隔离。padding query 的特殊自环仅用于避免数值 NaN，输出随后丢弃。</p></div></div>
+<p><strong>单题优化：</strong><code>TreeLayout._build</code> 会将该记录的 S 与唯一 Q 合为同一个 root，减少一个递归调度深度；多题记录则保留一个 S root 和多个 Q 子节点。两者在真实 token 上的可见关系一致。图中为便于理解始终标出 S/Q 边界。</p>
+<div class="inline-code">S  = &lt;|fim_prefix|&gt; + state_text
+Qⱼ = &lt;|fim_middle|&gt; + type + " question: " + instructions + &lt;|fim_suffix|&gt;
+Cᵢ = &lt;|box_start|&gt; + Candidate.text + &lt;|box_end|&gt;</div>
+<p class="small">主干读出 h_q 取 <code>&lt;|fim_suffix|&gt;</code>，eᵢ 取每条分支的 <code>&lt;|box_end|&gt;</code>。有语义的 key / 等级可以已经包含在 Candidate.text 中；数组下标不会被额外写成候选位置 embedding。</p>
+
+</div></section>
+<section class="section" id="parallel"><div class="section-heading"><span class="section-number">03</span><h2>“并行”具体发生在哪些维度？</h2></div><p class="sublead">当前 9B 是混合主干：24 层 Gated DeltaNet + 8 层 full attention。下面展示实际逐层执行，而不是把三条候选路径笼统叫作一个 batch。</p>
+<div class="panel pad"><div class="label">32 个 DECODER 层 / 层号从 0 开始</div><div class="scroll"><div class="layer-strip" id="layer-strip"></div></div><div class="legend"><span><i style="background:var(--b-bg)"></i>L = Gated DeltaNet</span><span><i class="own"></i>A = 普通 full attention</span><span><i class="cross"></i>J = 第 31 层 joint readouts</span></div>
+<h3>3.1 唯一 token 合并：先把大矩阵乘法做满</h3><p><code>_execute_tree</code> 把一个 microbatch 的记录构成 forest，隐藏状态为 <code>H ∈ [1,N_total,4096]</code>，其中每条记录的 state 只存一份，每题 question 只存一份。对同一层，投影与 MLP 处理全部唯一 token；不先分别对 C₁、C₂、C₃ 调三次完整主干。</p>
+<div class="equation">参考 leaf rows： [S Q C₁], [S Q C₂], [S Q C₃]
+实际长度：       8          9          8          → 25 token-work（padding 后 27）
+树形 packed：    [S Q C₁ C₂ C₃]                   → 15 unique tokens
+前缀共享减少：   25 − 15 = 10 个重复 token         → 本例投影 / MLP token-work 减少 40%</div>
+<p class="small">上述 40% 是符号示例的线性层 token 工作量变化，不是端到端实测加速比例。普通 attention 的稠密计算形状、分组 padding、kernel 调度和显存读写仍有各自开销。</p>
+<h3>3.2 普通 full-attention 层：Q/K/V 合投影，attention 按记录分桶</h3>
+<div class="scroll"><table class="data-table"><thead><tr><th>步骤</th><th>单记录示例 / 9B 维度</th><th>实际并行范围</th></tr></thead><tbody>
+<tr><td>输入 RMSNorm</td><td><code>[1,15,4096]</code></td><td>逐 token 归一化，不沿 token 维混合。</td></tr>
+<tr><td>Q + 原生输出门投影</td><td><code>q_proj: 4096 → 8192</code><br><code>[1,15,16,512] → Q, gate 各 [1,15,16,256]</code></td><td>全部唯一 token 一起投影。原生 gate 与新增 joint_gate 是不同参数。</td></tr>
+<tr><td>K/V 投影与 RoPE</td><td><code>K,V: [1,4,15,256]</code><br><code>Q: [1,16,15,256]</code></td><td>GQA：16 个 query heads / 4 个 KV heads。Q/K 按路径 position 做模型定义的 RoPE。</td></tr>
+<tr><td>Attention</td><td>有效矩阵 <code>[1,16,15,15]</code><br><code>A=softmax(QKᵀ/√256 + M_tree)</code></td><td>各 query 与 heads 并行；同段 causal 由 mask 控制。多记录时按长度分桶为 <code>[B_bucket,H,W,W]</code>，不把所有记录做成一张 N_total² 普通 attention。</td></tr>
+<tr><td>输出门 / o_proj / MLP</td><td><code>[1,15,4096]</code></td><td>去除 attention padding 并恢复 packed 顺序；原生 sigmoid 输出门、投影与逐 token MLP 统一计算。</td></tr>
+</tbody></table></div>
+<p class="ref">单记录普通 full-attention 直接调用 <code>layer.self_attn</code> 并传树 mask；多记录走 <code>full_attention_tree</code>，后端显式 <code>is_causal=False</code>，由 additive mask 完整定义可见性。这里描述的是有效矩阵，SDPA 未必将整张 attention weight 显式物化。</p>
+
+<h3>3.3 DeltaNet：合并投影之后，父子依赖必须显式调度</h3>
+<p>DeltaNet 不靠上述 softmax mask 隔离候选。<code>linear_tree</code> 先对 packed H 一起执行 <code>in_proj_qkv / z / b / a</code>，再按节点深度组织卷积和状态递推。<strong>兄弟候选并行依赖同一个父状态，候选之间没有链式状态传递。</strong></p>
+<div class="scroll"><table class="timeline"><thead><tr><th class="lane">单题示例</th><th>① 全部唯一 token</th><th>② root 阶段</th><th>③ candidate 阶段</th><th>④ 全部唯一 token</th></tr></thead><tbody>
+<tr><td class="lane">输入投影</td><td><span class="task">H[1,15,4096]<br>统一 QKV / z / β / decay 投影</span></td><td colspan="2"><span class="task empty">按父路径 gather 卷积历史，按深度分组</span></td><td><span class="task empty">投影在本层前段已完成</span></td></tr>
+<tr><td class="lane">root: S+Q</td><td><span class="task empty">取 root 的 5 个投影 token</span></td><td><span class="task blue">卷积 + chunk Delta rule<br>initial=None → F_parent</span></td><td><span class="task empty">F_parent 保留，供三条分支读取</span></td><td rowspan="2"><span class="task">unpad / concat<br>gated norm + out_proj<br>残差 + MLP<br>[1,15,4096]</span></td></tr>
+<tr><td class="lane">C₁ / C₂ / C₃</td><td><span class="task empty">分别取 3 / 4 / 3 个 token</span></td><td><span class="task empty">等待父状态</span></td><td><div class="stack"><span class="task blue">C₁<br>F_parent</span><span class="task blue">C₂<br>F_parent</span><span class="task blue">C₃<br>F_parent</span></div><div class="tiny">同组 padded batch=[3,4,…]；共享初态值，独立递推</div></td></tr>
+</tbody></table></div>
+<div class="two"><div><h4>卷积历史来自祖先路径</h4><p class="small">每个节点 gather 自己父路径末端的历史，拼上本节点的投影 token 后做 causal depthwise conv。C₂ 的历史来自 S+Q，不来自物理上前一段 C₁ 的尾部。配置卷积 kernel=4；代码 gather 最多 4 个祖先 token，再只保留当前节点输出。</p></div><div><h4>状态分叉保持梯度</h4><p class="small"><code>initial = cat(states[parent] for child in group)</code>。同一父状态可出现多次，autograd 将各子分支的梯度加回父状态。训练走可对 initial/final state 求导的 chunk kernel，没有将父状态 detach 成推理缓存。</p></div></div>
+<div class="equation">每个 value head 的简化递推（q/k 已归一化，忽略具体 kernel 排布）：
+F̄ₜ = exp(dₜ) · Fₜ₋₁
+δₜ = βₜ · (vₜ − kₜᵀ F̄ₜ)
+Fₜ = F̄ₜ + kₜ δₜᵀ                       # F ∈ ℝ^[128,128]
+yₜ = qₜᵀ Fₜ                             # q 包含 1/√128 缩放
+F_C₁,0 = F_C₂,0 = F_C₃,0 = F_parent       # 相同初值，之后各自演化</div>
+<p class="small">9B DeltaNet 有 16 个 key heads、32 个 value heads，key/value head dim 都为 128。Q/K 在需要时按 value heads 重复。上述公式表达因果语义；训练用 chunk 算法并行化段内计算，Python 并不逐 token 循环。分组 padding 位置将 β 和 log-decay 设为 0，使状态转移为恒等，父节点的 final state 不被 padding 推进。</p>
+<p><strong>多题记录的依赖深度：</strong>S → {Q₁,Q₂,…} → {各题候选}。同一深度可跨记录、跨题合批；分组受到 <code>rows_per_forward</code> 与 <code>max_padded_tokens</code> 限制。单题合并 S+Q 后只有两级。多组之间会循环调用 kernel，所以“一次逐层前向”不等于所有分支只有一次 GPU kernel launch。</p>
+
+<h3>3.4 主干之后，集合头目前逐题调用</h3><div class="question-sets"><div class="question-set"><strong>Question 1 / K=3</strong><p>[1,4,256] → 3 logits<br>单题 4 个向量内部并行 attention</p></div><div class="question-set"><strong>Question 2 / K=2</strong><p>[1,3,256] → 2 logits<br>再次调用相同 SetDecisionHead</p></div><div class="question-set"><strong>Question 3 / K=5</strong><p>[1,6,256] → 5 logits<br>仍是同一套参数</p></div></div>
+<div class="inline-code">return [[self.head(q, cs) for q, cs in item] for item in features]</div><p class="small">上面是 <code>BranchDecisionModel.forward</code> 的实际返回语句。主干支持 forest 合批，头并未实现带 K-padding 的多题 batch；这里每题分别调用，不需要跨题 attention mask。不能将“逐题语义隔离”误画成当前代码已做 ragged set-head 并行。</p>
+</div></section>
+
+<section class="section" id="joint"><div class="section-heading"><span class="section-number">04</span><h2>最后一层：候选 token 怎样读取彼此？</h2></div><p class="sublead">第 31 层是 full attention。当前路径在这一层将 query 数量从 N 缩减到 R，只计算最终会被读取的位置；K/V 仍覆盖全部唯一 token。</p>
+<div class="panel pad"><h3 id="joint-walk" style="margin-top:0">先沿候选 1 的结束标记，走完这一层</h3>
+<p>输入是 C₁* 在前面各层中已经形成的表示。own/cross 各自返回一个<strong>对 V 加权汇总后的内容向量</strong>，随后更新 C₁* 的表示。下面四步说明“两个 attention 加起来以后，发生什么”。</p>
+<div class="readout-walk"><div class="readout-step"><span class="step-number">01 / 读取并混合</span><strong>两路提供更新内容</strong><p>own 读取 S+Q+C₁；cross 读取 C₂/C₃ 的全部 token。cross 乘可学习的强度系数，再加到 own 上。</p></div><div class="readout-step"><span class="step-number">02 / 写回</span><strong>整理更新量，加回旧表示</strong><p>各 head 结果拼接后，经过原生输出门与 o_proj；将得到的更新量加回 C₁* 原来的向量。这是第一次残差。</p></div><div class="readout-step"><span class="step-number">03 / 加工</span><strong>MLP 加工，再做残差</strong><p>对中间表示做归一化和 MLP，将加工结果再加回中间表示。MLP 只加工当前向量，不再读取其他 token。</p></div><div class="readout-step"><span class="step-number">04 / 读出</span><strong>最终归一化，得到 e₁</strong><p>将这一个位置的最终向量交给集合头。C₂*、C₃* 同时得到 e₂、e₃；问题标记只走 own，得到 h_q。</p></div></div>
+<div class="inline-code">混合信息 = own 结果 + cross 强度 × cross 结果
+更新量   = 输出投影(原生输出门 × 混合信息)
+中间表示 = C₁* 原来的向量 + 更新量
+加工结果 = MLP(归一化(中间表示))
+e₁       = 最终归一化(中间表示 + 加工结果)</div>
+<p class="section-jump">这里省略多头拆分与拼接。第 31 层交出的是 <strong>h_q、e₁、e₂、e₃ 四个向量</strong>；后面的<a href="#set-head">集合决策头</a>才负责候选比较、打分与概率输出。读出位置的来源见<a href="#readout">第 2.1 节</a>。</p>
+<h3>4.1 两张 attention map，共用一份 QKᵀ</h3><p>令 <code>X = RMSNorm(H³¹_input)</code>，<code>reads=[Q*,C₁*,C₂*,C₃*]</code>。所有候选的 K/V 都由进入第 31 层之前的残差流生成。一次性计算 readout Q 与所有 K 的 score，随后用两个不同的 mask 各自归一化。</p>
+<div class="two"><div><h4>M_own：保持各自原因果路径</h4><div class="scroll"><table class="data-table block-matrix"><thead><tr><th>query \ key</th><th>S</th><th>Q</th><th>C₁</th><th>C₂</th><th>C₃</th></tr></thead><tbody><tr><th>Q*</th><td class="good">全</td><td class="good">全</td><td>—</td><td>—</td><td>—</td></tr><tr><th>C₁*</th><td class="good">全</td><td class="good">全</td><td class="good">全</td><td>—</td><td>—</td></tr><tr><th>C₂*</th><td class="good">全</td><td class="good">全</td><td>—</td><td class="good">全</td><td>—</td></tr><tr><th>C₃*</th><td class="good">全</td><td class="good">全</td><td>—</td><td>—</td><td class="good">全</td></tr></tbody></table></div><p class="tiny">读出恰在各自段末，因此 own 的本段因果前缀就是整段。</p></div><div><h4>M_cross：只允许同题其他候选 span</h4><div class="scroll"><table class="data-table block-matrix"><thead><tr><th>query \ key</th><th>S</th><th>Q</th><th>C₁</th><th>C₂</th><th>C₃</th></tr></thead><tbody><tr><th>Q*</th><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><th>C₁*</th><td>—</td><td>—</td><td>—</td><td class="cross-color">全</td><td class="cross-color">全</td></tr><tr><th>C₂*</th><td>—</td><td>—</td><td class="cross-color">全</td><td>—</td><td class="cross-color">全</td></tr><tr><th>C₃*</th><td>—</td><td>—</td><td class="cross-color">全</td><td class="cross-color">全</td><td>—</td></tr></tbody></table></div><p class="tiny">“全”包含候选开/闭边界 token。C₁* 可看逻辑 position=8 的 C₂*，cross 不再施加本分支的因果截断。</p></div></div>
+<div class="equation eq-orange">Sₕ = Qₕ Kₕᵀ / √256                       # [R,N]，对 16 heads 同时计算
+A_own,h   = softmax_key(Sₕ + M_own)
+A_cross,h = softmax_key(Sₕ + M_cross)        # 每行在所有兄弟 token 上合并归一化
+O_own,h   = A_own,h Vₕ
+O_cross,h = A_cross,h Vₕ
+Mₕ = O_own,h + αₕ O_cross,h,  αₕ = tanh(gₕ)</div>
+<p><strong>cross 并不是“每个兄弟各做一次 softmax 然后平均”。</strong>对 C₁*，分母同时包含 C₂ 的 4 个 token 与 C₃ 的 3 个 token；两个候选不被强制分配相同概率质量。候选长度、每个 token 的 key 和 query 匹配程度都会影响 cross 质量分配。</p>
+<div class="two"><div><h4>两个门控的含义完全不同</h4><p class="small"><code>gₕ</code> 是新加入的 <strong>16 个静态可学习标量</strong>，每个主干 query head 一个，对该层的所有 readouts 共用；初始化为 0，tanh 范围为 (−1,1)。<code>gate</code> 是原 Qwen attention 的输入相关输出门，由 q_proj 同时产生，形状 [R,16,256]，在混合后取 sigmoid。</p></div><div><h4>这不是一张归一化概率矩阵</h4><p class="small">可将混合写成 <code>(A_own + αA_cross)V</code>，但对有兄弟候选的行，系数和为 1+α；α 可为负。因此组合图只是两路加权 support，不能解释为第三次 softmax 或标准 attention probability。g=0 关闭本层 cross，集合头仍然会交互。</p></div></div>
+<h3>4.2 C₁ 与 C₂ 同时交互，不互相等待最终输出</h3><div class="equation">e₁ = FinalLayerRead(H_C₁*^in ; KV_S,Q,C₁^in ; KV_C₂,C₃^in)
+e₂ = FinalLayerRead(H_C₂*^in ; KV_S,Q,C₂^in ; KV_C₁,C₃^in)
+e₃ = FinalLayerRead(H_C₃*^in ; KV_S,Q,C₃^in ; KV_C₁,C₂^in)
+                                  ↑ 所有 K/V 都来自同一层输入
+不存在：先算 e₁，再把 e₁ 当作 C₁ 的新 K/V 供 e₂ 读取</div>
+<p>C₂ 的最后一个 token 在前 31 层已经汇总了 S+Q+C₂；因此 C₁* 读取它时可获得 C₂ 的语义摘要，同时还能读取 C₂ 中间 token 的局部信息。这是<strong>一次同步的 token-level 信息交换</strong>。之后集合头还会做两轮向量级交换。问题 readout 的 cross 整行为空，保留前缀语义。</p>
+<h3>4.3 真实张量形状与输出残差路径</h3><div class="scroll"><table class="data-table"><thead><tr><th>变量</th><th>一般形式</th><th>N=15, K=3 时</th></tr></thead><tbody>
+<tr><td>层输入 H / 归一化 X</td><td><code>[1,N,D]</code></td><td><code>[1,15,4096]</code></td></tr>
+<tr><td>K,V：KV-head 投影</td><td><code>[1,H_kv,N,d_h]</code></td><td><code>[1,4,15,256]</code></td></tr>
+<tr><td>K,V：按 GQA repeat 后</td><td><code>[H_q,N,d_h]</code></td><td><code>[16,15,256]</code></td></tr>
+<tr><td>readout q_proj，split 前</td><td><code>[R,H_q,2d_h]</code></td><td><code>[4,16,512]</code></td></tr>
+<tr><td>Q / 原生 sigmoid gate</td><td><code>[H_q,R,d_h] / [R,H_q,d_h]</code></td><td><code>[16,4,256] / [4,16,256]</code></td></tr>
+<tr><td>scores / 两张 softmax</td><td><code>[H_q,R,N]</code></td><td><code>[16,4,15]</code></td></tr>
+<tr><td>own、cross 和门控混合</td><td><code>[R,H_q,d_h]</code></td><td><code>[4,16,256]</code></td></tr>
+<tr><td>flatten → 原生 gate → o_proj</td><td><code>[R,4096]</code></td><td><code>[4,4096]</code></td></tr>
+<tr><td>最终输出</td><td><code>h_q:[D], E:[K,D]</code></td><td><code>[4096], [3,4096]</code></td></tr>
+</tbody></table></div>
+<div class="equation">U = H[reads] + o_proj(ConcatHeads(M) ⊙ sigmoid(gate))
+Y = FinalRMSNorm(U + MLP(PostAttentionRMSNorm(U)))
+h_q = Y[0] ; E = Y[1:K+1]</div>
+<p class="small">最终层只对 reads 做 q_proj、输出投影及 MLP；其他 token 仍提供 K/V，但不再计算无用的末层 query 输出。cross 无 key 的行（问题或 K=1）先安全处理全遮蔽，再把权重乘成零，避免 softmax(全 −∞) 的 NaN。</p>
+
+</div></section>
+<section class="section" id="set-head"><div class="section-heading"><span class="section-number">05</span><h2>集合决策头：从 4 个向量到 3 个 logits</h2></div><p class="sublead">以 K=3 展开。这里的“token”已不再是自然语言 token，而是 1 个问题读出向量 + 3 个候选读出向量。</p>
+<div class="panel pad"><h3 style="margin-top:0">5.1 输入投影只沿通道计算，不在这一步交换候选信息</h3><div class="equation">q  = W_p LayerNorm₄₀₉₆(h_q) + b_p + r_q       # [256]
+cᵢ = W_p LayerNorm₄₀₉₆(eᵢ)  + b_p             # [256]
+X⁰ = stack(q,c₁,c₂,c₃)[None]                   # [1,4,256]
+W_p ∈ ℝ^[256,4096], b_p ∈ ℝ^[256], r_q ∈ ℝ^[256]</div><p><code>self.norm</code> 和 <code>self.project</code> 被 question/candidates 共用。LayerNorm 对每个向量的 4096 维做归一化，既不在 K 上做归一化，也不会把不同候选混起来。<code>r_q</code> 是可学习的问题角色向量，初始化为 0；候选没有独立角色参数或按 ID 查询的 embedding。</p>
+<div class="two"><div><h3>5.2 两层都是这张全连接 map</h3><div class="scroll"><table class="data-table block-matrix"><thead><tr><th>query \ key</th><th>q</th><th>c₁</th><th>c₂</th><th>c₃</th></tr></thead><tbody><tr><th>q</th><td class="good">✓</td><td class="good">✓</td><td class="good">✓</td><td class="good">✓</td></tr><tr><th>c₁</th><td class="good">✓</td><td class="good">✓</td><td class="good">✓</td><td class="good">✓</td></tr><tr><th>c₂</th><td class="good">✓</td><td class="good">✓</td><td class="good">✓</td><td class="good">✓</td></tr><tr><th>c₃</th><td class="good">✓</td><td class="good">✓</td><td class="good">✓</td><td class="good">✓</td></tr></tbody></table></div><p class="tiny">实际每层有 4 张学习到的 4×4 权重矩阵，对应 4 个 attention heads；两层的支持关系相同，权重参数与数值各自不同。</p></div><div><h3>这一阶段 question 开始读候选</h3><p>主干中的 <code>h_q</code> 始终只包含 S+Q。第一层集合 attention 后，q¹ 可以汇总 c₁/c₂/c₃；第二层中每个候选可再次读取这个集合相关的 q¹。</p><p>第一层的 c₁¹ 同时读取 q⁰、c₂⁰、c₃⁰；第二层读取的是更新后的 q¹、c₂¹、c₃¹。两轮更新都有残差，最终 q² 与 cᵢ² 一起进入 scorer。</p><p class="small">头中没有 RoPE、绝对位置编码或 causal mask；它只处理当前题的 K+1 个向量。其 attention head dim=64，与主干 16 heads × 256 完全不同。</p></div></div>
+<h3>5.3 每层 Pre-Norm Transformer 的完整计算</h3><div class="equation">for ℓ = 0,1:                                  # 两套独立层参数
+  U = LN_attn,ℓ(Xℓ)                           # [1,4,256]
+  Qₐ,Kₐ,Vₐ = split_heads(U WQ, U WK, U WV)      # 各 [1,4 heads,4 positions,64]
+  Aₐ = softmax_key(Qₐ Kₐᵀ / √64)               # [1,4,4,4]，无 mask
+  Attn = ConcatHeads(Aₐ Vₐ) WO                 # [1,4,256]
+  Y = Xℓ + Attn
+  Xℓ⁺¹ = Y + W₂ GELU(W₁ LN_ffn,ℓ(Y)+b₁)+b₂   # FFN 256→1024→256</div>
+<p class="small">上式为含 bias 的标准线性投影语义（Q/K/V/O 的 bias 在符号中省写），对应 <code>nn.TransformerEncoderLayer(batch_first=True, norm_first=True, dropout=0.0, activation="gelu")</code>。外面是 ModuleList，两层后没有额外的统一 encoder norm；下一步 scorer 自带 LayerNorm(512)。</p>
+<h3>5.4 Shared scorer：候选摘要与问题摘要拼接</h3><div class="equation">q′ = X²[0,0]             # [256]
+C′ = X²[0,1:]            # [3,256]
+Uᵢ = concat(c′ᵢ, q′)     # [512]，候选在前、问题在后
+Z = Linear₂₅₆→₁(GELU(Linear₅₁₂→₂₅₆(LayerNorm₅₁₂(U))))
+z = squeeze(Z)          # [3]，每候选 1 个标量</div>
+<p><strong>scorer 是对 K 行一次性计算的共享函数。</strong>它不是一个固定输出 3/5/128 类的 <code>Linear(256,K)</code>，也不是与预定义类别 embedding 的 pointer dot product。K 只改变输入行数；None、true、false、任意等级都走同一个 <code>Linear(256,1)</code>。</p>
+<div class="notice green"><strong>因此“无候选序号 embedding”仍允许有选项集合效应。</strong>保持每个候选的 ID 与文本不变，仅重排列表，理想计算满足 f(S,Q,πC)=πf(S,Q,C)。但增删一个候选会改变主干 cross、集合 attention 和最终归一化，已有候选的 logits 与相对赔率都可以变化。多个完全相同候选还会增加注意力分母与 softmax 竞争，不具有重复项幂等性。</div>
+
+</div></section>
+
+<section class="section" id="types"><div class="section-heading"><span class="section-number">06</span><h2>选择题、判断题、分数题如何共用这个头？</h2></div><p class="sublead">没有三套按 type 分流的 readout 网络。差异发生在候选文本、K、目标分布与输出解释；题型也被显式写入 Q 前缀。</p>
+<div class="panel pad"><div class="type-tabs" role="group" aria-label="题型示例"><button class="active" data-type="choice" aria-pressed="true">Choice · K=3</button><button data-type="noul" aria-pressed="false">Noul · K=2</button><button data-type="score" aria-pressed="false">Score · K=5</button></div><p class="small">下面列出单个 question 对象与示例监督标签；state 由外层 record 提供。label 只构造训练 target，不写入模型 token。</p><div class="type-detail-grid"><div><div class="label">TYPESAFE-SHAPED QUESTION / 含监督标签示例</div><pre id="type-input"></pre></div><div><div class="label">SCHEMA 产生的 CANDIDATE.TEXT</div><pre id="type-candidates"></pre><p class="small" id="type-target" style="margin-top:13px"></p></div></div><div class="type-readout"><div><div class="label">集合头 SELF-ATTENTION SUPPORT</div><div class="scroll" id="type-matrix"></div><p class="tiny" id="type-shape"></p></div><div><div class="label">同一结构 / 不同输出语义</div><div id="type-output" class="type-output"></div><div class="notice" id="type-explanation"></div><p class="tiny">概率为手工假设值，用于解释输出语义；此处没有运行模型。</p></div></div></div>
+<h3>6.1 三条路径的精确对照</h3><div class="scroll"><table class="data-table"><thead><tr><th>环节</th><th>Choice</th><th>Noul</th><th>Score</th></tr></thead><tbody>
+<tr><th>API criteria</th><td>字典：语义 key → 判据</td><td>可选 false/true 判据字典</td><td>列表：按等级列出判据</td></tr>
+<tr><th>候选构造</th><td><code>Candidate(key, "key: 判据")</code>；值为空则仅 key</td><td>固定两个 ID：<code>false</code>、<code>true</code>；文本为 ID 加可选判据</td><td><code>Candidate(str(i), "level i: 判据")</code>；typed API 的 i 从 0 开始</td></tr>
+<tr><th>例子 K</th><td>3</td><td>2</td><td>5</td></tr>
+<tr><th>主干 readouts</th><td><code>[Q*, C₁*, C₂*, C₃*]</code></td><td><code>[Q*, false*, true*]</code></td><td><code>[Q*, level0*, …, level4*]</code></td></tr>
+<tr><th>集合头输入 / 每层 map</th><td><code>[1,4,256] / [1,4,4,4]</code></td><td><code>[1,3,256] / [1,4,3,3]</code></td><td><code>[1,6,256] / [1,4,6,6]</code></td></tr>
+<tr><th>共享 MLP 行数</th><td>3 行 <code>[cᵢ′;q′]</code></td><td>2 行 <code>[cᵢ′;q′]</code></td><td>5 行 <code>[cᵢ′;q′]</code></td></tr>
+<tr><th>logits / 概率</th><td><code>[3] → softmax → [3]</code></td><td><code>[2] → softmax → [2]</code></td><td><code>[5] → softmax → [5]</code></td></tr>
+<tr><th>当前训练目标</th><td>one-hot 或 soft target CE</td><td>one-hot 或 soft target CE</td><td>one-hot 或 soft target CE；当前配置无附加序数项</td></tr>
+</tbody></table></div>
+<h3>6.2 Noul 是两个动态候选的竞争</h3><div class="equation">p_true = exp(z_true/T) / (exp(z_false/T)+exp(z_true/T))
+       = sigmoid((z_true−z_false)/T)
+p_false = 1−p_true</div><p>这是两类 softmax 的代数恒等式。实现中依然分别构造 false / true 候选，执行主干 cross、两层集合 attention、共享 MLP，得到两个 logits。它没有单独的布尔 sigmoid head，也没有三个互不相关的“置信度”神经元。</p>
+<h3>6.3 Score 输出分布，不直接回归一个实数</h3><p>5 级 score 有 5 条独立候选分支，等级数字被编码进 <code>level i: ...</code> 文本。集合头没有专门的 ordinal positional embedding、累积阈值网络或单调性约束。模型可从文本与训练目标中学等级语义，但当前 CE 不显式惩罚“错三级”比“错一级”更重。</p><div class="equation">给定示意分布 p = [0.05, 0.10, 0.55, 0.20, 0.10]：
+argmax(p) = level 2
+E[level]  = Σᵢ i·pᵢ = 2.20
+当前 predict_request 返回 prediction="2" 与 probabilities；不自动返回 2.20</div><p>如果需要连续评分或业务分值，应由调用方按明确的 level→value 映射求期望。通过 canonical schema 重排 score 候选时应保留 ID 与文本；直接重排 typed API 的 criteria 列表会重新编号，已经改变等级语义。</p>
+<h3>6.4 Choice 的 None 与多标签语义</h3><p><code>None</code> 是普通候选，拥有自己的文本、分支、eᵢ、logit 和 softmax 竞争。当前 <code>as-provided</code> 推理不自动插入；训练时的 None 插入是数据增强。K 增加时两级交互矩阵随之增大。这里的 choice 是一次候选分布决策；需要多个可同时为真的判断时，应定义多个 noul 问题，而不是把一次 softmax 当作多标签独立 sigmoid。</p>
+
+</section>
+
+<section class="section" id="training"><div class="section-heading"><span class="section-number">07</span><h2>梯度怎样穿过共享前缀与两级交互？</h2></div>
+<div class="panel pad"><h3 style="margin-top:0">7.1 先按题、再按记录平均</h3><div class="equation">L_q = −Σᵢ y_q,i · log softmax(z_q)ᵢ
+L_r = (1 / J_r) Σ_q∈r L_q
+L_batch = (1 / B) Σ_r L_r                     # B 为该步的记录数口径
+∂L_q/∂z_q,i = p_q,i − y_q,i</div><p>硬标签转换成 one-hot；软标签直接监督分布。一次题内的 K 个候选构成同一个 softmax 和同一个 loss，不是 K 个独立二分类训练样本。候选数更多不会通过“多几个 leaf rows”自动获得更大的记录权重。训练 CE 使用原始 logits，即 T=1；推理 <code>model.temperature</code> 单独做 z/T。</p>
+<h3>7.2 树分叉的反向传播是汇合</h3><div class="equation">前向：F_parent ─┬→ C₁ ─┐
+                ├→ C₂ ─┼→ joint readouts → SetHead → L_q
+                └→ C₃ ─┘
+反向：∂L/∂F_parent = Σᵢ (∂L/∂F_Cᵢ,0)         # 所有引用同一父状态的分支累加</div><p>token-level cross 使 C₁ 的 loss 路径也能通过 C₂/C₃ 的 K/V 回传；集合 attention 再建立题内各 eᵢ 之间的梯度联系。共享 S 与 Q 的表示只算一份，不意味着梯度只接受某一个候选的贡献。训练路径不把中间状态作为 detached 推理 cache。</p><p>初始化 g=0 时，末层 cross 对候选向量的直接贡献为零；但 <code>d tanh(g)/dg|₀=1</code>，所以 gate 仍可获得梯度。此时集合头照常交互。是否更新主干权重由全参 / LoRA / head-only 训练设置决定，不改变这里的前向语义。</p>
+<h3>7.3 当前与可选序数 loss 分开看</h3><div class="equation">可选 RPS（仅 score，按整数 candidate ID 排序）：
+L_q += ord_w / (K−1) · Σ_{k=1}^{K−1}(CDF_p(k)−CDF_y(k))²
+可选 HL-Gauss：在等级 rank 上平滑 target，再做交叉熵</div><p>当前展示的 <code>fullft_4gpu_lrdecay09</code> 配置没有设置 <code>ord_w</code> 或 <code>score_hl_sigma</code>，默认都是 0。因而不能把“项目代码支持 RPS”写成“当前 score 头已带序数 loss”。RPS 按 ID 的数值顺序计算 CDF，HL-Gauss 使用排序后的 rank 间距。</p>
+<h3>7.4 精度边界</h3><div class="scroll"><table class="data-table"><thead><tr><th>位置</th><th>当前规则</th><th>原因 / 限定</th></tr></thead><tbody><tr><td>主干投影 / MLP</td><td>训练外层 BF16 autocast</td><td>全参 FSDP 使用 FP32 主权重与 BF16 计算；这里没有声称整个 backbone 都是 FP32。</td></tr><tr><td>joint scores、softmax、加权求和</td><td><code>fp32_einsum</code> 显式关闭 autocast；输入转换 FP32</td><td>降低 attention reduction 的数值敏感性；混合结果在原层输出投影前转回相应计算 dtype。</td></tr><tr><td>SetDecisionHead</td><td>入口关闭 autocast，question/candidates 转 FP32</td><td>LN、投影、两层 Transformer、scorer 均按此头的 FP32 策略执行。</td></tr><tr><td>CE / 概率读出</td><td>FP32 logits 与 log_softmax / softmax</td><td>checkpoint 可保存 temperature；默认 T=1 不代表已校准。</td></tr></tbody></table></div>
+
+</div></section>
+
+<section class="section" id="cost"><div class="section-heading"><span class="section-number">08</span><h2>复杂度、可观测性与实现边界</h2></div>
+<div class="panel pad"><h3 style="margin-top:0">8.1 节省了重复前缀，但并非所有 attention 都是稀疏计算</h3><div class="equation">N_ref  = Σⱼ Σᵢ (|S| + |Qⱼ| + |Cⱼᵢ|)
+N_tree = |S| + Σⱼ (|Qⱼ| + Σᵢ |Cⱼᵢ|)
+R      = Σⱼ (Kⱼ+1)</div><div class="scroll"><table class="data-table"><thead><tr><th>计算段</th><th>主要工作 / attention 形状</th><th>不能据此推断的事</th></tr></thead><tbody><tr><td>前 31 层逐 token 投影 / MLP</td><td>与 unique tokens N_tree 成正比的线性层工作；DeltaNet 状态按树调度。</td><td>token-work 减少比例不直接等于墙钟加速。</td></tr><tr><td>普通 full-attention</td><td>单记录有效形状 H·N_record²；多记录分桶 B·H·W²。</td><td>mask 中的零可见块没有自动变成专用 block-sparse kernel。候选很长或很多时，N_tree² 可能超过各 leaf 方阵的平方和。</td></tr><tr><td>末层 joint attention</td><td>当前源码显式计算 <code>scores[H,R_total,N_total]</code>，对 whole forest mask。</td><td>普通 full-attention 避免跨记录大方阵，不等于 joint 已按记录分桶；joint 仍有被 mask 掉的跨记录矩形计算。</td></tr><tr><td>每题集合头</td><td>投影 O((K+1)·D·d)；每层 attention O((K+1)²·d)，线性层/FFN O((K+1)·d²)。</td><td>头参数不随 K 变，但计算与内存随 K 变；当前也没有跨题 padded set batch。</td></tr></tbody></table></div>
+<h3>8.2 推理有多条执行路径，图中以 tree-batched 训练语义为中心</h3><p><code>leaf-rows/reference</code> 重复前缀，为对照路径；cached 推理用 state→question→candidate 的两级 cache 分叉；<code>tree/tree-batched</code> 按层对唯一 token 执行。它们意在保持同一计算图的输出语义，具体数值容差与 BF16 差异需要按路径验证。普通 attention 的 mask 不能单独隔离 DeltaNet，任何路径都必须同时隔离 recurrent state 与 convolution history。</p>
+<h3>8.3 如果要采集“真实 attention 权重”</h3><p>本页的彩色矩阵是 support。对于指定 checkpoint 与请求，实际数值应在对应计算位置采集，并带上层号、head、query/key token、ID 和逻辑位置一起解释：</p><ul class="bullet-list"><li><strong>joint 层：</strong>在 <code>joint_readouts</code> 的 <code>scores</code> 之后分别保留 own/cross softmax，及 <code>tanh(model.joint_gate)</code>。问题行和无兄弟行的 cross 必须按源码清零。不要把两路相加后的系数称作归一化 attention。</li><li><strong>集合头：</strong>用相同的 pre-norm 输入和 MHA 参数，在分析副本中设置 <code>need_weights=True, average_attn_weights=False</code>，得到每层 <code>[1,4,K+1,K+1]</code>。当前 <code>TransformerEncoderLayer</code> forward 并不返回这些权重；不能只 hook 模块输出就假定拿到了 A。</li><li><strong>普通 full-attention：</strong>当前 SDPA 通常不会返回完整权重，可在分析副本中读取归一化且 RoPE 后的 Q/K，结合同一树 mask 重建 softmax，或使用匹配的 eager 路径。切换 kernel 后应核对输出差异。</li><li><strong>DeltaNet：</strong>不存在等同普通 softmax attention 的 N×N 权重输出。可以分析状态转移、门控或等价影响系数，但应使用不同的图注，不能将本页树 mask 当作其实际数值权重。</li></ul><p class="small">真实权重只能说明这一输入、这一层与 head 下的信息聚合；其大小本身不等价于对最终预测的因果贡献。若要分析候选的影响，还可做候选替换、门控消融或梯度 / 干预对照。</p>
+</div></section>
+
+<section class="section" id="sources"><div class="section-heading"><span class="section-number">09</span><h2>实现与验证</h2></div><div class="panel pad"><p>本页由研究工作区的决策头图解改编，模型现命名为 Qev。教学矩阵与概率用于解释计算过程，不代表采集到的真实模型注意力。</p><p>当前源码：<a href="../qev/model.py">QevModel 与 SetDecisionHead</a> · <a href="../qev/tree.py">树形执行</a> · <a href="../qev/schema.py">任务格式</a> · <a href="../qev/encoding.py">输入编码</a>。</p><p><a href="architecture.md">English architecture guide</a> · <a href="../README.zh-CN.md">中文 README</a> · <a href="../tests/test_tree_training.py">训练与梯度一致性测试</a>。本页保留正式 Qev-9B 的 last-full-attention / 256×2 配置，其他结构消融见评测文档。</p><p id="validation-note">静态图展示允许的信息流；关于输出、梯度和可移植加载的实际测试范围见 validation.md。</p></div></section>
+<footer class="footer">Qev / 决策头技术详解 · 本地源码快照 2026-09-27 · 单文件 HTML，无外部脚本或样式依赖。相对源码链接在项目目录内有效。</footer>
+</main></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const stages={
+  backbone:{tag:'BACKBONE / ORDINARY FULL ATTENTION',title:'树形祖先 + 段内因果',text:'适用于普通 full-attention 层（3/7/11/15/19/23/27）。C₁、C₂、C₃ 互不可见；每个候选可以读取完整 S+Q 和自己的因果前缀。24 个 DeltaNet 层使用相同的逻辑依赖，但由状态分叉实现。'},
+  own:{tag:'FINAL LAYER / OWN ATTENTION',title:'只保留末 token 的 query',text:'K/V 仍是全部 token，query 只取 Q* 与每个 Cᵢ*。本例 own 各行分别在 5、8、9、8 个 key 上归一化。所有 readout queries 与 16 个 heads 一起计算，不按候选循环做完整 attention。'},
+  cross:{tag:'FINAL LAYER / CROSS ATTENTION',title:'跨候选看全文，同题内隔离',text:'C₁* 读取 C₂ 全部 4 个 token 和 C₃ 全部 3 个 token，共 7 个 key 参与同一个 cross softmax。cross 排除自身、S、Q 以及其他题。Q* 的 cross 为空，实际输出清零。'},
+  combined:{tag:'FINAL LAYER / TWO NORMALIZATIONS',title:'Own + αₕ × Cross',text:'绿色和橙色各自按行归一化，再用 αₕ=tanh(gₕ) 加权相加。这不是新的 softmax map：有 cross 的行系数和是 1+αₕ，αₕ 也可能为负。滑块仅演示门控系数，未读取任何 checkpoint gate。'},
+  set:{tag:'SET HEAD / TWO BIDIRECTIONAL LAYERS',title:'摘要向量全连接，逐题调用',text:'每题的 q 与 c₁/c₂/c₃ 组成 4 个位置。两层各有 4 个 attention heads，每层每头都有一张完整 4×4 map。开启第二题时，图用块对角展示隔离语义；实际代码分别调用两个集合头 forward，不分配这张跨题矩阵。'}
+};
+let stage='backbone';
+let currentModel=null;
+function buildTokens(second){
+  const tokens=[];
+  function add(group,count,position,question,candidate){
+    for(let local=0;local<count;local++){
+      const read=group!=='S'&&local===count-1;
+      const label=group+(read?'*':'.'+local);
+      tokens.push({index:tokens.length,group,local,pos:position+local,question,candidate,read,name:label});
+    }
+  }
+  add('S',3,0,-1,-1);add('Q1',2,3,0,-1);
+  add('C1',3,5,0,0);add('C2',4,5,0,1);add('C3',3,5,0,2);
+  if(second){add('Q2',2,3,1,-1);add('D1',3,5,1,0);add('D2',3,5,1,1);}
+  return tokens;
+}
+function owns(q,k){
+  if(q.group===k.group)return k.local<=q.local;
+  if(k.group==='S'&&q.group!=='S')return true;
+  return q.candidate>=0&&k.candidate<0&&k.question===q.question;
+}
+function crosses(q,k){return q.candidate>=0&&k.candidate>=0&&q.question===k.question&&q.candidate!==k.candidate;}
+function setName(t){return t.candidate<0?'q'+(t.question+1):(t.question===0?'c':'d')+(t.candidate+1);}
+function element(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;}
+function cellKind(q,k){
+  if(stage==='set')return q.question===k.question?'own':'blocked';
+  if(stage==='backbone'||stage==='own')return owns(q,k)?'own':'blocked';
+  if(stage==='cross')return crosses(q,k)?'cross':'blocked';
+  return owns(q,k)?'own':crosses(q,k)?'cross':'blocked';
+}
+function inspectCell(ri,ki){
+  const {rows,keys,kinds}=currentModel,q=rows[ri],k=keys[ki],kind=kinds[ri][ki];
+  const inspector=$('cell-inspector');inspector.replaceChildren();
+  const isSet=stage==='set',qName=isSet?setName(q):q.name,kName=isSet?setName(k):k.name;
+  inspector.append(element('strong',qName+' → '+kName+' · '+(kind==='blocked'?'不可见':kind==='own'?'own / 题内允许':'cross 允许')));
+  if(!isSet){inspector.append(element('div','query: physical='+q.index+', position='+q.pos));inspector.append(element('div','key: physical='+k.index+', position='+k.pos));}
+  let reason='';
+  if(isSet)reason=q.question===k.question?'两者属于同一题，无 causal 或位置 mask。实际一题独立 forward。':'两个题的 SetDecisionHead 分开调用。这里的零块只表示没有信息通路。';
+  else if(kind==='own'){
+    reason=q.group===k.group?'相同段且 key local index ≤ query local index。':k.group==='S'?'S 是 query 所在段的祖先。':'Q 是该 candidate 的所属问题前缀。';
+    if(stage==='combined')reason+=' 该格只进入 own softmax，系数为 A_own。';
+  }else if(kind==='cross'){
+    reason='query 与 key 都属于候选，question_id 相同，candidate_id 不同；无跨候选因果位置限制。';
+    if(stage==='combined')reason+=' 混合系数为 '+Math.tanh(Number($('joint-gate').value)).toFixed(3)+' × A_cross；不是注意力概率。';
+  }else if(stage==='cross'&&q.candidate<0)reason='问题 query 的 candidate_id<0：cross 整行禁用，源码将结果置零。';
+  else if(k.question>=0&&q.question>=0&&k.question!==q.question)reason='跨题：既非祖先段，也非同题兄弟候选。共享 state 不会打通问题分支。';
+  else if(stage==='cross'&&(k.candidate<0||q.candidate===k.candidate))reason='cross 只包含“其他候选”span；不包含 S/Q，也不包含当前候选自身。';
+  else if(q.group===k.group)reason='同段中的未来 token：因果条件不满足。';
+  else reason='key 不在 query 的祖先路径或同段因果前缀；普通/own attention 禁止兄弟与下游读取。';
+  inspector.append(element('p',reason));
+  const ownCount=keys.filter(t=>owns(q,t)).length,crossCount=keys.filter(t=>crosses(q,t)).length;
+  inspector.append(element('code',isSet?'题内 softmax keys = '+keys.filter(t=>t.question===q.question).length:'此 query: own keys='+ownCount+' / cross keys='+crossCount));
+}
+function renderMap(){
+  const previous=$('query-select').value||'all';
+  const tokens=buildTokens($('second-question').checked),reads=tokens.filter(t=>t.read);
+  const rows=stage==='backbone'?tokens:reads,keys=stage==='set'?reads:tokens;
+  const kinds=rows.map(q=>keys.map(k=>cellKind(q,k)));
+  currentModel={stage,tokens,rows,keys,kinds};
+  const data=stages[stage];$('map-tag').textContent=data.tag;$('map-title').textContent=data.title;$('map-explanation').textContent=data.text;
+  $('joint-gate').disabled=stage!=='combined';$('joint-gate').parentElement.style.opacity=stage==='combined'?'1':'.45';
+  const alpha=Math.tanh(Number($('joint-gate').value));$('gate-output').textContent='α='+alpha.toFixed(3);
+  const select=$('query-select');select.replaceChildren();const all=element('option','全部行');all.value='all';select.append(all);
+  rows.forEach(q=>{const option=element('option',stage==='set'?setName(q):q.name);option.value=String(q.index);select.append(option);});
+  select.value=rows.some(q=>String(q.index)===previous)?previous:'all';
+  const table=element('table',undefined,'matrix'+(stage==='set'?' set-map':''));table.setAttribute('aria-label',data.title+'，行是 query，列是 key');
+  const head=element('thead'),axis=element('tr'),axisText=element('th',stage==='set'?'KEY / VALUE：集合向量 →':'KEY / VALUE：按物理 token 排列 →','axis');axisText.colSpan=keys.length+1;axis.append(axisText);head.append(axis);
+  const groupRow=element('tr');groupRow.append(element('th',stage==='set'?'题组':'段','rowhead'));
+  const groups=[];for(const t of keys){const g=stage==='set'?'Question '+(t.question+1):t.group;const last=groups[groups.length-1];if(last&&last.name===g)last.size++;else groups.push({name:g,size:1});}
+  for(const group of groups){const th=element('th',group.name,'grouphead');th.colSpan=group.size;groupRow.append(th);}head.append(groupRow);
+  const names=element('tr');names.append(element('th','QUERY ↓','rowhead'));
+  for(const k of keys){const th=element('th',undefined,'tokenhead');th.append(element('span',stage==='set'?setName(k):k.name));names.append(th);}head.append(names);
+  if(stage!=='set')for(const [label,field] of [['physical','index'],['position','pos']]){const tr=element('tr');tr.append(element('th',label,'rowhead poshead'));keys.forEach(k=>tr.append(element('th',String(k[field]),'poshead')));head.append(tr);}
+  table.append(head);const body=element('tbody');
+  for(let r=0;r<rows.length;r++){
+    const q=rows[r],tr=element('tr');tr.dataset.query=String(q.index);
+    if(r>0&&(stage==='set'?q.question!==rows[r-1].question:q.group!==rows[r-1].group))tr.classList.add('boundary-row');
+    const rowhead=element('th',stage==='set'?setName(q):q.name,'rowhead');rowhead.scope='row';tr.append(rowhead);
+    for(let c=0;c<keys.length;c++){
+      const kind=kinds[r][c],k=keys[c];let cls=kind==='blocked'?'':'allow-'+kind;
+      if(stage==='combined'&&kind==='cross')cls=alpha===0?'cross-zero':alpha<0?'allow-negative':'allow-cross';
+      const mark=kind==='blocked'?'':kind==='cross'&&stage==='combined'?(alpha===0?'0':'α'):'•';
+      const td=element('td',mark,cls);td.dataset.r=r;td.dataset.c=c;td.dataset.kind=kind;td.tabIndex=r===0&&c===0?0:-1;
+      const groupChanged=c>0&&(stage==='set'?k.question!==keys[c-1].question:k.group!==keys[c-1].group);if(groupChanged)td.classList.add('block-start');
+      td.setAttribute('aria-label',(stage==='set'?setName(q):q.name)+' query 到 '+(stage==='set'?setName(k):k.name)+' key：'+(kind==='blocked'?'禁止':kind==='own'?'own 或集合内允许':'cross 允许'));
+      td.title=td.getAttribute('aria-label');tr.append(td);
+    }
+    body.append(tr);
+  }
+  table.append(body);$('attention-matrix').replaceChildren(table);
+  table.addEventListener('click',event=>{const td=event.target.closest('td[data-r]');if(td){table.querySelectorAll('td').forEach(c=>c.tabIndex=-1);td.tabIndex=0;td.focus();inspectCell(Number(td.dataset.r),Number(td.dataset.c));}});
+  table.addEventListener('focusin',event=>{const td=event.target.closest('td[data-r]');if(td)inspectCell(Number(td.dataset.r),Number(td.dataset.c));});
+  table.addEventListener('keydown',event=>{
+    const td=event.target.closest('td[data-r]');if(!td)return;const deltas={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]};const delta=deltas[event.key];if(!delta)return;event.preventDefault();
+    const r=Math.max(0,Math.min(rows.length-1,Number(td.dataset.r)+delta[0])),c=Math.max(0,Math.min(keys.length-1,Number(td.dataset.c)+delta[1]));const target=table.querySelector('[data-r="'+r+'"][data-c="'+c+'"]');td.tabIndex=-1;target.tabIndex=0;target.focus();
+  });
+  const own=kinds.flat().filter(x=>x==='own').length,cross=kinds.flat().filter(x=>x==='cross').length;
+  $('matrix-stats').textContent='shape: '+rows.length+' queries × '+keys.length+' keys\n'+(stage==='set'?'每层 4 个 heads；两层同结构': '9B full-attention: 16 Q heads')+'\nsupport: '+own+' own / '+cross+' cross';$('matrix-stats').style.whiteSpace='pre-line';
+  $('matrix-caption').textContent=stage==='set'?'各向量来自主干中已有的段末读出标记；横纵坐标不再是原文 token。':tokens.length+' unique tokens；read_indices=['+reads.map(x=>x.index).join(', ')+']。同题候选 position 从 5 重新开始。';
+  focusQuery();
+  const defaultRow=Math.max(0,rows.findIndex(x=>x.index===7)),defaultKey=Math.max(0,keys.findIndex(x=>x.index===11));inspectCell(defaultRow,defaultKey);
+}
+function focusQuery(){const selected=$('query-select').value;document.querySelectorAll('#attention-matrix tbody tr').forEach(row=>{row.classList.toggle('muted-row',selected!=='all'&&row.dataset.query!==selected);row.classList.toggle('selected-row',row.dataset.query===selected);});if(currentModel&&selected!=='all'){const i=currentModel.rows.findIndex(q=>String(q.index)===selected);if(i>=0)inspectCell(i,Math.min(11,currentModel.keys.length-1));}}
+document.querySelectorAll('[data-stage]').forEach(button=>button.addEventListener('click',()=>{stage=button.dataset.stage;document.querySelectorAll('[data-stage]').forEach(b=>{b.classList.toggle('active',b===button);b.setAttribute('aria-pressed',String(b===button));});renderMap();}));
+$('second-question').addEventListener('change',renderMap);$('query-select').addEventListener('change',focusQuery);$('joint-gate').addEventListener('input',renderMap);
+$('matrix-reset').addEventListener('click',()=>{$('second-question').checked=false;$('query-select').value='all';$('joint-gate').value='.6';document.querySelector('[data-stage="backbone"]').click();});
+for(let i=0;i<32;i++){const full=(i+1)%4===0,cls=i===31?' joint':full?' full':'';const cell=element('div',undefined,'layer-cell'+cls);cell.append(element('div',String(i)),element('div',i===31?'J':full?'A':'L'));cell.title=i===31?'第 31 层：joint readouts':full?'普通全注意力':'Gated DeltaNet';$('layer-strip').append(cell);}
+const typedExamples={
+  choice:{input:{type:'choice',instructions:'将这条工单路由到最匹配的队列。',criteria:{billing:'费用、账单、支付或退款问题',technical:'产品故障与技术排查',other:'不属于上述两类的诉求'},label:'billing'},candidates:[['billing','billing: 费用、账单、支付或退款问题'],['technical','technical: 产品故障与技术排查'],['other','other: 不属于上述两类的诉求']],target:[1,0,0],probabilities:[.1,.7,.2],meaning:'三个语义候选互相竞争。这里假设模型选择 technical，而目标是 billing；CE=-log(0.10)。改 K 不需要重建 scorer 的输出维度。'},
+  noul:{input:{type:'noul',instructions:'根据 state 中的规则，这个请求是否满足退款条件？',criteria:{false:'至少一个必要条件不满足',true:'全部必要条件都满足'},label:true},candidates:[['false','false: 至少一个必要条件不满足'],['true','true: 全部必要条件都满足']],target:[0,1],probabilities:[.2,.8],meaning:'判断题仍有两条候选分支、两个 logits；p(true)=sigmoid((z_true−z_false)/T)。目标 true → [0,1]，假设概率下 CE=-log(0.80)。'},
+  score:{input:{type:'score',instructions:'按描述给出响应完整性等级。',criteria:['完全未回应','只回应少量要求','回应主要要求但有明显遗漏','基本完整，存在轻微遗漏','完整且精确'],label:'3'},candidates:[['0','level 0: 完全未回应'],['1','level 1: 只回应少量要求'],['2','level 2: 回应主要要求但有明显遗漏'],['3','level 3: 基本完整，存在轻微遗漏'],['4','level 4: 完整且精确']],target:[0,0,0,1,0],probabilities:[.05,.1,.55,.2,.1],meaning:'5 条等级候选 → 5 类分布。argmax 为等级 2，期望为 2.20；期望需调用方计算。目标等级 3 → CE=-log(0.20)。当前没有附加 ordinal loss。'}
+};
+function renderType(type){
+  const sample=typedExamples[type],k=sample.candidates.length;
+  $('type-input').textContent=JSON.stringify(sample.input,null,2);
+  $('type-candidates').textContent=sample.candidates.map(([id,text],i)=>'C'+(i+1)+'  id='+JSON.stringify(id)+'\n    text='+JSON.stringify(text)).join('\n\n');
+  $('type-target').textContent='训练 target = '+JSON.stringify(sample.target)+'；题型前缀以 '+JSON.stringify(type+' question: ')+' 开头。';
+  const table=element('table',undefined,'data-table block-matrix');table.setAttribute('aria-label',type+' 的集合头全连接矩阵');const thead=element('thead'),header=element('tr');const labels=['q',...sample.candidates.map(([id])=>id)];header.append(element('th','Q \\ K'));labels.forEach(name=>header.append(element('th',name)));thead.append(header);table.append(thead);const body=element('tbody');for(const name of labels){const row=element('tr');row.append(element('th',name));labels.forEach(()=>row.append(element('td','✓','good')));body.append(row);}table.append(body);$('type-matrix').replaceChildren(table);
+  $('type-shape').textContent='X=[1,'+(k+1)+',256] → 2 layers；每层 A=[1,4,'+(k+1)+','+(k+1)+'] → scorer=['+k+',512] → logits=['+k+']';
+  const best=sample.probabilities.indexOf(Math.max(...sample.probabilities)),gold=sample.target.indexOf(1),output=$('type-output');output.replaceChildren();
+  output.append(element('p','probabilities = '+JSON.stringify(Object.fromEntries(sample.candidates.map(([id],i)=>[id,sample.probabilities[i]])))));
+  output.append(element('p','prediction = '+JSON.stringify(sample.candidates[best][0])));
+  output.append(element('p','示意 CE = '+(-Math.log(sample.probabilities[gold])).toFixed(6)));
+  if(type==='score')output.append(element('p','调用方可计算 E[level] = '+sample.probabilities.reduce((s,p,i)=>s+p*i,0).toFixed(2)));
+  $('type-explanation').textContent=sample.meaning;
+  document.querySelectorAll('[data-type]').forEach(b=>{b.classList.toggle('active',b.dataset.type===type);b.setAttribute('aria-pressed',String(b.dataset.type===type));});
+}
+document.querySelectorAll('[data-type]').forEach(button=>button.addEventListener('click',()=>renderType(button.dataset.type)));
+$('print-button').addEventListener('click',()=>window.print());
+window.ArchitectureDebug={getMatrix:()=>JSON.parse(JSON.stringify(currentModel)),buildTokens,owns,crosses,typedExamples};
+renderMap();renderType('choice');
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+*.py text eol=lf
+*.md text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.svg text eol=lf
+# Preserve the byte hashes of frozen predictions on every platform.
+results/qev-9b/jevbench-predictions.jsonl -text

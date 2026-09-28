@@ -1,0 +1,73 @@
+{
+  "date": "2026-09-28T16:29:52.217246+00:00",
+  "scope": "Standalone Qev source extraction and packaging; no new full-size training or GPU benchmark run",
+  "pytest": {
+    "total": 294,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 10,
+    "passed": 284
+  },
+  "smoke": {
+    "passed": true,
+    "scope": "tiny random hybrid Qwen3.5; CPU; no benchmark quality claim",
+    "steps": 2,
+    "prediction_questions": 3,
+    "evaluation_questions": 6
+  },
+  "export": {
+    "passed": true,
+    "files": 7,
+    "weights_identical": true,
+    "optimizer_excluded": true
+  },
+  "wheel_install": {
+    "passed": true,
+    "imported_outside_checkout": true,
+    "predictions_equal": true,
+    "tested_wheel_sha256": "6d9ec3577ae4bf7584b2d79a5cf378ef574837e1d6df12d2dc966957d2004611"
+  },
+  "jevbench_preparation": {
+    "status": "verified",
+    "unique_records": 231,
+    "splits": {
+      "original": 72,
+      "easy": 48,
+      "hard": 111,
+      "public": 231
+    },
+    "upstream_files_verified": 233,
+    "training_guard": "all four views rejected",
+    "token_admission": {
+      "admitted": 191,
+      "over_limit_retained": 40,
+      "maxima": {
+        "state_tokens": 3666,
+        "question_tokens": 66,
+        "max_candidate_tokens": 42,
+        "max_path_tokens": 3756,
+        "candidates": 6
+      }
+    }
+  },
+  "diagram_review": {
+    "svg_rendered_and_inspected": [
+      "assets/banner.svg",
+      "assets/architecture.svg",
+      "assets/jevbench.svg"
+    ],
+    "interactive_html": "JavaScript parsed; all statically referenced DOM IDs exist; browser interaction not rerun"
+  },
+  "gpu_tests": "not run; CUDA-only tests skipped",
+  "exported_tensor_dtypes": {
+    "lora": "F32",
+    "head": "F32",
+    "joint_gate": "F32"
+  },
+  "wheel": {
+    "filename": "qev-0.1.0-py3-none-any.whl",
+    "sha256": "6d9ec3577ae4bf7584b2d79a5cf378ef574837e1d6df12d2dc966957d2004611",
+    "bytes": 89719,
+    "package_sources_match_checkout": true
+  }
+}

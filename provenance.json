@@ -1,0 +1,274 @@
+{
+  "project": "Qev",
+  "version": "0.1.0",
+  "research_commit": "cb5249b47c5144e34d88cd7de46c70f8d90e4f15",
+  "note": "Selective extraction; source hashes identify working-tree files, including uncommitted research reports. Qev modifications are described in CHANGELOG.md.",
+  "kev_commit": "557598fced1dada75dfbf36ed144dce309ac6ceb",
+  "files": [
+    {
+      "source": "branchkev/__init__.py",
+      "destination": "qev/__init__.py",
+      "source_sha256": "19ad9b159b995242c251bb85be5caf0d1fc13b00ba295f2b3ea702564fdf7ece"
+    },
+    {
+      "source": "branchkev/schema.py",
+      "destination": "qev/schema.py",
+      "source_sha256": "32ac4a14f41a98519fb7582d50422b96a9e4c031e20fb3548b9e78849fdd9878"
+    },
+    {
+      "source": "branchkev/encoding.py",
+      "destination": "qev/encoding.py",
+      "source_sha256": "dc66ce353cd67f24ad7aa962247e066f906c055e1b8a3e33fc0535fed1cda817"
+    },
+    {
+      "source": "branchkev/data.py",
+      "destination": "qev/data.py",
+      "source_sha256": "e03d194d588cdfce8a03d218468c60a1d298cdf349447419f2fec8ebb2a0be8f"
+    },
+    {
+      "source": "branchkev/checkpoint.py",
+      "destination": "qev/checkpoint.py",
+      "source_sha256": "ed135b7a1c4f4ef62578b2f9264bb52551617126dca0ecab445125b212394373"
+    },
+    {
+      "source": "branchkev/train.py",
+      "destination": "qev/train.py",
+      "source_sha256": "32d493a3806e144cc7b268ac6cbad2ef2c6676c711dab9cbf40cdb76afbef216"
+    },
+    {
+      "source": "branchkev/evaluate.py",
+      "destination": "qev/evaluate.py",
+      "source_sha256": "f5dee4daa499e2f55d73c22166fe59b27cabb36656c0565ac50e7ac8759019a5"
+    },
+    {
+      "source": "branchkev/base_evaluate.py",
+      "destination": "qev/base_evaluate.py",
+      "source_sha256": "eadc56561304497b3de1566b643b14882bf9206eb78290241cf3663ac57d3034"
+    },
+    {
+      "source": "branchkev/none_data.py",
+      "destination": "qev/none_data.py",
+      "source_sha256": "2e2515dcd30330ea69ff72efe2b1a33e6ba04ab4aca20f86b7a80b45f1ca2f81"
+    },
+    {
+      "source": "branchkev/batching.py",
+      "destination": "qev/batching.py",
+      "source_sha256": "2c62b6eb749552f9a3a44024c3f22a9f6de8d70a3e5a32af2273d38939b1729b"
+    },
+    {
+      "source": "branchkev/cache.py",
+      "destination": "qev/cache.py",
+      "source_sha256": "e9a6f98b275625afdcefea57f39b9eda7a668859695a63ecc1b256417aeee4a1"
+    },
+    {
+      "source": "branchkev/execution.py",
+      "destination": "qev/execution.py",
+      "source_sha256": "f1521489a5354f762cf0f60472c3d675baf2c556b63065c7aeeb03a5f6df7842"
+    },
+    {
+      "source": "branchkev/benchmark.py",
+      "destination": "qev/benchmark.py",
+      "source_sha256": "dbec1f9b9c5ab74cd50b19392476f9acc7e0a9f3d36d21fa8e5449713958525f"
+    },
+    {
+      "source": "branchkev/choice_policy.py",
+      "destination": "qev/choice_policy.py",
+      "source_sha256": "ace76fae1d76abbf58a87b30f6a6b89bf76ce3284478923730547677e83835af"
+    },
+    {
+      "source": "branchkev/predict.py",
+      "destination": "qev/predict.py",
+      "source_sha256": "c269c82ce39b7084de494b084b26d0310e7bf2e466b597d038ce2c31a6760800"
+    },
+    {
+      "source": "branchkev/augment.py",
+      "destination": "qev/augment.py",
+      "source_sha256": "faa4a5de01b02a7462b7317a0d1cf9d8c8fa4c4eae37ff1c51f873cb9c8907a6"
+    },
+    {
+      "source": "branchkev/benchmark_prefix.py",
+      "destination": "qev/benchmark_prefix.py",
+      "source_sha256": "de011d209f46c5d38b6317cc7bc88f7b2c263c8cbaa599ab1a9af5406142ab56"
+    },
+    {
+      "source": "branchkev/benchmark_speed.py",
+      "destination": "qev/benchmark_speed.py",
+      "source_sha256": "b5845c28cc518ad639e6de781f850d92b201a4943bab6688a26b6350c5cbb934"
+    },
+    {
+      "source": "branchkev/profile_prefill.py",
+      "destination": "qev/profile_prefill.py",
+      "source_sha256": "5e0c1c06320bd7d10806c58ec6cb54dccb4f680a6a0861e0ea0069c330b7c749"
+    },
+    {
+      "source": "branchkev/benchmark_tree.py",
+      "destination": "qev/benchmark_tree.py",
+      "source_sha256": "b194b591c1b19f13e431af3cf756f9a0f92b24cf2240f95a00591d66e3608ab5"
+    },
+    {
+      "source": "branchkev/fsdp.py",
+      "destination": "qev/fsdp.py",
+      "source_sha256": "ca5c183e74f816cd4175a1455a69a3e5542b5550fc4de5d9e6116d8a46e56440"
+    },
+    {
+      "source": "branchkev/inline_eval.py",
+      "destination": "qev/inline_eval.py",
+      "source_sha256": "3cc1f96cbd00569713a0be6660b5f53b99efb000db67a7f5e638439b4836bf5a"
+    },
+    {
+      "source": "branchkev/model.py",
+      "destination": "qev/model.py",
+      "source_sha256": "b0090afe902fd8a3692fe17dd7c102844aef1365939596594d6335407eaf708c"
+    },
+    {
+      "source": "branchkev/tree.py",
+      "destination": "qev/tree.py",
+      "source_sha256": "2c21e35bda3c87e9c77103620416cc3c801c6e90cd2bfd89ad5960e7dd5c8792"
+    },
+    {
+      "source": "tests/conftest.py",
+      "destination": "tests/conftest.py",
+      "source_sha256": "43d0fbbb3dd5ae87a912a1828e9de17fef51251368cf77906510ccfc4fad6787"
+    },
+    {
+      "source": "tests/test_model.py",
+      "destination": "tests/test_model.py",
+      "source_sha256": "70e4e5f8e79b751d8b468a7bc458fc3392aa6c354e932f47fa8247498eec4b44"
+    },
+    {
+      "source": "tests/test_data.py",
+      "destination": "tests/test_data.py",
+      "source_sha256": "d2153530ea68c76f78f0e8067d8174279f3b065c6691d319584916e956f77f81"
+    },
+    {
+      "source": "tests/test_training.py",
+      "destination": "tests/test_training.py",
+      "source_sha256": "ffe679077b9a5c5ac11b2562b124d3943f0336d8c58dc9ef548547b7857a2cbe"
+    },
+    {
+      "source": "tests/test_evaluation.py",
+      "destination": "tests/test_evaluation.py",
+      "source_sha256": "577892f8dc82b0cb02e808f8ffe070a5bc7bc16b4e5cc17eafb18cb1eeea4005"
+    },
+    {
+      "source": "tests/test_base_evaluation.py",
+      "destination": "tests/test_base_evaluation.py",
+      "source_sha256": "670364ce6a9146c2e731c1464b6192e83343c92d222998e6bac3a6f2bfe7c75e"
+    },
+    {
+      "source": "tests/test_none_data.py",
+      "destination": "tests/test_none_data.py",
+      "source_sha256": "34f8acec7a5314ca2d13b2c8bb22411e09ed439590e75aeea34c3a697a9804f3"
+    },
+    {
+      "source": "tests/test_batching.py",
+      "destination": "tests/test_batching.py",
+      "source_sha256": "6d31b780d31dbb6b1b33643654b35aaca23707b77e85ad8a5481d04dd5344ed2"
+    },
+    {
+      "source": "tests/test_shared_prefix.py",
+      "destination": "tests/test_shared_prefix.py",
+      "source_sha256": "afce360df2bc8703fcba4b7f8625e231ca47330ae821da8e5c0195813701c752"
+    },
+    {
+      "source": "tests/test_choice_policy.py",
+      "destination": "tests/test_choice_policy.py",
+      "source_sha256": "2de09e26e93e9132e4be5937dbcf9779a4621cda151bb6185a4ad325c92005cb"
+    },
+    {
+      "source": "tests/test_none_augment.py",
+      "destination": "tests/test_none_augment.py",
+      "source_sha256": "e5a11e0a0a03318e439f3622b4fd99e57d9f44dfdc8145c137f533d1cf83e6bf"
+    },
+    {
+      "source": "tests/test_tree_batching.py",
+      "destination": "tests/test_tree_batching.py",
+      "source_sha256": "087c6734a457fa1bdfef1b63973aeb562cc25bfaa973b055954aec1599b30dfb"
+    },
+    {
+      "source": "tests/test_precision.py",
+      "destination": "tests/test_precision.py",
+      "source_sha256": "d2b4c81769fb33d15838a526d5ba89120aed0e25f62a90b0225cf6f1e093429b"
+    },
+    {
+      "source": "tests/test_full_finetune.py",
+      "destination": "tests/test_full_finetune.py",
+      "source_sha256": "b9f2d6c8b92594b10d4535babbd5c6e9fd1473b566218007316180608c96acb6"
+    },
+    {
+      "source": "tests/test_jevbench.py",
+      "destination": "tests/test_jevbench.py",
+      "source_sha256": "a0b32662c60610d1113207a005ecbb27488343844550d7a3bb4018f5bf3cd119"
+    },
+    {
+      "source": "tests/test_joint.py",
+      "destination": "tests/test_joint.py",
+      "source_sha256": "176bdd67e8fb713f2887b270ab8d9b99288260a769f60d368bccb140a7f6a89e"
+    },
+    {
+      "source": "tests/test_prefix_inference.py",
+      "destination": "tests/test_prefix_inference.py",
+      "source_sha256": "38cf731b9b33ddf6540d1dd154f50ad032ce7aa51b66a8c0b790a9c6b9502a17"
+    },
+    {
+      "source": "tests/test_tree_inference.py",
+      "destination": "tests/test_tree_inference.py",
+      "source_sha256": "9079731123ec936dabba217cc15781333912fc29f0573c8dd5f3806c7bc10ed1"
+    },
+    {
+      "source": "tests/test_tree_training.py",
+      "destination": "tests/test_tree_training.py",
+      "source_sha256": "f2c8e92144170d5163a2918476c60d1ebd9e482e301e76967e9937d96fc5e1f8"
+    },
+    {
+      "source": "scripts/prepare_jevbench.py",
+      "destination": "scripts/prepare_jevbench.py",
+      "source_sha256": "7590cc2886decef870f89f7d522c068052d5577165f75aee1444af230f3695d7"
+    },
+    {
+      "source": "configs/qwen35_9b_head256_bf16_joint_noneinsert_tree_batched_cleaned_4gpu_r64_late50x3.json",
+      "destination": "configs/qev-9b.json",
+      "source_sha256": "f399d57bc00420b317d95a93a3e742343bda10cd26a4c818d379101e2769f966"
+    },
+    {
+      "source": "configs/qwen35_9b_head256_bf16_joint_noneinsert_tree_batched_cleaned_2gpu_r64_late50x3_nocross_head0.json",
+      "destination": "configs/qev-9b-independent.json",
+      "source_sha256": "db3efa7d213e17a8886c47f13b046b68e1b63730a835df18945802ba87a95325"
+    },
+    {
+      "source": "configs/qwen35_9b_head256_bf16_joint_noneinsert_tree_batched_cleaned_4gpu_r64_late50x3_readoutcross.json",
+      "destination": "configs/qev-9b-readout-cross.json",
+      "source_sha256": "cdb668c65b327cefcd88f16df001501414225d36d160e69a6e30dac243108644"
+    },
+    {
+      "source": "configs/qwen35_9b_head256_bf16_joint_noneinsert_tree_batched_knowledge_fullft_4gpu_lrdecay09.json",
+      "destination": "configs/qev-9b-fullft.json",
+      "source_sha256": "9976b2b7a34ed90b9cc5724b6e73b10ebbb542f2c26dde273a56093ebe355026"
+    },
+    {
+      "source": "configs/qwen35_0p8b_head256_bf16_joint_noneinsert_tree_batched_cleaned_2gpu.json",
+      "destination": "configs/qev-0.8b.json",
+      "source_sha256": "57ba23ac617fbe179e8b17f48276e4ddb4ed50bc776910d9c9316fb14d16531a"
+    },
+    {
+      "source": "docs/architecture/decision-head.html",
+      "destination": "docs/decision-head.html",
+      "source_sha256": "b7f0de0252936bf9a70db2a5ec8139ce873a0c37b3c6544854712659ff1fa5d9"
+    },
+    {
+      "source": "branchkev/prepare.py",
+      "destination": "qev/adapters.py",
+      "source_sha256": "10c3d88b77f700a9247a0814b7e1683477595b9eb989a274670fcb317ad7a473"
+    },
+    {
+      "source": "docs/training/FINAL_RESULTS.zh-CN.md",
+      "destination": "results/benchmarks.json",
+      "source_sha256": "6f094e2e35217089b1ef9365525d3ddbfa46d1354e2faff4b4a25e1bbcfa63d9"
+    },
+    {
+      "source": "docs/training/DATA_ITERATION_20260926.zh-CN.md",
+      "destination": "docs/evaluation.md",
+      "source_sha256": "91c4b49ba99542ea8baeb112755a5dbc85851ef977cbb62ffb544931b0dbd03f"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qev"
+version = "0.1.0"
+description = "Qwen-based decision models with candidate branches and shared-prefix execution"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{name = "Qev contributors"}]
+dependencies = ["torch==2.8.0", "transformers==5.17.0", "peft==0.21.0", "accelerate==1.15.0", "safetensors==0.8.0", "huggingface-hub>=1.0,<2"]
+
+[project.optional-dependencies]
+data = ["pyarrow>=16"]
+test = ["pytest>=8"]
+
+[project.scripts]
+qev-predict = "qev.predict:main"
+qev-prepare = "qev.prepare:main"
+qev-train = "qev.train:main"
+qev-evaluate = "qev.evaluate:main"
+qev-export = "qev.export:main"
+
+[tool.setuptools.packages.find]
+include = ["qev*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="360" viewBox="0 0 1440 360" role="img" aria-labelledby="title desc">
+<title id="title">Qev — Decisions, grounded in Qwen</title><desc id="desc">Qwen-based decision models. Candidate branches, shared decision head, explicit probabilities.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#f4f0ff"/><stop offset="1" stop-color="#e9faf6"/></linearGradient><linearGradient id="mark"><stop stop-color="#7048e8"/><stop offset="1" stop-color="#3b2b8c"/></linearGradient></defs>
+<rect width="1440" height="360" rx="24" fill="url(#bg)"/>
+<g font-family="Inter,Segoe UI,Arial,sans-serif"><text x="64" y="67" fill="#655c83" font-size="15" font-weight="700" letter-spacing="4">OPEN MODEL · OPEN TRAINING CODE</text>
+<text x="57" y="185" fill="url(#mark)" font-size="116" font-weight="800" letter-spacing="-6">Qev</text>
+<text x="64" y="240" fill="#202439" font-size="32" font-weight="600">Decisions, grounded in Qwen.</text>
+<text x="64" y="291" fill="#606679" font-size="19">Candidate branches. A shared head. Explicit probabilities.</text>
+<g transform="translate(905 56)"><rect width="455" height="248" rx="18" fill="#fff" opacity=".85"/>
+<text x="28" y="40" fill="#716a87" font-size="13" font-weight="700" letter-spacing="2">ONE MODEL · THREE DECISIONS</text>
+<g font-size="18" fill="#28283f"><text x="30" y="92" font-weight="600">Choice</text><text x="30" y="150" font-weight="600">Noul</text><text x="30" y="208" font-weight="600">Score</text></g>
+<g font-size="15" fill="#656c80"><text x="150" y="92">Which option?</text><text x="150" y="150">True or false?</text><text x="150" y="208">Which level?</text></g>
+<g fill="#7048e8"><rect x="310" y="73" width="108" height="9" rx="4"/><rect x="310" y="87" width="62" height="9" rx="4" opacity=".35"/><rect x="310" y="101" width="34" height="9" rx="4" opacity=".18"/></g>
+<rect x="310" y="135" width="108" height="14" rx="7" fill="#dfefea"/><rect x="310" y="135" width="78" height="14" rx="7" fill="#21947c"/>
+<g fill="#d8d1f5"><rect x="310" y="198" width="24" height="12" rx="3"/><rect x="340" y="187" width="24" height="23" rx="3"/><rect x="370" y="172" width="24" height="38" rx="3" fill="#7048e8"/></g></g></g>
+</svg>

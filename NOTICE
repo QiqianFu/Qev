@@ -1,0 +1,28 @@
+Qev
+Copyright 2026 Qev contributors
+
+Qev is a Qwen-based decision-model research implementation. It was developed as
+BranchKev before extraction into this repository. The selective extraction and
+source-file hashes are recorded in provenance.json.
+
+This project adapts conventions and implementation ideas from Kev:
+  https://github.com/jaredpalmer/kev
+  Reviewed revision: 557598fced1dada75dfbf36ed144dce309ac6ceb
+  Copyright 2026 Jared Palmer
+  Licensed under the Apache License, Version 2.0.
+
+Adapted components include the reserved Qwen delimiter convention, text rendering
+conventions, LoRA target selection, and the inference cache-fork approach.
+Qev's candidate-tree encoding, set decision head, data adapters, and training
+runner are maintained separately. Files extracted for this release were renamed
+and modified for standalone Qev packaging, portable checkpoints and user-data
+training. The original Kev attribution is retained in LICENSE and this notice.
+
+Qwen models and Hugging Face Transformers are external dependencies. The optional
+JevBench preparer downloads an independently versioned MIT-licensed upstream
+snapshot from https://github.com/fstandhartinger/jevbench and retains its license.
+No Qwen base weights or original benchmark questions are redistributed in Git.
+
+Model weights and datasets retain their respective terms. This source-code
+license does not relicense third-party datasets or imply that the full research
+training corpus is included.

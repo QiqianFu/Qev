@@ -1,0 +1,38 @@
+{
+  "checkpoint": {
+    "base": "Qwen/Qwen3.5-9B-Base",
+    "base_revision": "68c46c4b3498877f3ef123c856ecfde50c39f404",
+    "research_name": "BranchKev",
+    "run": "c21-science-wk-late1783-9b-4gpu-r64-late50x3-s17",
+    "step": 2327,
+    "dtype": "bf16",
+    "execution": "reference",
+    "seed": 17,
+    "temperature": 1.0
+  },
+  "config": "configs/qev-9b.json",
+  "predictions_sha256": "ae5fcfd64715cd7d9eb1953df9cb86a31c24b5298c4fae97c150297c85cee5dc",
+  "protocol": {
+    "state_limit": 4096,
+    "path_limit": 4096,
+    "upstream_jevbench_revision": "1df665e3956d7aab7fa0208ff6c4f2d8557f9f90",
+    "metric": "argmax accuracy; rejected items count as wrong",
+    "limits": {
+      "max_state": 4096,
+      "max_question": 512,
+      "max_candidate": 256,
+      "max_path": 4096,
+      "max_candidates": 128
+    },
+    "trained_limits": {
+      "max_state": 1024,
+      "max_question": 512,
+      "max_candidate": 256,
+      "max_path": 2048,
+      "max_candidates": 128
+    },
+    "original_data_manifest_sha256": "5a9c7f98a619dee38ce2de8abb09f586d308f9ce3e08604eaadd72a4e445296e"
+  },
+  "training_data_manifest_sha256": "3644978f93f9f09815048b52bbdfba19f257f5b554950d7b84e6255f65649a96",
+  "source_report_sha256": "b3f6ab483d9aab8d990fd12806f1bd778a7d0b97ad7baac4ecbbbb4e5a1275af"
+}
