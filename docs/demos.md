@@ -1,13 +1,13 @@
 # Gameplay recordings / 游戏录屏
 
-The [English README](../README.md) and [中文 README](../README.zh-CN.md) show looping GIF previews of recorded decision replays. Each preview links to an MP4 version at the same playback speed. The interface retains the research name, BranchKev.
+The [English README](../README.md) and [中文 README](../README.zh-CN.md) show looping GIF previews of recorded decision replays. Each preview links to an MP4 version. The interface retains the research name, BranchKev.
 
-中英文 README 展示决策回放录屏的循环 GIF，点击可打开相同倍速的 MP4 版本。录屏界面保留研究阶段的名称 BranchKev。
+中英文 README 展示决策回放录屏的循环 GIF，点击可打开 MP4 版本。录屏界面保留研究阶段的名称 BranchKev。
 
-| Recording / 录屏 | GIF | MP4 | Playback / 倍速 | Original → preview / 原片 → 预览 |
-|---|---|---|---|---|
-| Snake / 贪吃蛇 | [snake.gif](../assets/demos/snake.gif) | [snake.mp4](../assets/demos/snake.mp4) | 4× | 42.19 s → about 10.55 s |
-| Crafter / 生存建造 | [crafter.gif](../assets/demos/crafter.gif) | [crafter.mp4](../assets/demos/crafter.mp4) | 2× | 17.51 s → about 8.75 s |
+| Recording / 录屏 | GIF | MP4 |
+|---|---|---|
+| Snake / 贪吃蛇 | [snake.gif](../assets/demos/snake.gif) | [snake.mp4](../assets/demos/snake.mp4) |
+| Crafter / 生存建造 | [crafter.gif](../assets/demos/crafter.gif) | [crafter.mp4](../assets/demos/crafter.mp4) |
 
 ## Visible run details / 画面中的运行信息
 
@@ -16,9 +16,9 @@ The [English README](../README.md) and [中文 README](../README.zh-CN.md) show 
 
 贪吃蛇画面标注 `BranchKev 9B · cleaned-v2-aqua`、种子 101、119 次已记录决策；Crafter 画面标注 `BranchKev 9B · step2327`、种子 77、40 步。两段均展示动作执行后的环境以及决策信息。
 
-Playback speed describes video editing, not model inference throughput. These individual replays illustrate behavior; benchmark results and evaluation settings are documented in [evaluation.md](evaluation.md).
+These individual replays illustrate behavior; benchmark results and evaluation settings are documented in [evaluation.md](evaluation.md).
 
-倍速仅指录屏播放速度，不代表模型推理吞吐量。单局回放用于展示行为，评测结果与设置见 [evaluation.md](evaluation.md)。
+单局回放用于展示行为，评测结果与设置见 [evaluation.md](evaluation.md)。
 
 ## Media settings / 媒体设置
 

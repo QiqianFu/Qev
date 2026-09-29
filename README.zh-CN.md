@@ -16,27 +16,8 @@
 
 | 从这里开始 | 可以做什么 |
 |---|---|
-| **[训练模型](#训练)** | 准备标注数据，从 Qwen 底座训练，或在 Qev 检查点上继续微调 |
 | **[运行模型](#推理)** | 通过 Python 或 JSONL 接口，获取选项概率和决策 |
-
-## 演示
-
-贪吃蛇与 Crafter 的决策回放录屏，分别以 **4 倍速**和 **2 倍速**展示。点击动画可打开 MP4 版本；录屏界面保留了研究阶段的名称 BranchKev。
-
-<table>
-  <tr>
-    <td width="50%" align="center">
-      <a href="assets/demos/snake.mp4"><img src="assets/demos/snake.gif" alt="贪吃蛇决策回放，展示动作选择与概率，4 倍速" width="100%"></a>
-      <br><strong>贪吃蛇 · 连续动作选择 · 4×</strong>
-    </td>
-    <td width="50%" align="center">
-      <a href="assets/demos/crafter.mp4"><img src="assets/demos/crafter.gif" alt="Crafter 决策回放，展示目标、动作与概率，2 倍速" width="100%"></a>
-      <br><strong>Crafter · 生存与建造 · 2×</strong>
-    </td>
-  </tr>
-</table>
-
-[录屏详情与播放设置](docs/demos.md)。
+| **[训练模型](#训练)** | 准备标注数据，从 Qwen 底座训练，或在 Qev 检查点上继续微调 |
 
 ## 安装
 
@@ -56,51 +37,6 @@ python scripts/smoke.py --out runs/smoke
 ```
 
 它使用随机初始化的小型 Qwen 验证数据准备、训练、续训和推理流程；完整安装与设备说明见[训练文档](docs/training.md)。
-
-## 训练
-
-### 准备数据
-
-训练数据沿用推理请求中的 `state` 和 `questions`，在每个问题上增加 `label`。Choice 填候选 ID，Noul 填布尔值，Score 填从 0 开始的等级编号。相关样本应共用 `group_id`。
-
-| 数据 | 内容 | 入口 |
-|---|---|---|
-| 随包示例 | 6 条训练请求、2 条验证请求，覆盖三种任务 | [examples/](examples/README.md) |
-| 自己的数据 | 带标签或软目标的 JSONL 请求 | [数据格式](docs/data.md) |
-| 正式研究配方 | 主分区 34,546 条，收尾分区 1,783 条；完整数据尚未随代码分发 | [数据构成](docs/data.md#research-recipe-and-availability) |
-
-```bash
-python -m qev.prepare \
-  --input examples/train.jsonl --validation examples/dev.jsonl \
-  --out data/support
-```
-
-未提供独立验证文件时，工具按 `group_id` 做确定性划分，并检查训练／验证之间的 ID、分组和精确输入重合。随包示例用于熟悉流程，数量不足以评价训练收益。
-
-### 监督微调
-
-在 CUDA GPU 上，从已有的 Qev-9B 检查点开始新的领域训练：
-
-```bash
-python -m qev.train \
-  --config configs/qev-9b-finetune.json \
-  --data data/support --out runs/support \
-  --init-checkpoint AustinFu/Qev-9B@v0.1.0
-```
-
-`--init-checkpoint` 加载模型参数，重新建立优化器与学习率计划；`--resume` 恢复同一次训练及其原数据校验。省略初始化参数则从配置中的 Qwen 底座开始。
-
-[正式四卡配置](configs/qev-9b.json)使用 rank 64、全局 batch 32、两轮训练和收尾分区混入。单卡、多卡、断点恢复与全参训练见[训练指南](docs/training.md)。
-
-## 模型与检查点
-
-| 模型 | 底座与结构 | 当前入口 |
-|---|---|---|
-| **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | [Hugging Face · v0.1.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.1.0) |
-
-正式检查点为 seed 17、step 2327。研究阶段名称是 BranchKev，旧数据与检查点格式仍可加载。推理导出包含 LoRA、决策头、交互 gate、tokenizer 与元数据，不包含底座和优化器状态。
-
-约 690 MiB 的检查点会自动下载，加载器另行获取固定版本的 Qwen 底座。本地下载、检查点导出与底座缓存配置见[检查点指南](docs/checkpoints.md)；完整模型信息见[模型卡](docs/model-card.md)。
 
 ## 推理
 
@@ -140,6 +76,70 @@ python -m qev.predict \
 ```
 
 默认使用共享前缀缓存；复现正式评测的执行路径时加 `--reference`。输出文件使用新名字，精度与长度选项见[加载说明](docs/checkpoints.md)。
+
+## 训练
+
+### 准备数据
+
+训练数据沿用推理请求中的 `state` 和 `questions`，在每个问题上增加 `label`。Choice 填候选 ID，Noul 填布尔值，Score 填从 0 开始的等级编号。相关样本应共用 `group_id`。
+
+| 数据 | 内容 | 入口 |
+|---|---|---|
+| 随包示例 | 6 条训练请求、2 条验证请求，覆盖三种任务 | [examples/](examples/README.md) |
+| 自己的数据 | 带标签或软目标的 JSONL 请求 | [数据格式](docs/data.md) |
+| 正式研究配方 | 主分区 34,546 条，收尾分区 1,783 条；完整数据尚未随代码分发 | [数据构成](docs/data.md#research-recipe-and-availability) |
+
+```bash
+python -m qev.prepare \
+  --input examples/train.jsonl --validation examples/dev.jsonl \
+  --out data/support
+```
+
+未提供独立验证文件时，工具按 `group_id` 做确定性划分，并检查训练／验证之间的 ID、分组和精确输入重合。随包示例用于熟悉流程，数量不足以评价训练收益。
+
+### 监督微调
+
+在 CUDA GPU 上，从已有的 Qev-9B 检查点开始新的领域训练：
+
+```bash
+python -m qev.train \
+  --config configs/qev-9b-finetune.json \
+  --data data/support --out runs/support \
+  --init-checkpoint AustinFu/Qev-9B@v0.1.0
+```
+
+`--init-checkpoint` 加载模型参数，重新建立优化器与学习率计划；`--resume` 恢复同一次训练及其原数据校验。省略初始化参数则从配置中的 Qwen 底座开始。
+
+[正式四卡配置](configs/qev-9b.json)使用 rank 64、全局 batch 32、两轮训练和收尾分区混入。单卡、多卡、断点恢复与全参训练见[训练指南](docs/training.md)。
+
+## 演示
+
+贪吃蛇与 Crafter 的决策回放录屏，展示环境中的动作选择与候选概率。点击动画可打开 MP4 版本；录屏界面保留了研究阶段的名称 BranchKev。
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <a href="assets/demos/snake.mp4"><img src="assets/demos/snake.gif" alt="贪吃蛇决策回放，展示动作选择与概率" width="100%"></a>
+      <br><strong>贪吃蛇 · 连续动作选择</strong>
+    </td>
+    <td width="50%" align="center">
+      <a href="assets/demos/crafter.mp4"><img src="assets/demos/crafter.gif" alt="Crafter 决策回放，展示目标、动作与概率" width="100%"></a>
+      <br><strong>Crafter · 生存与建造</strong>
+    </td>
+  </tr>
+</table>
+
+[录屏详情](docs/demos.md)。
+
+## 模型与检查点
+
+| 模型 | 底座与结构 | 当前入口 |
+|---|---|---|
+| **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | [Hugging Face · v0.1.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.1.0) |
+
+正式检查点为 seed 17、step 2327。研究阶段名称是 BranchKev，旧数据与检查点格式仍可加载。推理导出包含 LoRA、决策头、交互 gate、tokenizer 与元数据，不包含底座和优化器状态。
+
+约 690 MiB 的检查点会自动下载，加载器另行获取固定版本的 Qwen 底座。本地下载、检查点导出与底座缓存配置见[检查点指南](docs/checkpoints.md)；完整模型信息见[模型卡](docs/model-card.md)。
 
 ## 模型怎样作出决策
 
@@ -182,3 +182,10 @@ Qev-9B 在 JevBench 公开 231 题上答对 **188 题（81.39%）**，Kev-9B 为
 运行 `python -m pytest -q` 和 `python scripts/check_release.py` 检查代码与文档；实际验证范围和 GPU 跳过项见[验证记录](docs/validation.md)。
 
 Qev 基于 Qwen，并参考 [Jared Palmer 的 Kev](https://github.com/jaredpalmer/kev) 中的标记约定、文本渲染、LoRA 目标和缓存分叉方式。代码采用 [Apache-2.0](LICENSE)，来源与署名见 [NOTICE](NOTICE) 和 [provenance.json](provenance.json)。权重与数据保留各自适用的条款。
+
+## 致谢
+
+感谢以下两个项目的工作与启发：
+
+- **BranchKev**：感谢研究阶段在候选分支编码、决策头与训练流程上的探索，为 Qev 的独立发布奠定了基础。代码沿革见 [NOTICE](NOTICE) 与 [provenance.json](provenance.json)。
+- **[Jev / TypeSafe 官方团队](https://typesafe.ai/)**：感谢在决策模型方向上的探索，以及围绕类型化决策与概率输出提供的[公开接口文档](https://docs.typesafe.ai/introduction)。

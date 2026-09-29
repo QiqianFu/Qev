@@ -16,27 +16,8 @@ This repository provides the model architecture, training and evaluation code, P
 
 | Start here | What you can do |
 |---|---|
-| **[Train a model](#training)** | Prepare labelled data, train from Qwen, or fine-tune an existing Qev checkpoint |
 | **[Run a model](#inference)** | Get decisions and option probabilities through Python or JSONL |
-
-## Demos
-
-Recorded Snake and Crafter decision replays, shown at **4×** and **2×** speed respectively. Click either animation for the MP4 version. The recordings retain the research name, BranchKev, in their interface.
-
-<table>
-  <tr>
-    <td width="50%" align="center">
-      <a href="assets/demos/snake.mp4"><img src="assets/demos/snake.gif" alt="Snake decision replay at 4× speed, with selected actions and probabilities" width="100%"></a>
-      <br><strong>Snake · Sequential action selection · 4×</strong>
-    </td>
-    <td width="50%" align="center">
-      <a href="assets/demos/crafter.mp4"><img src="assets/demos/crafter.gif" alt="Crafter decision replay at 2× speed, with goals, actions and probabilities" width="100%"></a>
-      <br><strong>Crafter · Survival and crafting · 2×</strong>
-    </td>
-  </tr>
-</table>
-
-[Recording details and playback settings](docs/demos.md).
+| **[Train a model](#training)** | Prepare labelled data, train from Qwen, or fine-tune an existing Qev checkpoint |
 
 ## Installation
 
@@ -56,51 +37,6 @@ python scripts/smoke.py --out runs/smoke
 ```
 
 This uses a tiny random Qwen to exercise data preparation, training, resume and inference. See the [training guide](docs/training.md) for environment and device details.
-
-## Training
-
-### Prepare data
-
-Training examples use the same `state` and `questions` as inference, with a `label` on each question. Choice labels are candidate IDs, Noul labels are booleans, and Score labels are zero-based level indices. Related records should share a `group_id`.
-
-| Data | Contents | Entry point |
-|---|---|---|
-| Included examples | Six training and two validation requests, covering all three tasks | [examples/](examples/README.md) |
-| Your data | Labelled or soft-target JSONL requests | [Data format](docs/data.md) |
-| Research recipe | 34,546 main and 1,783 late records; the full corpus is not bundled | [Composition and availability](docs/data.md#research-recipe-and-availability) |
-
-```bash
-python -m qev.prepare \
-  --input examples/train.jsonl --validation examples/dev.jsonl \
-  --out data/support
-```
-
-Without an explicit validation file, the preparer splits by group deterministically. It checks train/dev overlap in IDs, groups and exact inputs. The small included examples demonstrate the workflow; they cannot establish training gains.
-
-### Supervised fine-tuning
-
-On a CUDA GPU, initialize a new domain-training run from a Qev-9B checkpoint:
-
-```bash
-python -m qev.train \
-  --config configs/qev-9b-finetune.json \
-  --data data/support --out runs/support \
-  --init-checkpoint AustinFu/Qev-9B@v0.1.0
-```
-
-`--init-checkpoint` loads model parameters and starts a fresh optimizer and schedule. `--resume` continues the same run with its original data checks. Omit initialization to start from the Qwen base in the configuration.
-
-The [formal four-GPU recipe](configs/qev-9b.json) uses rank 64, global batch 32, two epochs, and a late-training partition. Single-GPU use, distributed training, resume and full fine-tuning are documented in the [training guide](docs/training.md).
-
-## Model and checkpoints
-
-| Model | Base and architecture | Availability |
-|---|---|---|
-| **Qev-9B** | Qwen3.5-9B-Base, rank-64 LoRA, two-layer 256-dimensional set head | [Hugging Face · v0.1.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.1.0) |
-
-The selected checkpoint is seed 17, step 2327. It was called BranchKev during research; those record and checkpoint formats remain readable. An inference export contains LoRA, the decision head, joint gate, tokenizer and metadata, excluding base weights and optimizer state.
-
-The approximately 690 MiB checkpoint downloads automatically; the loader fetches the pinned Qwen base separately. See [checkpoint export and loading](docs/checkpoints.md) for local downloads and base-model cache overrides. The [model card](docs/model-card.md) describes the released model.
 
 ## Inference
 
@@ -140,6 +76,70 @@ python -m qev.predict \
 ```
 
 The default uses shared-prefix caching. Add `--reference` for the execution used in the reported evaluation. Output files must be new; precision and length options are in the [loading guide](docs/checkpoints.md).
+
+## Training
+
+### Prepare data
+
+Training examples use the same `state` and `questions` as inference, with a `label` on each question. Choice labels are candidate IDs, Noul labels are booleans, and Score labels are zero-based level indices. Related records should share a `group_id`.
+
+| Data | Contents | Entry point |
+|---|---|---|
+| Included examples | Six training and two validation requests, covering all three tasks | [examples/](examples/README.md) |
+| Your data | Labelled or soft-target JSONL requests | [Data format](docs/data.md) |
+| Research recipe | 34,546 main and 1,783 late records; the full corpus is not bundled | [Composition and availability](docs/data.md#research-recipe-and-availability) |
+
+```bash
+python -m qev.prepare \
+  --input examples/train.jsonl --validation examples/dev.jsonl \
+  --out data/support
+```
+
+Without an explicit validation file, the preparer splits by group deterministically. It checks train/dev overlap in IDs, groups and exact inputs. The small included examples demonstrate the workflow; they cannot establish training gains.
+
+### Supervised fine-tuning
+
+On a CUDA GPU, initialize a new domain-training run from a Qev-9B checkpoint:
+
+```bash
+python -m qev.train \
+  --config configs/qev-9b-finetune.json \
+  --data data/support --out runs/support \
+  --init-checkpoint AustinFu/Qev-9B@v0.1.0
+```
+
+`--init-checkpoint` loads model parameters and starts a fresh optimizer and schedule. `--resume` continues the same run with its original data checks. Omit initialization to start from the Qwen base in the configuration.
+
+The [formal four-GPU recipe](configs/qev-9b.json) uses rank 64, global batch 32, two epochs, and a late-training partition. Single-GPU use, distributed training, resume and full fine-tuning are documented in the [training guide](docs/training.md).
+
+## Demos
+
+Recorded Snake and Crafter decision replays showing action selection and candidate probabilities in the environment. Click either animation for the MP4 version. The recordings retain the research name, BranchKev, in their interface.
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <a href="assets/demos/snake.mp4"><img src="assets/demos/snake.gif" alt="Snake decision replay, with selected actions and probabilities" width="100%"></a>
+      <br><strong>Snake · Sequential action selection</strong>
+    </td>
+    <td width="50%" align="center">
+      <a href="assets/demos/crafter.mp4"><img src="assets/demos/crafter.gif" alt="Crafter decision replay, with goals, actions and probabilities" width="100%"></a>
+      <br><strong>Crafter · Survival and crafting</strong>
+    </td>
+  </tr>
+</table>
+
+[Recording details](docs/demos.md).
+
+## Model and checkpoints
+
+| Model | Base and architecture | Availability |
+|---|---|---|
+| **Qev-9B** | Qwen3.5-9B-Base, rank-64 LoRA, two-layer 256-dimensional set head | [Hugging Face · v0.1.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.1.0) |
+
+The selected checkpoint is seed 17, step 2327. It was called BranchKev during research; those record and checkpoint formats remain readable. An inference export contains LoRA, the decision head, joint gate, tokenizer and metadata, excluding base weights and optimizer state.
+
+The approximately 690 MiB checkpoint downloads automatically; the loader fetches the pinned Qwen base separately. See [checkpoint export and loading](docs/checkpoints.md) for local downloads and base-model cache overrides. The [model card](docs/model-card.md) describes the released model.
 
 ## How decisions are made
 
@@ -182,3 +182,10 @@ Qev-9B answers **188/231 public JevBench questions (81.39%)** correctly, compare
 Run `python -m pytest -q` and `python scripts/check_release.py` to check the code and documentation. The [validation record](docs/validation.md) lists the actual checks and GPU skips.
 
 Qev builds on Qwen and adapts delimiter, rendering, LoRA-target and cache-fork conventions from [Jared Palmer's Kev](https://github.com/jaredpalmer/kev). Code is licensed under [Apache-2.0](LICENSE); see [NOTICE](NOTICE) and [provenance.json](provenance.json) for attribution. Weights and datasets retain their respective terms.
+
+## Acknowledgments
+
+We thank these two projects for their contributions and inspiration:
+
+- **BranchKev**: the research work on candidate-branch encoding, decision heads and training workflows provided the foundation for Qev's standalone release. See [NOTICE](NOTICE) and [provenance.json](provenance.json) for the code lineage.
+- **[Jev / the TypeSafe team](https://typesafe.ai/)**: thank you for advancing decision models and providing [public API documentation](https://docs.typesafe.ai/introduction) for typed decisions and probability outputs.
