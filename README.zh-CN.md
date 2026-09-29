@@ -21,23 +21,22 @@
 
 ## 演示
 
-开头预留贪吃蛇与 Crafter 的实际运行录屏，下面的卡片是待替换的展示位置。
+贪吃蛇与 Crafter 的决策回放录屏，分别以 **4 倍速**和 **2 倍速**展示。点击动画可打开 MP4 版本；录屏界面保留了研究阶段的名称 BranchKev。
 
-<!-- DEMO SLOTS: replace each placeholder src with the real GIF/poster; optionally link it to a full recording. -->
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="assets/demos/snake-placeholder.svg" alt="贪吃蛇真实录屏待补充" width="100%">
-      <br><strong>贪吃蛇 · 连续动作选择</strong>
+      <a href="assets/demos/snake.mp4"><img src="assets/demos/snake.gif" alt="贪吃蛇决策回放，展示动作选择与概率，4 倍速" width="100%"></a>
+      <br><strong>贪吃蛇 · 连续动作选择 · 4×</strong>
     </td>
     <td width="50%" align="center">
-      <img src="assets/demos/crafter-placeholder.svg" alt="Crafter真实录屏待补充" width="100%">
-      <br><strong>Crafter · 生存与建造</strong>
+      <a href="assets/demos/crafter.mp4"><img src="assets/demos/crafter.gif" alt="Crafter 决策回放，展示目标、动作与概率，2 倍速" width="100%"></a>
+      <br><strong>Crafter · 生存与建造 · 2×</strong>
     </td>
   </tr>
 </table>
 
-[录屏替换位置与说明](docs/demos.md)。
+[录屏详情与播放设置](docs/demos.md)。
 
 ## 安装
 

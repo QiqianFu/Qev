@@ -21,23 +21,22 @@ This repository provides the model architecture, training and evaluation code, P
 
 ## Demos
 
-The opening gallery is reserved for actual Snake and Crafter recordings. These cards are placeholders to be replaced with Qev gameplay footage.
+Recorded Snake and Crafter decision replays, shown at **4×** and **2×** speed respectively. Click either animation for the MP4 version. The recordings retain the research name, BranchKev, in their interface.
 
-<!-- DEMO SLOTS: replace each placeholder src with the real GIF/poster; optionally link it to a full recording. -->
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="assets/demos/snake-placeholder.svg" alt="Snake gameplay recording coming soon" width="100%">
-      <br><strong>Snake · Sequential action selection</strong>
+      <a href="assets/demos/snake.mp4"><img src="assets/demos/snake.gif" alt="Snake decision replay at 4× speed, with selected actions and probabilities" width="100%"></a>
+      <br><strong>Snake · Sequential action selection · 4×</strong>
     </td>
     <td width="50%" align="center">
-      <img src="assets/demos/crafter-placeholder.svg" alt="Crafter gameplay recording coming soon" width="100%">
-      <br><strong>Crafter · Survival and crafting</strong>
+      <a href="assets/demos/crafter.mp4"><img src="assets/demos/crafter.gif" alt="Crafter decision replay at 2× speed, with goals, actions and probabilities" width="100%"></a>
+      <br><strong>Crafter · Survival and crafting · 2×</strong>
     </td>
   </tr>
 </table>
 
-[Recording slots and replacement guide](docs/demos.md).
+[Recording details and playback settings](docs/demos.md).
 
 ## Installation
 
