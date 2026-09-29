@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Save per-question probabilities and matched-denominator accuracy metrics."""
 import argparse
 from collections import defaultdict
@@ -11,7 +12,7 @@ import time
 import torch
 
 from .checkpoint import load_model
-from .data import file_hash, load_records, write_json
+from .data import load_records, write_json
 from .encoding import ContextOverflow, Encoder
 from .choice_policy import none_candidate
 
@@ -145,8 +146,8 @@ def main():
     execution_name = "tree" if a.tree else "reference" if a.reference else "cached"
     if a.batch_size > 1:
         execution_name = "pooled_" + execution_name
-    report.update({"split": a.split, "data_manifest_sha256": file_hash(Path(a.data) / "manifest.json"),
-                   "checkpoint": str(Path(a.checkpoint).resolve()), "cache": not (a.reference or a.tree),
+    report.update({"split": a.split,
+                   "checkpoint": str(a.checkpoint), "cache": not (a.reference or a.tree),
                    "batch_size": a.batch_size,
                    "lora_merged": model.lora_merged, "head_precision": model.head_precision,
                    "readout_precision": model.readout_precision,

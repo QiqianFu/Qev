@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """FP32 readouts must survive outer BF16 autocast, including backward replay."""
 from dataclasses import replace
 import os

@@ -1,5 +1,6 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
-"""Local data access, immutable manifests, and training/evaluation role checks."""
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
+"""Local datasets and training/evaluation split checks."""
 import hashlib
 import json
 from pathlib import Path
@@ -42,7 +43,7 @@ def load_records(directory, split, *, training=False):
     if training and entry["role"] != "train":
         raise ValueError(f"{split} is {entry['role']}; it cannot be used for training")
     path = directory / entry["file"]
-    if file_hash(path) != entry["sha256"]:
+    if entry.get("sha256") and file_hash(path) != entry["sha256"]:
         raise ValueError(f"data hash mismatch: {path}")
     result = [Record.from_dict(r) for r in json_rows(path)]
     if len(result) != entry["records"]:

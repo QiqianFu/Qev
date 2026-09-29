@@ -1,4 +1,4 @@
-"""Convert labelled request JSONL to group-disjoint, hash-verified train/dev data."""
+"""Convert labelled request JSONL to separate training and validation splits."""
 import argparse
 from collections import Counter
 import hashlib
@@ -8,7 +8,7 @@ import random
 import shutil
 import tempfile
 
-from .data import file_hash, json_rows, write_json
+from .data import json_rows, write_json
 from .schema import Record, typed_record
 
 
@@ -62,12 +62,10 @@ def build_dataset(input_path, out, *, validation=None, validation_fraction=0.1, 
         for split, records, role in [('train', train, 'train'), ('dev', dev, 'development')]:
             file = stage / f'{split}.jsonl'
             file.write_text(''.join(json.dumps(r.to_dict(), ensure_ascii=False) + '\n' for r in records))
-            files[split] = {'file':file.name, 'role':role, 'sha256':file_hash(file),
+            files[split] = {'file':file.name, 'role':role,
                             'records':len(records), 'questions':sum(len(r.questions) for r in records),
                             'by_source':dict(Counter(r.source for r in records))}
         write_json(stage / 'manifest.json', {'schema':'qev.data.v1', 'files':files, 'seed':seed,
-                   'input_sha256':file_hash(input_path),
-                   'validation_sha256':file_hash(validation) if validation else None,
                    'split_policy':'explicit disjoint validation' if validation else 'seeded group split'})
         stage.rename(out)
     finally:

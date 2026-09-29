@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Gradient-correct leaf-row training and two-level prefix-cache inference.
 
 The cache fork and LoRA module conventions follow Kev (Apache-2.0). Candidate

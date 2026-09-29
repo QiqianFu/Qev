@@ -22,7 +22,8 @@ class Links(HTMLParser):
 def main():
     errors=[];checked_links=0
     docs=[*ROOT.glob('*.md'),*(ROOT/'docs').rglob('*.md'),*(ROOT/'docs').rglob('*.html')]
-    docs += [ROOT/p/'README.md' for p in ['configs','examples','results']]
+    docs += [ROOT/p/'README.md' for p in ['configs','examples']]
+    docs += list((ROOT/'results').rglob('README.md'))
     for p in docs:
         text=p.read_text()
         if p.suffix=='.md':text=re.sub(r'```.*?```','',text,flags=re.S)
@@ -40,7 +41,7 @@ def main():
         try:ast.parse(p.read_text(),filename=str(p))
         except SyntaxError as exc:errors.append(str(exc))
         # The distribution must not import or default to the research filesystem.
-        if re.search(r'/(?:home|shared|scratch)/qiqianf2/',p.read_text()):
+        if re.search(r'/(?:home|shared|scratch)/[A-Za-z0-9_.-]+/',p.read_text()):
             errors.append(f'{p.relative_to(ROOT)}: machine-specific path')
     for p in (ROOT/'configs').glob('*.json'):
         value=json.loads(p.read_text())

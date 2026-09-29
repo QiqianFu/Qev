@@ -27,7 +27,7 @@ metrics:
 
 [Source and documentation](https://github.com/QiqianFu/Qev) · [中文说明](https://github.com/QiqianFu/Qev/blob/main/README.zh-CN.md) · [Model weights](https://huggingface.co/AustinFu/Qev-9B)
 
-This is the **v0.1.0** release of the final Qev-9B research checkpoint: seed 17, step 2327, with the late1783 training mixture repeated three times during the final half of training. It is the full-interaction baseline A used in the architecture ablations.
+Qev-9B combines a general decision-training dataset with additional alignment and rule-compliance examples, repeated three times during the second half of training. It uses the full candidate-interaction architecture shown below.
 
 ## Quick start
 
@@ -43,7 +43,7 @@ python -m pip install -e .
 from qev import Qev
 
 model = Qev.from_pretrained(
-    "AustinFu/Qev-9B", revision="v0.1.0", device="cuda"
+    "AustinFu/Qev-9B", revision="main", device="cuda"
 )
 answers = model.predict({
     "state": "I was charged twice. Please help immediately.",
@@ -65,7 +65,7 @@ For JSONL inference:
 
 ```bash
 python -m qev.predict \
-  --checkpoint AustinFu/Qev-9B@v0.1.0 \
+  --checkpoint AustinFu/Qev-9B@main \
   --input examples/requests.jsonl --out runs/predictions.jsonl \
   --device cuda --weights-dtype checkpoint
 ```
@@ -79,7 +79,6 @@ python -m qev.predict \
 | Field | Released model |
 |---|---|
 | Base | Qwen/Qwen3.5-9B-Base |
-| Base revision | `68c46c4b3498877f3ef123c856ecfde50c39f404` |
 | Adaptation | LoRA rank 64, alpha 128; learned decision head and interaction gate |
 | Decision head | Shared 4096→256 projection; two 4-head Transformer layers; scalar scorer |
 | Backbone interaction | `last-full-attention` |
@@ -91,7 +90,7 @@ python -m qev.predict \
 | Late mixing | Starts halfway through main training; late examples repeat three times |
 | Selected checkpoint | Step 2327 |
 
-The checkpoint was called BranchKev during research. Its run ID is `c21-science-wk-late1783-9b-4gpu-r64-late50x3-s17`. The main and late partitions intentionally share 249 replay records. The complete research training corpus is not distributed with this release. [Training guide](https://github.com/QiqianFu/Qev/blob/main/docs/training.md) · [Data recipe](https://github.com/QiqianFu/Qev/blob/main/docs/data.md).
+The main and late partitions intentionally share 249 replay records. The complete research training corpus is not distributed with this release. [Training guide](https://github.com/QiqianFu/Qev/blob/main/docs/training.md) · [Data recipe](https://github.com/QiqianFu/Qev/blob/main/docs/data.md).
 
 ## Evaluation
 
@@ -122,13 +121,13 @@ The approximately 690 MiB inference package contains:
 - `adapter/`: LoRA configuration and weights.
 - `head.safetensors` and `joint.safetensors`: decision head and interaction gate.
 - `model.json` and `tokenizer/`: Qev configuration and tokenizer.
-- `SHA256SUMS.json`: hashes of the seven inference files.
-- `provenance.json`, `training_config.json`, and `benchmarks.json`: checkpoint identity, training configuration, and recorded results.
+- `training_config.json` and `benchmarks.json`: training configuration and recorded results.
+- `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md`, and `licenses/`: license terms and attribution.
 
-The adaptation tensors are byte-identical to the selected research checkpoint. Qwen base weights are fetched separately at the revision above. Optimizer state is excluded; initialize new fine-tuning with `--init-checkpoint AustinFu/Qev-9B@v0.1.0`.
+The adaptation tensors are byte-identical to the selected research checkpoint. Qwen base weights are fetched separately at the version recorded in the model configuration. Optimizer state is excluded; initialize new fine-tuning with `--init-checkpoint AustinFu/Qev-9B`.
 
 ## Intended use and license
 
 Qev supports research and development of routing, rule judgments, and rubric ratings over explicit options. Evaluate it on your application's inputs and decision thresholds. Probabilities depend on the supplied options; calibration and production reliability have not been established.
 
-The released Qev adaptation weights and Qev code use Apache-2.0. The Qwen base is separately available under Apache-2.0. Source datasets retain their respective terms. Qev builds on Qwen and adapts conventions from [Jared Palmer's Kev](https://github.com/jaredpalmer/kev); attribution is retained in the included `LICENSE` and `NOTICE`.
+Qev's code, adaptation weights, documentation and original illustrations use Apache-2.0. Qwen models and the bundled tokenizer retain Alibaba Cloud's Apache-2.0 license. Qev adapts conventions from [Jared Palmer's Kev](https://github.com/jaredpalmer/kev), whose Apache-2.0 license and attribution are retained. JevBench tasks and external dependencies retain their own terms; the training corpus is not redistributed. See the included `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md`, and `licenses/` for the full texts and scope.

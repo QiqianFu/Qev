@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Validate and time shared-prefix inference on a fixed checkpoint (no training)."""
 import argparse
 import json
@@ -10,7 +11,7 @@ import time
 import torch
 
 from .checkpoint import load_model
-from .data import file_hash, json_rows, load_records, write_json
+from .data import json_rows, load_records, write_json
 
 
 def stats(values):
@@ -52,8 +53,6 @@ def main():
     report = {'gpu': torch.cuda.get_device_name(), 'torch': torch.__version__,
               'checkpoint': a.checkpoint, 'weights_dtype': model.spec.weights_dtype,
               'lora_merged': model.lora_merged, 'candidate_interaction': model.spec.candidate_interaction,
-              'manifest_sha256': file_hash(Path(a.data) / 'manifest.json'),
-              'reference_predictions_sha256': file_hash(a.reference_predictions),
               'timing_scope': 'synchronized wall time, input tensors and output probabilities included, tokenization excluded',
               'sample_seed': 17, 'repeats': a.repeats, 'groups': {}}
 

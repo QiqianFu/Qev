@@ -16,19 +16,13 @@ Question targets can instead be soft distributions, using a `target` list in can
 
 ## Canonical records
 
-`qev.prepare` writes `qev.record.v1` JSONL, plus a hash-checked manifest. Canonical records have `id`, `group_id`, `source`, `state`, and a list of questions with candidate IDs/text, optional label, and target probabilities. Historical `branchkev.record.v1` records load without changing their bytes or manifests.
+`qev.prepare` writes `qev.record.v1` JSONL and a `manifest.json` describing the dataset splits. Canonical records have `id`, `group_id`, `source`, `state`, and a list of questions with candidate IDs/text, optional label, and target probabilities. Earlier record formats remain supported.
 
-Each manifest partition declares its file, role, record/question counts and SHA256. Only `role: train` partitions enter training. The preparer writes `train` and `dev`; JevBench uses `external_evaluation`. Evaluation rejects test-role partitions unless explicitly enabled with `--allow-test`.
+Each split lists its file, purpose and record/question counts. Only `role: train` partitions enter training. The preparer writes `train` and `dev`; JevBench uses `external_evaluation`. Evaluation rejects test-role partitions unless explicitly enabled with `--allow-test`.
 
 The model supports variable candidate counts; the selected configuration admits at most 128 candidates, state 1024 tokens, question 512, candidate 256 and full path 2048. Runtime overrides for longer evaluation inputs are described separately from training limits.
 
 ## Research recipe and availability
-
-The selected Qev-9B training manifest is identified by SHA256:
-
-```text
-3644978f93f9f09815048b52bbdfba19f257f5b554950d7b84e6255f65649a96
-```
 
 | Partition | Records / questions | Composition |
 |---|---:|---|
@@ -39,8 +33,8 @@ The alignment pack contains 249 selected earlier records and 1,170 synthetic rec
 
 **The complete research corpus and its original generation/review pipeline are not included in this source release.** This repository supports training on user data and rerunning public evaluation with the [released Qev-9B weights](https://huggingface.co/AustinFu/Qev-9B). Rebuilding the exact reported training run additionally requires the frozen dataset. Code availability alone is not a claim of full data reproducibility.
 
-Any later data release must carry its per-source terms, provenance, revisions, attribution, and train/evaluation roles. In particular, the original Wikipedia-based synthetic world-knowledge pack carried CC BY-SA attribution where applicable. These terms are separate from the code's Apache-2.0 license.
+Data licensing and attribution are described in [third-party notices](../THIRD_PARTY_NOTICES.md). Any later data release must retain its source-specific terms. In particular, the original Wikipedia-based synthetic world-knowledge pack carried CC BY-SA attribution where applicable. These terms are separate from the code's Apache-2.0 license.
 
 ## JevBench
 
-[prepare_jevbench.py](../scripts/prepare_jevbench.py) fetches a pinned source archive and verifies its hash. It retains every public task and its gold probabilities, performs explicit Noul label mapping, and exports evaluation-only views. Token-length checks record overflows without dropping tasks. See [evaluation.md](evaluation.md) for commands and the distinction between local accuracy and the official score.
+[prepare_jevbench.py](../scripts/prepare_jevbench.py) downloads JevBench v1.4.2. It retains every public task and its gold probabilities, performs explicit Noul label mapping, and exports evaluation-only views. Token-length checks record overflows without dropping tasks. See [evaluation.md](evaluation.md) for commands and the distinction between local accuracy and the official score.

@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Build a versioned train-only mixture of balanced none-of-the-above pairs."""
 import argparse
 from collections import Counter, defaultdict, deque
@@ -10,7 +11,7 @@ import random
 import re
 import shutil
 
-from .data import file_hash, json_rows, load_records, write_json
+from .data import json_rows, load_records, write_json
 from .encoding import ContextOverflow, Encoder, Limits
 from .schema import Candidate, Record
 
@@ -174,11 +175,11 @@ def build_dataset(base, out, encoder, *, pairs=1500, seed=17, families=FAMILIES)
             stream.write(json.dumps(origin, ensure_ascii=False) + '\n')
     entry = manifest['files']['train']
     counts = Counter(entry['by_source']) + Counter(r.source for r in children)
-    new_manifest = {**manifest, 'recipe': 'union+none3000-v1', 'files': dict(manifest['files']),
-                    'parent_manifest_sha256': file_hash(base / 'manifest.json')}
-    new_manifest['files']['train'] = {**entry, 'sha256': file_hash(train_path),
+    new_manifest = {**manifest, 'recipe': 'choice-none-pairs', 'files': dict(manifest['files'])}
+    new_manifest['files']['train'] = {**entry,
                                       'records': entry['records'] + len(children),
                                       'questions': entry['questions'] + len(children), 'by_source': dict(counts)}
+    new_manifest['files']['train'].pop('sha256', None)
     augmentation = {'pairs': pairs, 'new_records': len(children), 'new_questions': len(children),
                     'none_gold': pairs, 'original_gold_retained': pairs, 'seed': seed,
                     'families': dict(Counter(x['family'] for x in lineage)),
@@ -186,10 +187,8 @@ def build_dataset(base, out, encoder, *, pairs=1500, seed=17, families=FAMILIES)
                     'wordings': dict(Counter(x['none_id'] for x in lineage)),
                     'unique_parent_groups': len(selected_groups), 'excluded': dict(excluded),
                     'limits': asdict(encoder.limits), 'observed_maxima': dict(maxima),
-                    'original_train_sha256': file_hash(original_train), 'original_train_bytes': original_train.stat().st_size,
-                    'base_train_holdout_overlap': base_overlap, 'generated_holdout_overlap': 0,
-                    'files': {name: file_hash(out / name) for name in ['none_pairs.jsonl', 'none_pairs.provenance.jsonl']},
-                    'generator_sha256': file_hash(Path(__file__))}
+                    'original_train_bytes': original_train.stat().st_size,
+                    'base_train_holdout_overlap': base_overlap, 'generated_holdout_overlap': 0}
     new_manifest['augmentation'] = augmentation
     new_manifest['notes'] = list(manifest.get('notes', [])) + [
         'All original training records retained; exactly 1500 present/absent pairs added by default.',
@@ -215,8 +214,6 @@ def main():
     encoder = Encoder(tokenizer, Limits(**config['limits']))
     manifest = build_dataset(a.base_data, a.out, encoder, pairs=a.pairs, seed=a.seed)
     # Record which tokenizer was used for strict context admission.
-    manifest['augmentation']['tokenizer_files'] = {name: file_hash(Path(a.tokenizer) / name)
-        for name in ['tokenizer.json', 'tokenizer_config.json'] if (Path(a.tokenizer) / name).is_file()}
     manifest['augmentation']['base_revision'] = config['model']['revision']
     write_json(Path(a.out) / 'manifest.json', manifest)
     print(json.dumps({'train': manifest['files']['train'], 'augmentation': manifest['augmentation']}, indent=2))

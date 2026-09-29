@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Paired same-checkpoint cached/tree latency and numerical quality audit."""
 import argparse
 import json
@@ -10,7 +11,7 @@ import torch
 
 from .benchmark_speed import prepare
 from .checkpoint import load_model
-from .data import file_hash, write_json
+from .data import write_json
 from .evaluate import checked_probabilities
 
 
@@ -32,7 +33,7 @@ def main():
     model, _, _, _ = load_model(a.checkpoint, 'cuda')
     model.prepare_inference(merge_lora=a.merge_lora)
     report = {'gpu': torch.cuda.get_device_name(), 'torch': torch.__version__,
-              'checkpoint': str(a.checkpoint), 'manifest_sha256': file_hash(a.data / 'manifest.json'),
+              'checkpoint': str(a.checkpoint),
               'merged_lora': model.lora_merged, 'weights_dtype': model.spec.weights_dtype,
               'sample': descriptions, 'repeats': a.repeats, 'timings': {}}
     for split, sample in groups.items():

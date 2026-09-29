@@ -53,10 +53,16 @@ def test_portable_export_legacy_load_and_python_api(tmp_path, tokenizer, record)
     model=QevModel(load_backbone(spec,'cpu'),spec,tokenizer.pad_token_id).eval()
     original=tmp_path/'original';save_model(original,model,tokenizer,Limits(128,128,128,384,32))
     (original/'training.pt').write_bytes(b'optimizer must not be distributed')
+    (original/'LICENSE').write_text('Model license supplied by its author')
+    (original/'licenses').mkdir()
+    (original/'licenses/upstream.txt').write_text('Upstream attribution')
     metadata=json.loads((original/'model.json').read_text());metadata['format']='branchkev.checkpoint.v1'
     (original/'model.json').write_text(json.dumps(metadata))
-    exported=export_checkpoint(original,tmp_path/'export',base='example/base',revision='a'*40)
+    exported=export_checkpoint(original,tmp_path/'export',base='example/base',revision='release-1')
     assert not (exported/'training.pt').exists()
+    assert not (exported/'SHA256SUMS.json').exists()
+    assert (exported/'LICENSE').read_bytes()==(original/'LICENSE').read_bytes()
+    assert (exported/'licenses/upstream.txt').read_bytes()==(original/'licenses/upstream.txt').read_bytes()
     assert file_hash(original/'head.safetensors')==file_hash(exported/'head.safetensors')
     assert json.loads((exported/'model.json').read_text())['spec']['base']=='example/base'
     loaded,_,enc,_=load_model(exported,'cpu',base=str(base))
@@ -73,8 +79,22 @@ def test_portable_export_legacy_load_and_python_api(tmp_path, tokenizer, record)
     assert out['route']['choice'] in {'billing','delivery'}
 
 
-def test_hub_resolution_requires_pin_without_network(tmp_path):
-    with pytest.raises(ValueError,match='require'):resolve_checkpoint('owner/model')
+def test_hub_resolution_defaults_to_main_and_accepts_versions(tmp_path, monkeypatch):
+    import huggingface_hub
+    cache=tmp_path/'snapshot';cache.mkdir();(cache/'model.json').write_text('{}')
+    calls=[]
+    def download(**kwargs):
+        calls.append(kwargs)
+        return str(cache)
+    monkeypatch.setattr(huggingface_hub,'snapshot_download',download)
+    assert resolve_checkpoint('owner/model')==cache
+    assert calls[-1]['revision'] is None
+    assert resolve_checkpoint('owner/model@v1')==cache
+    assert calls[-1]['revision']=='v1'
+    assert resolve_checkpoint('owner/model',revision='v2')==cache
+    assert calls[-1]['revision']=='v2'
+    with pytest.raises(ValueError,match='conflicting'):resolve_checkpoint('owner/model@v1',revision='v2')
+    with pytest.raises(ValueError,match='empty'):resolve_checkpoint('owner/model@')
     with pytest.raises(FileNotFoundError):resolve_checkpoint(tmp_path/'missing')
 
 
@@ -91,3 +111,18 @@ def test_initialize_on_new_data_resets_schedule(tmp_path, tokenizer, record):
     assert state['global_step']==1
     init=json.loads((tmp_path/'new-domain/initialization.json').read_text())
     assert init['optimizer']=='fresh' and init['global_step']==0
+
+
+def test_resume_detects_changed_data_without_manifest_checksums(tmp_path, tokenizer, record):
+    from test_training import training_assets, run_training
+    data,config=training_assets(tmp_path,tokenizer,record)
+    manifest=json.loads((data/'manifest.json').read_text())
+    manifest['files']['train'].pop('sha256')
+    (data/'manifest.json').write_text(json.dumps(manifest))
+    run_training(data,config,tmp_path/'run','--max-steps','1')
+    path=data/'train.jsonl'
+    rows=[json.loads(line) for line in path.read_text().splitlines()]
+    rows[0]['state']+=' Updated.'
+    path.write_text(''.join(json.dumps(row)+'\n' for row in rows))
+    with pytest.raises(AssertionError, match="resume data or admitted sample set changed"):
+        run_training(data,config,tmp_path/'run','--resume',str(tmp_path/'run/step-000001'))

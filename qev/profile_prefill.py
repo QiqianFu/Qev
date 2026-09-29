@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Control for split prefill non-additivity and time the actual branch stages."""
 import argparse
 from collections import defaultdict
@@ -13,7 +14,7 @@ from transformers import DynamicCache
 
 from .base_evaluate import answer_codes, make_prompt
 from .checkpoint import load_model
-from .data import file_hash, load_records, write_json
+from .data import load_records, write_json
 
 
 def stats(values):
@@ -81,7 +82,7 @@ def main():
     ids=tuple((seed*((1024+len(seed)-1)//len(seed)))[:1024])
     report={'gpu':torch.cuda.get_device_name(),'torch':torch.__version__,
         'checkpoint':a.checkpoint,'merged_lora':model.lora_merged,'weights_dtype':model.spec.weights_dtype,
-        'manifest_sha256':file_hash(Path(a.data)/'manifest.json'),'repeats':a.repeats,
+        'repeats':a.repeats,
         'scope':'Same merged text backbone, no LM/decision head in sequence controls (identical final hidden-state CPU readback included). Synthetic length sweep is not an accuracy evaluation. Actual request profiling separately includes the joint layer and head.',
         'event_scope':'CUDA-stream wall spans include idle gaps waiting for CPU submission; not active kernel compute time.',
         'sweep':{},'split_controls':{},'requests':[]}

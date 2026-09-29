@@ -1,28 +1,30 @@
 Qev
-Copyright 2026 Qev contributors
+Copyright 2026 Qiqian Fu and Qev contributors
 
-Qev is a Qwen-based decision-model research implementation. It was developed as
-BranchKev before extraction into this repository. The selective extraction and
-source-file hashes are recorded in provenance.json.
+Qev code, documentation, original illustrations, examples, generated prediction
+results, and published adaptation weights are licensed under Apache-2.0.
 
 This project adapts conventions and implementation ideas from Kev:
   https://github.com/jaredpalmer/kev
-  Reviewed revision: 557598fced1dada75dfbf36ed144dce309ac6ceb
   Copyright 2026 Jared Palmer
-  Licensed under the Apache License, Version 2.0.
+  Apache License, Version 2.0
 
-Adapted components include the reserved Qwen delimiter convention, text rendering
-conventions, LoRA target selection, and the inference cache-fork approach.
-Qev's candidate-tree encoding, set decision head, data adapters, and training
-runner are maintained separately. Files extracted for this release were renamed
-and modified for standalone Qev packaging, portable checkpoints and user-data
-training. The original Kev attribution is retained in LICENSE and this notice.
+Adaptations include Qwen delimiters, text rendering, LoRA target selection, and
+inference cache forking. Modified files carry Qev adaptation notices. The original
+Kev license and copyright notice are retained in licenses/Kev-Apache-2.0.txt.
 
-Qwen models and Hugging Face Transformers are external dependencies. The optional
-JevBench preparer downloads an independently versioned MIT-licensed upstream
-snapshot from https://github.com/fstandhartinger/jevbench and retains its license.
-No Qwen base weights or original benchmark questions are redistributed in Git.
+Qev uses the Qwen3.5 model and tokenizer:
+  https://huggingface.co/Qwen/Qwen3.5-9B-Base
+  Copyright 2026 Alibaba Cloud
+  Apache License, Version 2.0
 
-Model weights and datasets retain their respective terms. This source-code
-license does not relicense third-party datasets or imply that the full research
-training corpus is included.
+The public weight package includes the Qwen tokenizer and Qev adaptation weights.
+Qwen base weights are downloaded separately. The original Qwen license is in
+licenses/Qwen3.5-Apache-2.0.txt.
+
+The optional JevBench dataset preparer downloads public evaluation tasks by
+Florian Standhartinger and contributors. It includes their MIT license,
+third-party notices, and per-question provenance with the prepared data.
+
+See THIRD_PARTY_NOTICES.md for licensing scope and external dependencies.
+Third-party datasets and services retain their own terms.

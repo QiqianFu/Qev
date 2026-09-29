@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Same-GPU native/reference/shared/merged inference timing and paired quality."""
 import argparse
 import gc
@@ -13,7 +14,7 @@ from transformers import AutoModelForImageTextToText, AutoTokenizer
 
 from .base_evaluate import answer_codes, make_prompt, score_codes
 from .checkpoint import load_model
-from .data import file_hash, json_rows, load_records, write_json
+from .data import json_rows, load_records, write_json
 from .encoding import Encoder, Limits
 from .evaluate import checked_probabilities
 
@@ -75,9 +76,6 @@ def main():
     assert meta['spec']['weights_dtype'] == 'bf16'
     report = {'checkpoint': str(a.checkpoint), 'candidate_interaction': meta['spec'].get('candidate_interaction', 'none'),
         'weights_dtype': 'bf16', 'head_precision': 'fp32', 'seed': 17, 'repeats': a.repeats,
-        'manifest_sha256': file_hash(a.data/'manifest.json'),
-        'checkpoint_metadata_sha256': file_hash(a.checkpoint/'model.json'),
-        'reference_predictions_sha256': file_hash(a.reference_predictions),
         'timing_scope': 'synchronized per-record wall time, tensor preparation and GPU probabilities included; CPU transfer/checks, loading, tokenization and compilation excluded',
         'native_protocol': 'Original BF16 LM head, one forward per question, single-token answer letters; multi-question records execute their questions serially.',
         'samples': descriptions, 'paths': {}, 'quality': {}}
@@ -134,7 +132,7 @@ def main():
 
     # Load one model at a time so memory figures refer to the measured arm.
     native = AutoModelForImageTextToText.from_pretrained(meta['spec']['base'], revision=meta['spec']['revision'],
-        dtype=torch.bfloat16, attn_implementation='sdpa', trust_remote_code=False, local_files_only=True)
+        dtype=torch.bfloat16, attn_implementation='sdpa', trust_remote_code=False)
     native.model.visual = None
     native.requires_grad_(False).eval().to('cuda')
     measure('native', lambda e: [score_codes(native, ids, codes, 'cuda').softmax(-1)

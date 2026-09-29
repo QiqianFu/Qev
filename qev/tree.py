@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Layer-wise Qwen3.5 trees: packed projections and differentiable branch states.
 
 An attention mask alone cannot isolate a Gated DeltaNet. Its convolution uses

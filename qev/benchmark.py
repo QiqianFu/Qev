@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Compare execution paths on the same checkpoint and fixed development inputs."""
 import argparse
 import importlib.util
@@ -13,7 +14,7 @@ from types import MethodType
 import torch
 
 from .checkpoint import load_model
-from .data import file_hash, load_records, write_json
+from .data import load_records, write_json
 from .encoding import ContextOverflow
 from .execution import configure_checkpointing, configure_fp32
 from .model import record_loss
@@ -60,8 +61,6 @@ def main():
         ap.error("no admitted benchmark records")
     report = {"gpu": torch.cuda.get_device_name(), "torch": torch.__version__, "precision": precision,
               "checkpoint": a.checkpoint, "split": a.split, "seed": 17,
-              "manifest_sha256": file_hash(Path(a.data) / "manifest.json"),
-              "model_metadata_sha256": file_hash(Path(a.checkpoint) / "model.json"),
               "record_ids": [e.record.id for e in encoded], "repeats": a.repeats, "paths": {}}
     baseline = None
     current_rows, current_fork = model._run_rows, model.fork_cache
@@ -71,7 +70,6 @@ def main():
         baseline = importlib.util.module_from_spec(spec)
         sys.modules[name] = baseline
         spec.loader.exec_module(baseline)
-        report["baseline_code_sha256"] = file_hash(a.baseline_model)
 
     reference = None
 

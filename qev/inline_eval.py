@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Periodic evaluation inside FSDP full-parameter training (no intermediate checkpoints needed).
 
 Every rank evaluates a strided shard of each split through the model's root call, so FSDP gathers
@@ -16,7 +17,7 @@ import torch
 import torch.distributed as dist
 
 from .choice_policy import none_candidate
-from .data import file_hash, load_records, write_json
+from .data import load_records, write_json
 from .encoding import ContextOverflow
 from .evaluate import checked_probabilities, summarize
 
@@ -82,7 +83,6 @@ def evaluate_sharded(model, encoder, eval_sets, out, *, step, rank, world, batch
                         stream.write(json.dumps(row) + "\n")
                 report = summarize(rows, sum(rejected_by_source.values()), rejected_by_source)
                 report.update({"split": item["split"], "step": step,
-                               "data_manifest_sha256": file_hash(Path(item["data"]) / "manifest.json"),
                                "execution": "inline_fsdp_tree_batched", "autocast": "training",
                                "readout_precision": model.readout_precision, "world_size": world,
                                "seconds": time.perf_counter() - started, "rejected": rejected})

@@ -9,7 +9,7 @@ description = "Qwen-based decision models with candidate branches and shared-pre
 readme = "README.md"
 requires-python = ">=3.12"
 license = "Apache-2.0"
-license-files = ["LICENSE", "NOTICE"]
+license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "licenses/*"]
 authors = [{name = "Qev contributors"}]
 dependencies = ["torch==2.8.0", "transformers==5.17.0", "peft==0.21.0", "accelerate==1.15.0", "safetensors==0.8.0", "huggingface-hub>=1.0,<2"]
 

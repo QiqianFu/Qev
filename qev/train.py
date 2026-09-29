@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Single-GPU or torchrun DDP training; no model generation or paid service."""
 import argparse
 from collections import Counter
@@ -17,7 +18,7 @@ from torch.nn.parallel import DistributedDataParallel
 
 from .augment import NoneInserter, none_absent_view
 from .batching import ASSIGNMENTS, rank_indices
-from .checkpoint import load_model, rng_state, restore_rng, save_full_model, save_model, wait_for_archive
+from .checkpoint import load_model, rng_state, restore_rng, save_full_model, save_model
 from .data import file_hash, load_records, write_json
 from .encoding import ContextOverflow, Encoder, Limits
 from .execution import configure_checkpointing
@@ -168,33 +169,36 @@ def main():
     if late_repeats < 1:
         raise ValueError("late_repeats must be positive")
     data_hash = file_hash(Path(a.data) / "manifest.json")
+    data_files = {split: file_hash(Path(a.data) / entry["file"])
+                  for split, entry in data_manifest["files"].items()
+                  if split in {"train", late_split}}
     spec = ModelSpec(**config["model"])
     limits = Limits(**config.get("limits", {}))
     if a.resume:
         model, tokenizer, encoder, meta = load_model(a.resume, device)
+        if not spec.revision:
+            spec.revision = model.spec.revision
         if asdict(model.spec) != asdict(spec) or asdict(encoder.limits) != asdict(limits):
             raise ValueError("resume model/limits differ from config")
     elif a.init_checkpoint:
         from .artifacts import resolve_checkpoint
-        if not Path(spec.base).exists() and not spec.revision:
-            raise ValueError("remote bases must specify a pinned revision")
         checkpoint = resolve_checkpoint(a.init_checkpoint)
         model, tokenizer, _, meta = load_model(checkpoint, device, base=spec.base,
                                               base_revision=spec.revision, weights_dtype=spec.weights_dtype)
+        if not spec.revision:
+            spec.revision = model.spec.revision
+            config["model"] = asdict(spec)
         if not meta.get("adapter") or asdict(model.spec) != asdict(spec):
             raise ValueError("initialization requires a compatible LoRA model configuration")
         encoder = Encoder(tokenizer, limits, choice_none_policy=spec.choice_none_policy)
         model.temperature = 1.0  # Calibration from an earlier domain is not reused.
         if rank == 0:
             write_json(out / "initialization.json", {"checkpoint": str(a.init_checkpoint),
-                       "model_json_sha256": file_hash(checkpoint / "model.json"),
                        "optimizer": "fresh", "global_step": 0, "temperature": 1.0})
     else:
         from transformers import AutoTokenizer
         if not Path(spec.base).exists():
             from huggingface_hub import HfApi
-            if not spec.revision:
-                raise ValueError("remote bases must specify a pinned revision")
             resolved = HfApi().model_info(spec.base, revision=spec.revision).sha
             spec.revision = resolved
             config["model"] = asdict(spec)
@@ -248,7 +252,7 @@ def main():
     admission_hash = __import__("hashlib").sha256("\n".join(r.record.id for r in encoded).encode()).hexdigest()
     if rank == 0:
         write_json(out / "admission.json", {"requested": len(records), "admitted": len(encoded),
-                   "admitted_ids_sha256": admission_hash, "rejected": rejected,
+                   "rejected": rejected,
                    "by_source": dict(Counter(r.record.source for r in encoded)),
                    **({"late_split": late_split, "late_admitted": n_late,
                        "late_by_source": dict(Counter(r.record.source for r in encoded[n_main:]))}
@@ -332,7 +336,8 @@ def main():
     start_epoch, next_batch, global_step = 0, 0, 0
     if a.resume:
         state = torch.load(Path(a.resume) / "training.pt", map_location="cpu", weights_only=False)
-        if state["data_hash"] != data_hash or state["admission_hash"] != admission_hash:
+        if (state["data_hash"] != data_hash or state["admission_hash"] != admission_hash
+                or state.get("data_files", data_files) != data_files):
             raise ValueError("resume data or admitted sample set changed")
         if late and a.allow_repartition:
             raise ValueError("repartition is not supported with a late split")
@@ -393,7 +398,7 @@ def main():
         if rank == 0:
             destination = out / f"step-{global_step:06d}"
             temporary = out / f".step-{global_step:06d}.incomplete"
-            extra = {"data_manifest_sha256": data_hash, "training_execution": model.prefix_execution}
+            extra = {"training_execution": model.prefix_execution}
             if full_ft:
                 # Weights only: the CPU-offloaded optimizer state (~12 bytes/parameter) is not saved.
                 save_full_model(temporary, state, model, tokenizer, limits, {**extra, "full_finetune": True})
@@ -401,13 +406,10 @@ def main():
                 save_model(temporary, model, tokenizer, limits, extra)
             torch.save({"optimizer": None if full_ft else optimizer.state_dict(), "epoch": epoch, "next_batch": batch,
                         "global_step": global_step, "world_size": world, "rng_by_rank": states,
-                        "data_hash": data_hash, "admission_hash": admission_hash,
+                        "data_hash": data_hash, "admission_hash": admission_hash, "data_files": data_files,
                         "training_settings": settings}, temporary / "training.pt")
             temporary.rename(destination)
-            if ack_dir := os.environ.get("QEV_ARCHIVE_ACK_DIR"):
-                receipt = wait_for_archive(destination.name, ack_dir)
-                print(json.dumps({"stage": "checkpoint_archived", "step": global_step,
-                                  "archive": receipt["archive"]}), flush=True)
+
             write_json(out / "latest.json", {"checkpoint": destination.name, "step": global_step})
         if world > 1:
             dist.barrier()

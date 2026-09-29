@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """FSDP2 full-parameter training: one sharded step equals a hand-computed single-process step.
 
 Needs at least two CUDA GPUs (run on the cluster). FP32 end to end so the comparison is tight.

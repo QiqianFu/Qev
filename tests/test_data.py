@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 import json
 from pathlib import Path
 
@@ -35,6 +36,16 @@ def test_training_refuses_eval_and_corrupt_hash(tmp_path, record):
 def test_candidate_target_validation():
     with pytest.raises(ValueError, match="target distribution"):
         Question("q", "choice", "?", (Candidate("a", "A"),), (float("nan"),), "a")
+
+
+def test_dataset_without_checksums_keeps_split_and_count_checks(tmp_path, record):
+    path=tmp_path/'train.jsonl'
+    path.write_text(json.dumps(record.to_dict())+'\n')
+    spec={'files':{'train':{'file':path.name,'role':'train','records':1}}}
+    (tmp_path/'manifest.json').write_text(json.dumps(spec))
+    assert load_records(tmp_path,'train',training=True)[0]==[record]
+    path.write_text(path.read_text()*2)
+    with pytest.raises(ValueError,match='record count'):load_records(tmp_path,'train')
 
 
 def test_source_rendering_keeps_hypothesis_and_question():

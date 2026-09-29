@@ -1,10 +1,10 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Versioned checkpoints; never treat an original Kev pointer head as a set head."""
 from dataclasses import asdict
 import json
 from pathlib import Path
 import random
-import time
 
 import torch
 from safetensors.torch import load_file, save_file
@@ -14,21 +14,6 @@ from .encoding import Encoder, Limits, LAYOUT
 from .model import QevModel, ModelSpec, load_backbone
 
 FORMAT = "qev.checkpoint.v1"
-
-
-def wait_for_archive(checkpoint, ack_dir, timeout=600):
-    """Staged checkpoints are committed only after the host verifies shared storage."""
-    ack = Path(ack_dir) / (checkpoint + ".json")
-    started = time.monotonic()
-    while True:
-        if ack.is_file():
-            receipt = json.loads(ack.read_text())
-            if receipt.get("checkpoint") != checkpoint or receipt.get("verified") is not True:
-                raise ValueError(f"invalid archive acknowledgement: {ack}")
-            return receipt
-        if time.monotonic() - started >= timeout:
-            raise TimeoutError(f"checkpoint {checkpoint} was written locally but shared archive was not acknowledged")
-        time.sleep(0.25)
 
 
 def rng_state():

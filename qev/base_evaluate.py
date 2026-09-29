@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Frozen Qwen native-LM-head baseline, with exact multi-token answer-code scores."""
 import argparse
 import copy
@@ -11,7 +12,7 @@ import time
 
 import torch
 
-from .data import file_hash, load_records, write_json
+from .data import load_records, write_json
 from .evaluate import checked_probabilities, summarize
 
 
@@ -68,8 +69,8 @@ def score_codes(model, prompt_ids, sequences, device):
 def main():
     from transformers import AutoModelForImageTextToText, AutoTokenizer
     p=argparse.ArgumentParser(__doc__)
-    p.add_argument("--model",required=True)
-    p.add_argument("--revision",default="68c46c4b3498877f3ef123c856ecfde50c39f404")
+    p.add_argument("--model",default="Qwen/Qwen3.5-9B-Base")
+    p.add_argument("--revision",help="optional model version")
     p.add_argument("--data",required=True)
     p.add_argument("--out",required=True)
     p.add_argument("--max-prompt",type=int,default=8192)
@@ -77,7 +78,7 @@ def main():
     p.add_argument("--splits",nargs="+",default=["decision_dev","transfer_dev"],help="non-test splits to evaluate")
     a=p.parse_args()
     out=Path(a.out);out.mkdir(parents=True,exist_ok=False)
-    tok=AutoTokenizer.from_pretrained(a.model,revision=a.revision,local_files_only=True)
+    tok=AutoTokenizer.from_pretrained(a.model,revision=a.revision)
     pools={}
     for s in a.splits:
         records,manifest=load_records(a.data,s)
@@ -97,14 +98,13 @@ def main():
                     assert tok.encode(prompt+texts[index],add_special_tokens=False)==ids+list(codes[index])
                 items.append((r,q,ids,codes,labels,prompt))
         prepared[split]=[max(items,key=lambda x:len(x[2]))] if a.smoke else items
-    write_json(out/'protocol.json',{'model':'Qwen/Qwen3.5-9B-Base','revision':a.revision,
+    write_json(out/'protocol.json',{'model':a.model,'revision':a.revision,
         'native_lm_head':True,'adapter':False,'prompt':'plain zero-shot, no chat template or reasoning generation',
         'readout':'single-token letter for K<=26; fixed-width numeric code with full joint log probability for K>26',
         'dtype':'bf16','temperature':1.0,'max_prompt':a.max_prompt,'smoke':a.smoke,
-        'data_manifest_sha256':file_hash(Path(a.data)/'manifest.json'),
         'largest_prompts':{s:max(len(x[2]) for x in v) for s,v in prepared.items()}})
     model=AutoModelForImageTextToText.from_pretrained(a.model,revision=a.revision,dtype=torch.bfloat16,
-            attn_implementation='sdpa',trust_remote_code=False,local_files_only=True)
+            attn_implementation='sdpa',trust_remote_code=False)
     # The benchmark is text-only; preserve the original text tower AND lm_head.
     model.model.visual=None
     model.requires_grad_(False).eval().to('cuda')

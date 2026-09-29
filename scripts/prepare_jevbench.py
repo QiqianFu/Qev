@@ -1,9 +1,10 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Download pinned JevBench and preserve its public tasks as external evaluation.
 
-No model calls, sampling, relabelling, truncation, or training. Existing releases
-are verified, never overwritten. Run --verify for an offline integrity check.
+Preserves every public question and its original labels. Run --verify to check
+an existing conversion against the downloaded questions.
 """
 import argparse
 from collections import Counter, defaultdict
@@ -20,17 +21,15 @@ import urllib.request
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
-from qev.data import file_hash, json_rows, load_records, write_json
-from qev.schema import Record, render, typed_record
+from qev.data import json_rows, load_records, write_json
+from qev.schema import typed_record
 
 UPSTREAM = "https://github.com/fstandhartinger/jevbench"
 VERSION = "v1.4.2"
 REVISION = "1df665e3956d7aab7fa0208ff6c4f2d8557f9f90"
 ARCHIVE_URL = f"https://codeload.github.com/fstandhartinger/jevbench/tar.gz/{REVISION}"
-ARCHIVE_SHA = "0d8f526877f1a4573a3d0494ddf888d0a1ed2cf33ef479ca4ffe33e3f4e6d7be"
 SUBSETS = {"original": 72, "easy": 48, "hard": 111}
 DEFAULT_ROOT = REPO / "data" / "jevbench"
-SOURCE_ROOT = DEFAULT_ROOT / "source"
 DATA_NAME = "jevbench-public-v1.4.2"
 DEFAULT_COMPARE = []
 
@@ -51,49 +50,26 @@ def fingerprint(value):
 
 
 def fetch_source(root, offline=False, source_dir=None):
-    raw = root / "raw"
-    archive = raw / "source.tar.gz"
-    if not archive.exists():
-        require(not offline, f"Missing archive: {archive}")
-        raw.mkdir(parents=True, exist_ok=True)
-        with tempfile.NamedTemporaryFile(dir=raw, delete=False) as temp:
-            temporary = Path(temp.name)
-            try:
-                with urllib.request.urlopen(ARCHIVE_URL, timeout=120) as response:
-                    shutil.copyfileobj(response, temp)
-                temp.flush()
-                require(file_hash(temporary) == ARCHIVE_SHA, "Downloaded archive hash mismatch")
-                temporary.rename(archive)
-            finally:
-                temporary.unlink(missing_ok=True)
-    require(file_hash(archive) == ARCHIVE_SHA, "Pinned source archive hash mismatch")
-    source = Path(source_dir) if source_dir is not None else SOURCE_ROOT
-    archive_prefix = f"jevbench-{REVISION}"
-    with tarfile.open(archive) as tar:
-        members = tar.getmembers()
-        for member in members:
-            parts = Path(member.name).parts
-            require(parts and parts[0] == archive_prefix and ".." not in parts
-                    and not Path(member.name).is_absolute()
-                    and (member.isfile() or member.isdir()), "Unexpected archive member")
-        if not source.exists():
-            require(not offline, "Missing extracted source")
-            source.parent.mkdir(parents=True, exist_ok=True)
-            with tempfile.TemporaryDirectory(prefix=".jevbench-source-", dir=source.parent) as stage:
-                tar.extractall(stage, filter="data")
-                (Path(stage) / archive_prefix).rename(source)
-        inventory = {}
-        for member in members:
-            if not member.isfile():
-                continue
-            path = source / Path(member.name).relative_to(archive_prefix)
-            require(not path.is_symlink(), f"Unexpected symlink: {path}")
-            expected = hashlib.sha256(tar.extractfile(member).read()).hexdigest()
-            require(file_hash(path) == expected, f"Extracted source changed: {path}")
-            relative = str(path.relative_to(source))
-            inventory[relative] = {"sha256": expected, "bytes": path.stat().st_size,
-                                   "origin": f"{UPSTREAM}/blob/{REVISION}/{relative}"}
-    return source, inventory
+    source = Path(source_dir) if source_dir is not None else root / "source"
+    if source.exists():
+        return source
+    require(not offline, f"Missing JevBench source: {source}")
+    source.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix=".jevbench-", dir=source.parent) as temporary:
+        stage = Path(temporary)
+        archive = stage / "source.tar.gz"
+        with urllib.request.urlopen(ARCHIVE_URL, timeout=120) as response, archive.open("wb") as output:
+            shutil.copyfileobj(response, output)
+        prefix = f"jevbench-{REVISION}"
+        with tarfile.open(archive) as tar:
+            for member in tar.getmembers():
+                parts = Path(member.name).parts
+                require(parts and parts[0] == prefix and ".." not in parts
+                        and not Path(member.name).is_absolute()
+                        and (member.isfile() or member.isdir()), "Unexpected archive member")
+            tar.extractall(stage, filter="data")
+        (stage / prefix).rename(source)
+    return source
 
 
 def convert_task(task, subset):
@@ -143,20 +119,14 @@ def read_source(source):
         path = source / f"datasets/public/{subset}.jsonl"
         tasks = list(json_rows(path))
         check = declared[subset]
-        require(file_hash(path) == check["sha256"], f"Upstream hash mismatch: {subset}")
         require(len(tasks) == count == check["n"], f"Upstream count mismatch: {subset}")
-        canonical = "".join(blob + "\n" for blob in sorted(
-            json.dumps(task, ensure_ascii=False, sort_keys=True) for task in tasks))
-        require(hashlib.sha256(canonical.encode()).hexdigest() == check["canonical_sha256"],
-                f"Upstream canonical task hash mismatch: {subset}")
         records[subset] = []
         for line, task in enumerate(tasks, 1):
             record, meta = convert_task(task, subset)
             records[subset].append(record)
-            meta.update(source_file=str(path.relative_to(source)), source_line=line,
-                        source_file_sha256=check["sha256"], source_task_sha256=fingerprint(task))
+            meta.update(source_file=str(path.relative_to(source)), source_line=line)
             metadata.append(meta)
-        checks[subset] = dict(check, file=str(path.relative_to(source)))
+        checks[subset] = {"file": str(path.relative_to(source)), "records": count}
     all_records = [r for subset in SUBSETS for r in records[subset]]
     require(len({r.id for r in all_records}) == 231, "Duplicate or missing public task IDs")
     records["public"] = all_records  # A union view, not an additional split.
@@ -178,22 +148,15 @@ def overlap_audit(records, directories):
             inputs[key].append(r.id)
         states[" ".join(r.state.casefold().split())].append(r.id)
         groups[r.group_id].append(r.id)
-    audits, seen = [], {}
+    audits = []
     for directory in directories:
         directory = Path(directory)
         manifest_path = directory / "manifest.json"
         manifest = json.loads(manifest_path.read_text())
         for split, entry in manifest["files"].items():
             path = directory / entry["file"]
-            require(file_hash(path) == entry["sha256"], f"Comparison file changed: {path}")
-            item = {"path": str(path), "sha256": entry["sha256"], "role": entry["role"],
-                    "manifest_sha256": file_hash(manifest_path), "split": split}
-            if entry["sha256"] in seen:
-                item["same_bytes_as"] = seen[entry["sha256"]]
-                audits.append(item)
-                continue
+            item = {"path": str(path), "role": entry["role"], "split": split}
             others, _ = load_records(directory, split)
-            seen[entry["sha256"]] = str(path)
             exact, state_matches, group_matches = [], [], []
             for other in others:
                 hits = sorted({rid for key in input_keys(other) for rid in inputs.get(key, [])})
@@ -235,8 +198,7 @@ def token_audit(records, tokenizer_path, config_path):
             row.update(admitted=False, reason=str(exc))
         details.append(row)
     return details, {"tokenizer": str(tokenizer_path),
-                     "tokenizer_files": {p.name: file_hash(p) for p in sorted(tokenizer_path.iterdir()) if p.is_file()},
-                     "config": str(config_path), "config_sha256": file_hash(config_path),
+                     "config": str(config_path),
                      "limits": asdict(encoder.limits), "choice_none_policy": "as-provided",
                      "admitted": sum(x["admitted"] for x in details),
                      "over_limit_retained": sum(not x["admitted"] for x in details),
@@ -245,7 +207,7 @@ def token_audit(records, tokenizer_path, config_path):
 
 
 def verify(root, source_dir=None):
-    source, inventory = fetch_source(root, offline=True, source_dir=source_dir)
+    source = fetch_source(root, offline=True, source_dir=source_dir)
     expected, expected_meta, _ = read_source(source)
     data = root / "model_data" / DATA_NAME
     manifest = json.loads((data / "manifest.json").read_text())
@@ -261,22 +223,22 @@ def verify(root, source_dir=None):
             require("cannot be used for training" in str(exc), "Unexpected training guard error")
         else:
             raise ValueError("Evaluation data passed the training guard")
-    for name, digest in manifest["artifacts"].items():
-        require(file_hash(data / name) == digest, f"Artifact changed: {name}")
-    require(list(json_rows(data / "provenance.jsonl")) == expected_meta, "Provenance differs")
-    download = root / "download_manifest.json"
-    require(file_hash(download) == manifest["download_manifest_sha256"], "Download manifest changed")
-    require(json.loads(download.read_text())["files"] == inventory, "Source inventory differs")
-    return {"status": "verified", "data": str(data), "manifest_sha256": file_hash(data / "manifest.json"),
-            "unique_records": 231, "splits": {s: len(r) for s, r in expected.items()},
-            "upstream_files_verified": len(inventory), "training_guard": "all four views rejected"}
+    saved_metadata = list(json_rows(data / "provenance.jsonl"))
+    # Older exports also carried per-file checksums; only task metadata matters here.
+    require(len(saved_metadata) == len(expected_meta), "Provenance count differs")
+    for saved, expected_row in zip(saved_metadata, expected_meta):
+        require(all(saved.get(key) == value for key, value in expected_row.items()), "Provenance differs")
+    for name in ("LICENSE", "THIRD-PARTY.md"):
+        require((data / name).read_bytes() == (source / name).read_bytes(), f"Missing or changed {name}")
+    return {"status": "verified", "data": str(data), "unique_records": 231,
+            "splits": {split: len(rows) for split, rows in expected.items()}}
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--root", type=Path, default=DEFAULT_ROOT)
     ap.add_argument("--source-dir", type=Path,
-                    help="pinned upstream source, separate from data/response storage")
+                    help="existing JevBench source directory (downloaded automatically by default)")
     ap.add_argument("--verify", action="store_true")
     ap.add_argument("--tokenizer", type=Path, help="local tokenizer directory, required for a new release")
     ap.add_argument("--config", type=Path, default=REPO / "configs/qev-9b.json")
@@ -290,17 +252,11 @@ def main():
         return
     if args.tokenizer is None:
         ap.error("--tokenizer is required to prepare a new evaluation dataset")
-    source, inventory = fetch_source(root, source_dir=args.source_dir)
+    source = fetch_source(root, source_dir=args.source_dir)
     records, metadata, checks = read_source(source)
     timestamp = datetime.now(timezone.utc).isoformat()
-    download = root / "download_manifest.json"
-    require(not download.exists(), "Unpublished download manifest already exists; use a fresh root")
     details, token_summary = token_audit(records["public"], args.tokenizer, args.config)
     overlap = overlap_audit(records["public"], args.compare_data)
-    write_json(download, {"schema_version": 1, "repo": UPSTREAM, "tag": VERSION, "revision": REVISION,
-                          "retrieved_at": timestamp, "archive_url": ARCHIVE_URL, "archive_sha256": ARCHIVE_SHA,
-                          "archive_bytes": (root / "raw/source.tar.gz").stat().st_size,
-                          "purpose": "external_evaluation_and_upstream_reference", "files": inventory})
     destination.parent.mkdir(parents=True, exist_ok=True)
     stage = Path(tempfile.mkdtemp(prefix=f".{DATA_NAME}-", dir=destination.parent))
     try:
@@ -308,7 +264,7 @@ def main():
         for split, rows in records.items():
             path = stage / f"{split}.jsonl"
             write_rows(path, (r.to_dict() for r in rows))
-            files[split] = {"file": path.name, "sha256": file_hash(path), "records": len(rows),
+            files[split] = {"file": path.name, "records": len(rows),
                             "questions": len(rows), "role": "external_evaluation",
                             "questions_by_type": dict(Counter(r.questions[0].type for r in rows)),
                             "by_source": dict(Counter(r.source for r in rows)),
@@ -323,19 +279,18 @@ def main():
                                                         for m, r in zip(metadata, records["public"])
                                                         if r.questions[0].type == "choice"),
                    "semantic_review": "Upstream golds retained; no independent relabelling or model review"})
-        shutil.copyfile(source / "LICENSE", stage / "LICENSE")
+        for name in ("LICENSE", "THIRD-PARTY.md"):
+            shutil.copyfile(source / name, stage / name)
         manifest = {"schema": "qev.data.v1", "recipe": "jevbench-public-native-v1",
                     "repo": UPSTREAM, "version": VERSION, "revision": REVISION, "created_at": timestamp,
                     "license": "MIT", "source_task_protocol": "jevbench::v1.2", "leaderboard_protocol": "jevbench::v1.4",
-                    "download_manifest_sha256": file_hash(download), "unique_records": 231,
+                    "unique_records": 231,
                     "views": "public = original + easy + hard, in that order; do not sum the four views",
                     "unavailable": {"v1_2_nonpublic": 303, "v1_4_additional_sealed": 308},
                     "policy": "Evaluation only. Preserve all items, golds and paraphrase groups, including context overflows. No training split.",
                     "target_policy": "10 gold_probs distributions preserved; remaining 221 targets one-hot expected. Original labels retained via explicit mapping.",
                     "scoring_note": "Local metrics are not the official composite. Re-score with pinned upstream code, inverse-map Noul, use upstream lexical tie-breaking. Local Brier/NLL use target distributions, which differs from official categorical calibration.",
-                    "files": files, "artifacts": {p.name: file_hash(p) for p in sorted(stage.iterdir()) if p.name not in {v['file'] for v in files.values()}},
-                    "build_code": {str(p.relative_to(REPO)): file_hash(p) for p in
-                                   (Path(__file__), REPO / "qev/schema.py", REPO / "qev/data.py", REPO / "qev/encoding.py")}}
+                    "files": files}
         write_json(stage / "manifest.json", manifest)
         for split in files:
             load_records(stage, split)

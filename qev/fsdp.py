@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Full-parameter training with FSDP2 and CPU-offloaded FP32 master weights / AdamW state.
 
 Only tree execution is supported: `_execute_tree` enters each decoder layer through its

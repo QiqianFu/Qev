@@ -1,4 +1,5 @@
-# Adapted for Qev in 2026; see NOTICE and provenance.json.
+# SPDX-License-Identifier: Apache-2.0
+# Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Semantic regressions at the JevBench/Qev format boundary."""
 from copy import deepcopy
 
@@ -62,3 +63,25 @@ def test_does_not_silently_renormalize_upstream_gold():
     raw["provenance"]["gold_probs"] = {"no": 0.3, "yes": 0.701}
     with pytest.raises(ValueError, match="normalization"):
         convert_task(raw, "hard")
+
+
+def test_prepared_data_verification_checks_tasks_roles_and_licenses(tmp_path, monkeypatch):
+    import json
+    import scripts.prepare_jevbench as prepare
+    record, meta=convert_task(task('noul',['no','yes'],None,'yes'),'original')
+    source=tmp_path/'source';source.mkdir()
+    data=tmp_path/'model_data'/prepare.DATA_NAME;data.mkdir(parents=True)
+    for name in ('LICENSE','THIRD-PARTY.md'):
+        (source/name).write_text('Original upstream terms')
+        (data/name).write_text('Original upstream terms')
+    (data/'public.jsonl').write_text(json.dumps(record.to_dict())+'\n')
+    (data/'provenance.jsonl').write_text(json.dumps(meta)+'\n')
+    manifest={'revision':prepare.REVISION,'files':{'public':{
+        'file':'public.jsonl','records':1,'role':'external_evaluation'}}}
+    (data/'manifest.json').write_text(json.dumps(manifest))
+    monkeypatch.setattr(prepare,'fetch_source',lambda *args,**kwargs:source)
+    monkeypatch.setattr(prepare,'read_source',lambda *args:({'public':[record]},[meta],{}))
+    assert prepare.verify(tmp_path)['splits']=={'public':1}
+    (data/'THIRD-PARTY.md').write_text('Changed terms')
+    with pytest.raises(ValueError,match='THIRD-PARTY'):
+        prepare.verify(tmp_path)

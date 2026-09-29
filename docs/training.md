@@ -11,23 +11,23 @@ python -m qev.prepare --input examples/train.jsonl \
 
 Without `--validation`, the preparer makes a deterministic group split (`--validation-fraction 0.1 --seed 17`). It refuses duplicate IDs, overlapping groups, and exactly repeated record inputs across train/dev. This is an exact guard, not semantic deduplication. Put related examples in the same `group_id` before splitting. Existing output directories are never overwritten.
 
-The trainer consumes `manifest.json` and a `train` partition, checks file hashes and roles, and records all over-length rejections. Records are not silently truncated. All training questions need targets.
+The trainer consumes `manifest.json` and a `train` partition, checks split roles and record counts, and records all over-length rejections. Records are not silently truncated. All training questions need targets.
 
 ## Fine-tune from Qev-9B
 
 ```bash
 python -m qev.train --config configs/qev-9b-finetune.json \
   --data data/support --out runs/support \
-  --init-checkpoint AustinFu/Qev-9B@v0.1.0
+  --init-checkpoint AustinFu/Qev-9B
 ```
 
-This loads LoRA, the set head and the candidate-interaction gate, and starts a fresh optimizer/schedule. Calibration is reset to temperature 1. The configuration must match the checkpoint's model structure. Training data and token limits can differ; `initialization.json` records the source metadata hash.
+This loads LoRA, the set head and the candidate-interaction gate, and starts a fresh optimizer/schedule. Calibration is reset to temperature 1. The configuration must match the checkpoint's model structure. Training data and token limits can differ; `initialization.json` records the starting checkpoint.
 
 The single-GPU example uses batch 1 and accumulation 32. This is a configuration example, not a measured minimum-VRAM promise. Adjust context and batching after a short run. The included eight records illustrate formatting and cannot establish fine-tuning gains.
 
 ## Train from the base
 
-Omit `--init-checkpoint` to initialize new LoRA and head parameters on the configured Qwen base. Remote bases need a pinned revision. For a local base cache, set `model.base` to that directory and `model.revision` to null in a new config.
+Omit `--init-checkpoint` to initialize new LoRA and head parameters on the configured Qwen base. The trainer records the base-model version automatically. For a local base cache, set `model.base` to that directory and `model.revision` to null in a new config.
 
 The formal 9B recipe is:
 
@@ -41,7 +41,7 @@ torchrun --standalone --nproc_per_node=4 -m qev.train \
 
 | Setting | Selected checkpoint |
 |---|---|
-| Base | Qwen3.5-9B-Base, `68c46c4b3498877f3ef123c856ecfde50c39f404` |
+| Base | Qwen3.5-9B-Base |
 | Adaptation | LoRA rank 64, alpha 128 |
 | Head | 256 channels, 4 attention heads, 2 layers |
 | Candidate interaction | `last-full-attention` |
@@ -61,7 +61,7 @@ python -m qev.train --config runs/support/config.json \
   --resume runs/support/step-000100
 ```
 
-Use an actual saved step. Resume restores optimizer, schedule, RNG and data cursor, and requires matching data/admission hashes and settings. `--allow-repartition` permits supported changes of rank/microbatch partition at unchanged global batch, with zero dropout and other checks. Late-split repartition is not supported.
+Use an actual saved step. Resume restores optimizer, schedule, RNG and data cursor, and requires the same training data and settings. `--allow-repartition` permits supported changes of rank/microbatch partition at unchanged global batch, with zero dropout and other checks. Late-split repartition is not supported.
 
 `--max-steps` is the cumulative optimizer-step stopping point for that invocation. `--wall-hours` stops at an optimizer boundary. Exported inference-only checkpoints have no optimizer state and cannot be used with `--resume`; use `--init-checkpoint`.
 
@@ -70,7 +70,7 @@ Use an actual saved step. Resume restores optimizer, schedule, RNG and data curs
 - `qev-0.8b.json`: the smaller research configuration; no 0.8B checkpoint is presented as the selected Qev-9B release.
 - `qev-9b-independent.json`: no extra backbone cross interaction, zero set-attention layers; projection and shared scorer remain.
 - `qev-9b-readout-cross.json`: sibling interaction only reads terminal readouts.
-- `qev-9b-fullft.json`: FSDP2 full fine-tuning with layer-wise learning-rate decay. Its historical recipe used knowledge-v1, not the selected Qev-9B data. Requires CUDA; full-FT resume and `--init-checkpoint` are currently unsupported.
+- `qev-9b-fullft.json`: FSDP2 full fine-tuning with layer-wise learning-rate decay. Its original experiment used a different training dataset from the released model. Requires CUDA; full-FT resume and `--init-checkpoint` are currently unsupported.
 
 ## Validation
 

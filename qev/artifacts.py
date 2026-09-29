@@ -1,10 +1,11 @@
-"""Resolve local checkpoints or explicitly pinned Hugging Face repositories."""
+"""Resolve local checkpoints or Hugging Face model repositories."""
 from pathlib import Path
 
 
 INFERENCE_PATTERNS = ["model.json", "head.safetensors", "joint.safetensors",
                       "adapter/*.json", "adapter/*.safetensors", "tokenizer/*",
-                      "backbone/*.json", "backbone/*.safetensors", "SHA256SUMS.json"]
+                      "backbone/*.json", "backbone/*.safetensors",
+                      "LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "licenses/*"]
 
 
 def resolve_checkpoint(value, revision=None):
@@ -23,8 +24,8 @@ def resolve_checkpoint(value, revision=None):
         if revision is not None and revision != embedded:
             raise ValueError("conflicting checkpoint revisions")
         revision = embedded
-    if not revision:
-        raise ValueError("checkpoint directory does not exist; Hub downloads require owner/repo@revision")
+    if separator and not embedded:
+        raise ValueError("checkpoint revision after @ must not be empty")
     from huggingface_hub import snapshot_download
     path = Path(snapshot_download(repo_id=repo, revision=revision, allow_patterns=INFERENCE_PATTERNS))
     if not (path / 'model.json').is_file():

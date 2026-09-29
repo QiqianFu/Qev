@@ -1,13 +1,8 @@
 # Source adapters retained from the research implementation; see NOTICE.
-"""Render the already-audited local union; no network or remote loading scripts."""
-import argparse
-from collections import Counter, defaultdict
+"""Convert common dataset formats into Qev decision requests."""
 import hashlib
-import heapq
 import json
-from pathlib import Path
 
-from .data import file_hash, json_rows, rows, write_json
 from .schema import typed_record
 
 
@@ -73,7 +68,7 @@ def source_question(repo, item, label_names=None, *, seed=0, option_cap=16):
             state, instruction = text, "Which answer type is requested by the question?"
         elif repo == "legacy-datasets/banking77":
             if not label_names:
-                raise ValueError("Banking77 class names must come from the pinned Arrow metadata")
+                raise ValueError("Banking77 class names must come from the dataset metadata")
             names = label_names
             state, instruction = text, "Which banking intent matches the customer's request?"
         else:

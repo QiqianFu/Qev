@@ -86,7 +86,7 @@ python -m qev.prepare \
 python -m qev.train \
   --config configs/qev-9b-finetune.json \
   --data data/support --out runs/support \
-  --init-checkpoint AustinFu/Qev-9B@v0.1.0
+  --init-checkpoint AustinFu/Qev-9B
 ```
 
 `--init-checkpoint` 加载模型参数，重新建立优化器与学习率计划；`--resume` 恢复同一次训练及其原数据校验。省略初始化参数则从配置中的 Qwen 底座开始。
@@ -97,11 +97,11 @@ python -m qev.train \
 
 | 模型 | 底座与结构 | 当前入口 |
 |---|---|---|
-| **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | [Hugging Face · v0.1.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.1.0) |
+| **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | [Hugging Face · 下载](https://huggingface.co/AustinFu/Qev-9B) |
 
-正式检查点为 seed 17、step 2327。研究阶段名称是 BranchKev，旧数据与检查点格式仍可加载。推理导出包含 LoRA、决策头、交互 gate、tokenizer 与元数据，不包含底座和优化器状态。
+Qev-9B 在通用决策数据上训练，并在训练后半程加入对齐题与规则判断题，重复学习三次。下载包包含 LoRA、决策头、候选交互参数、tokenizer 和模型配置。
 
-约 690 MiB 的检查点会自动下载，加载器另行获取固定版本的 Qwen 底座。本地下载、检查点导出与底座缓存配置见[检查点指南](docs/checkpoints.md)；完整模型信息见[模型卡](docs/model-card.md)。
+约 690 MiB 的检查点会自动下载，加载器另行获取Qwen 底座。本地下载、检查点导出与底座缓存配置见[检查点指南](docs/checkpoints.md)；完整模型信息见[模型卡](docs/model-card.md)。
 
 ## 推理
 
@@ -113,7 +113,7 @@ python -m qev.train \
 from qev import Qev
 
 model = Qev.from_pretrained(
-    "AustinFu/Qev-9B", revision="v0.1.0", device="cuda"
+    "AustinFu/Qev-9B", device="cuda"
 )
 answers = model.predict({
     "state": "同一订单被扣款两次，请立即处理。",
@@ -135,7 +135,7 @@ print(answers["department"]["probabilities"])
 
 ```bash
 python -m qev.predict \
-  --checkpoint AustinFu/Qev-9B@v0.1.0 \
+  --checkpoint AustinFu/Qev-9B \
   --input examples/requests.jsonl --out runs/predictions.jsonl \
   --device cuda --weights-dtype checkpoint
 ```
@@ -182,4 +182,4 @@ Qev-9B 在 JevBench 公开 231 题上答对 **188 题（81.39%）**，Kev-9B 为
 
 运行 `python -m pytest -q` 和 `python scripts/check_release.py` 检查代码与文档；实际验证范围和 GPU 跳过项见[验证记录](docs/validation.md)。
 
-Qev 基于 Qwen，并参考 [Jared Palmer 的 Kev](https://github.com/jaredpalmer/kev) 中的标记约定、文本渲染、LoRA 目标和缓存分叉方式。代码采用 [Apache-2.0](LICENSE)，来源与署名见 [NOTICE](NOTICE) 和 [provenance.json](provenance.json)。权重与数据保留各自适用的条款。
+Qev 基于 Qwen，并参考 [Jared Palmer 的 Kev](https://github.com/jaredpalmer/kev) 中的标记约定、文本渲染、LoRA 目标和缓存分叉方式。Qev 的代码、微调权重、文档和原创图示采用 [Apache-2.0](LICENSE)。Qwen、Kev、JevBench 与外部依赖的署名和许可范围见[第三方声明](THIRD_PARTY_NOTICES.md)。

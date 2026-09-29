@@ -86,7 +86,7 @@ On a CUDA GPU, initialize a new domain-training run from a Qev-9B checkpoint:
 python -m qev.train \
   --config configs/qev-9b-finetune.json \
   --data data/support --out runs/support \
-  --init-checkpoint AustinFu/Qev-9B@v0.1.0
+  --init-checkpoint AustinFu/Qev-9B
 ```
 
 `--init-checkpoint` loads model parameters and starts a fresh optimizer and schedule. `--resume` continues the same run with its original data checks. Omit initialization to start from the Qwen base in the configuration.
@@ -97,11 +97,11 @@ The [formal four-GPU recipe](configs/qev-9b.json) uses rank 64, global batch 32,
 
 | Model | Base and architecture | Availability |
 |---|---|---|
-| **Qev-9B** | Qwen3.5-9B-Base, rank-64 LoRA, two-layer 256-dimensional set head | [Hugging Face · v0.1.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.1.0) |
+| **Qev-9B** | Qwen3.5-9B-Base, rank-64 LoRA, two-layer 256-dimensional set head | [Hugging Face · Download](https://huggingface.co/AustinFu/Qev-9B) |
 
-The selected checkpoint is seed 17, step 2327. It was called BranchKev during research; those record and checkpoint formats remain readable. An inference export contains LoRA, the decision head, joint gate, tokenizer and metadata, excluding base weights and optimizer state.
+Qev-9B was trained on a general decision dataset, with additional alignment and rule-compliance examples mixed into the second half of training and repeated three times. The download includes the LoRA adapter, decision head, interaction gate, tokenizer and configuration.
 
-The approximately 690 MiB checkpoint downloads automatically; the loader fetches the pinned Qwen base separately. See [checkpoint export and loading](docs/checkpoints.md) for local downloads and base-model cache overrides. The [model card](docs/model-card.md) describes the released model.
+The approximately 690 MiB checkpoint downloads automatically; the loader fetches the Qwen base separately. See [checkpoint export and loading](docs/checkpoints.md) for local downloads and base-model cache overrides. The [model card](docs/model-card.md) describes the released model.
 
 ## Inference
 
@@ -113,7 +113,7 @@ Load the model once in your process, then submit requests:
 from qev import Qev
 
 model = Qev.from_pretrained(
-    "AustinFu/Qev-9B", revision="v0.1.0", device="cuda"
+    "AustinFu/Qev-9B", device="cuda"
 )
 answers = model.predict({
     "state": "I was charged twice. Please help immediately.",
@@ -135,7 +135,7 @@ Use `noul` for a yes/no question and receive `P(true)`. Use `score` for a rubric
 
 ```bash
 python -m qev.predict \
-  --checkpoint AustinFu/Qev-9B@v0.1.0 \
+  --checkpoint AustinFu/Qev-9B \
   --input examples/requests.jsonl --out runs/predictions.jsonl \
   --device cuda --weights-dtype checkpoint
 ```
@@ -182,4 +182,4 @@ Qev-9B answers **188/231 public JevBench questions (81.39%)** correctly, compare
 
 Run `python -m pytest -q` and `python scripts/check_release.py` to check the code and documentation. The [validation record](docs/validation.md) lists the actual checks and GPU skips.
 
-Qev builds on Qwen and adapts delimiter, rendering, LoRA-target and cache-fork conventions from [Jared Palmer's Kev](https://github.com/jaredpalmer/kev). Code is licensed under [Apache-2.0](LICENSE); see [NOTICE](NOTICE) and [provenance.json](provenance.json) for attribution. Weights and datasets retain their respective terms.
+Qev builds on Qwen and adapts delimiter, rendering, LoRA-target and cache-fork conventions from [Jared Palmer's Kev](https://github.com/jaredpalmer/kev). Qev code, adaptation weights, documentation and original illustrations use [Apache-2.0](LICENSE). Attribution and the licenses for Qwen, Kev, JevBench and external dependencies are listed in [third-party notices](THIRD_PARTY_NOTICES.md).

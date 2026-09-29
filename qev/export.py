@@ -6,7 +6,7 @@ import re
 import shutil
 import tempfile
 
-from .data import file_hash, write_json
+from .data import write_json
 
 
 def export_checkpoint(checkpoint, out, *, base=None, revision=None):
@@ -20,8 +20,8 @@ def export_checkpoint(checkpoint, out, *, base=None, revision=None):
         raise ValueError('this exporter packages LoRA checkpoints; full weights require a separate release')
     base = base or meta['spec']['base']
     revision = revision or meta['spec'].get('revision')
-    if not re.fullmatch(r'[\w.-]+/[\w.-]+', base) or not re.fullmatch(r'[0-9a-f]{40}', revision or ''):
-        raise ValueError('portable export needs a Hub base ID and its full 40-character commit SHA')
+    if not re.fullmatch(r'[\w.-]+/[\w.-]+', base):
+        raise ValueError('export needs a Hugging Face base model name, such as Qwen/Qwen3.5-9B-Base')
     out.parent.mkdir(parents=True, exist_ok=True)
     stage = Path(tempfile.mkdtemp(prefix='.' + out.name + '-', dir=out.parent))
     try:
@@ -51,10 +51,13 @@ def export_checkpoint(checkpoint, out, *, base=None, revision=None):
                 write_json(p, value)
         meta['format'] = 'qev.checkpoint.v1'
         meta['spec'].update(base=base, revision=revision)
+        meta.pop('extra', None)
         write_json(stage / 'model.json', meta)
-        inventory = {str(p.relative_to(stage)): file_hash(p) for p in sorted(stage.rglob('*')) if p.is_file()}
-        write_json(stage / 'SHA256SUMS.json', {'source_model_json_sha256': file_hash(source / 'model.json'),
-                                           'files': inventory})
+        for name in ('LICENSE', 'NOTICE', 'THIRD_PARTY_NOTICES.md'):
+            if (source / name).is_file():
+                shutil.copyfile(source / name, stage / name)
+        if (source / 'licenses').is_dir():
+            shutil.copytree(source / 'licenses', stage / 'licenses')
         stage.rename(out)
     finally:
         if stage.exists():

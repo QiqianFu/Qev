@@ -1,19 +1,19 @@
 # Evaluation and provenance
 
-Reported results are from the frozen research runs, not new training performed while preparing this repository. Qev-9B is the research model previously called BranchKev 9B, run `c21-science-wk-late1783-9b-4gpu-r64-late50x3-s17`, step 2327.
+These results describe the released Qev-9B model: Qwen3.5-9B-Base with rank-64 LoRA, candidate interaction, and a two-layer decision head. Additional alignment and rule-compliance examples were mixed into the second half of training and repeated three times.
 
-[Machine-readable results](../results/benchmarks.json) contain integer numerators and denominators. [Qev's 231 JevBench predictions](../results/qev-9b/jevbench-predictions.jsonl) are copied byte-for-byte from the recorded run, with [hash and checkpoint provenance](../results/qev-9b/provenance.json).
+[Machine-readable results](../results/benchmarks.json) contain integer numerators and denominators. [Qev's 231 JevBench predictions](../results/qev-9b/jevbench-predictions.jsonl) are preserved from the original evaluation.
 
 ## Models and sources
 
 | Model | Identity | Result source |
 |---|---|---|
 | Qev-9B | Qwen3.5-9B-Base + rank-64 LoRA + 256×2 head, seed 17, step 2327 | Local BF16 full causal reference execution |
-| Kev-9B | `jaredpalmer/kev-9b@2629c06a`, Kev code `557598fced1dada75dfbf36ed144dce309ac6ceb` | JevBench rerun locally with Kev's own `kev.benchmark`, FP32 and T=1; other suites from pinned author reports |
-| Qwen3.5-9B-Base | `68c46c4b3498877f3ef123c856ecfde50c39f404` | Frozen native LM head, zero-shot prompt, probabilities normalized over valid answer codes |
+| Kev-9B | [jaredpalmer/kev-9b](https://huggingface.co/jaredpalmer/kev-9b) | JevBench rerun locally with Kev's own `kev.benchmark`, FP32 and T=1; other suites from pinned author reports |
+| Qwen3.5-9B-Base | [Qwen3.5-9B-Base](https://huggingface.co/Qwen/Qwen3.5-9B-Base) | Frozen native LM head, zero-shot prompt, probabilities normalized over valid answer codes |
 | Jev | Hosted service; JevBench used Jev 1.13.0 | JevBench API run on 2026-09-26; other suites from Jev reports preserved by the Kev authors |
 
-The pinned Kev reports include `night2-9b-du`, `r4-kev-9b-*-raw`, and `kev-9b-ekzhang-mmlupro-2`. They are available in the [upstream snapshot](https://github.com/jaredpalmer/kev/tree/557598fced1dada75dfbf36ed144dce309ac6ceb/runs). The consolidated research report hash used for the public table is recorded in `results/benchmarks.json`; code extraction is recorded in `provenance.json`.
+Kev's published results are available in its [evaluation reports](https://github.com/jaredpalmer/kev/tree/557598fced1dada75dfbf36ed144dce309ac6ceb/runs). JevBench was evaluated locally for Qev, Kev, and the Qwen base, and through the Jev API for the hosted reference.
 
 ## Full accuracy table
 
@@ -65,7 +65,7 @@ python -m qev.evaluate --checkpoint checkpoints/qev-9b \
   --reference --weights-dtype checkpoint --max-state 4096 --max-path 4096
 ```
 
-The preparer fetches archive revision `1df665e3956d7aab7fa0208ff6c4f2d8557f9f90`, verifies the archive and upstream task hashes, retains gold distributions, and keeps all tasks even if they exceed training limits. Every exported view has an `external_evaluation` role. Re-running the preparation command on its completed directory verifies it instead of replacing it. Use `--compare-data` to audit canonical input overlap with supplied training datasets.
+The preparer downloads JevBench v1.4.2, retains the original answers and probability targets, and keeps all 231 public tasks. Every exported view has an `external_evaluation` role. Re-running the preparation command on its completed directory verifies it instead of replacing it. Use `--compare-data` to audit canonical input overlap with supplied training datasets.
 
 To evaluate a prepared user-data dev split:
 
@@ -79,14 +79,14 @@ Use an actual saved step. Reports preserve rejected items and both answered-only
 
 ## Architecture ablations
 
-Same data recipe, rank 64, seed 17 and final step 2327. Qev's selected release is A.
+Same data recipe, rank 64, seed 17 and final step 2327. The released model uses both interaction components.
 
 | Variant | Backbone sibling cross | Set attention layers | JevBench correct | Mean P(gold label) |
 |---|---|---:|---:|---:|
-| A · selected | All sibling tokens | 2 | 188/231 | 0.782 |
-| B | Off | 2 | 185/231 | 0.775 |
-| C | All sibling tokens | 0 | 189/231 | 0.791 |
-| D | Off | 0 | 187/231 | 0.780 |
+| Released Qev-9B | All sibling tokens | 2 | 188/231 | 0.782 |
+| No backbone interaction | Off | 2 | 185/231 | 0.775 |
+| No set attention | All sibling tokens | 0 | 189/231 | 0.791 |
+| Neither interaction | Off | 0 | 187/231 | 0.780 |
 | Readout-only | Sibling readout tokens | 2 | 187/231 | 0.784 |
 
 The single-seed comparisons did not establish a measurable gain from either interaction component. Projection and the scalar scorer remain even when set attention is disabled. Related rank-16 seed sweeps had a JevBench standard deviation of about 4.7 questions; that is context, not a confidence interval or significance test for this final recipe.

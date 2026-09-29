@@ -9,14 +9,14 @@ Validated on 2026-09-28, using Python 3.12, Torch 2.8.0+cpu, Transformers 5.17.0
 | Portable checkpoint unit test | Legacy-format load, export, local base override and exact output roundtrip on a tiny model |
 | New-data initialization | New dataset with fresh optimizer/schedule, separately from same-run resume |
 | Wheel build and isolated install | Built on a local temporary filesystem; imported outside both source checkouts and reproduced tiny-model predictions exactly |
-| JevBench preparation | Downloaded and hash-verified the pinned archive; all 231 tasks retained, all views rejected for training; 40 over training limits retained |
-| Formal 9B export | Seven file hashes checked; adapter/head/gate tensors byte-identical to the selected checkpoint; optimizer excluded |
+| JevBench preparation | Downloaded the JevBench release; all 231 tasks retained, all views rejected for training; 40 over training limits retained |
+| Formal 9B export | Adapter/head/gate tensors byte-identical to the selected checkpoint; optimizer excluded |
 | Visuals | SVGs rendered and inspected; interactive HTML script parses and static DOM references resolve; browser interaction not rerun |
 | Release checker | Local file links, source syntax, path independence, table arithmetic and all 231 frozen JevBench predictions |
 
 The skipped tests require CUDA, including two-GPU FSDP cases. A new full-size Qev-9B GPU inference run, GPU numerical regression, and benchmark rerun have not been performed as part of this packaging task. Benchmark tables preserve the earlier research results; package tests and the random tiny-model smoke run do not remeasure those scores.
 
-The 9B inference export preserves tensor bytes and omits optimizer state. Its `SHA256SUMS.json` records the seven inference files. The source-package checks above preceded the public weight release documented below.
+The 9B inference export preserves tensor bytes and omits optimizer state. The source-package checks above preceded the public weight release documented below.
 
 Reproduce the checks in a suitable environment:
 
@@ -30,11 +30,21 @@ A portable [machine-readable validation record](../results/validation.json) stor
 
 ## Hugging Face release verification — 2026-09-29
 
-[AustinFu/Qev-9B](https://huggingface.co/AustinFu/Qev-9B) is public. Tag `v0.1.0` resolves to commit `54a0dbfd2b9416b556a54d6c185cb9667a24902b`, containing the selected seed-17, step-2327 checkpoint.
+[AustinFu/Qev-9B](https://huggingface.co/AustinFu/Qev-9B) is public. The `v0.1.0` tag preserves the original published weights.
 
 - Downloaded the release anonymously into a fresh cache through Qev's checkpoint resolver.
-- Downloaded and checked all 14 published files against the staged package. All SHA256 hashes match; the seven inference files also match the original export inventory.
+- Downloaded and compared all 14 original release files with the local package; the inference tensors match the selected checkpoint.
 - Loaded the downloaded tokenizer and read all three safetensors weight-file headers successfully.
 - Re-ran the five public-interface tests: **5 passed**, covering export/reload, Python predictions, checkpoint resolution, data preparation, and new-data initialization.
 
-The [release verification record](../results/huggingface-release.json) contains the commit, file sizes and hashes. This check verifies publication and download; full-size GPU inference and benchmark measurements were not rerun.
+The [original release record](../results/history/huggingface-v0.1.0.json) preserves the publication verification. This check verifies publication and download; full-size GPU inference and benchmark measurements were not rerun.
+
+## Public interface and licensing cleanup — 2026-09-29
+
+- Full CPU suite: **286 passed, 10 skipped**. A subsequent targeted run of the updated model-loading, base-evaluation and JevBench checks passed all **15 tests**, including the new conversion-and-license regression.
+- The offline smoke workflow completed data preparation, two training steps with resume, all three prediction types, and six evaluation questions.
+- JevBench preparation downloaded and converted all 231 public tasks, preserved their labels and probability targets, and included the original license and third-party notice. Conversion verification passed.
+- A built Python wheel includes Qev's license and notices plus the original Kev, Qwen and JevBench license files.
+- Hugging Face documentation and license files were downloaded anonymously and compared with the published sources. The three trained weight files are unchanged, and the original `v0.1.0` release is preserved.
+
+These changes simplify packaging and usage; the GPU-only tests remain skipped and the benchmark scores are the original model measurements.
