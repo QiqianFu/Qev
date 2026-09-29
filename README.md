@@ -8,7 +8,7 @@
   <a href="LICENSE"><img src="assets/badges/license.svg" alt="Apache-2.0"></a>
 </p>
 
-<p align="center"><strong>English</strong> | <a href="README.zh-CN.md">简体中文</a></p>
+<p align="center"><strong>English</strong> | <a href="README.zh-CN.md">简体中文</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Model weights</a></p>
 
 **Qev fine-tunes Qwen into a decision model.** Give it context, a question, and candidate answers; get a choice and a probability for every option. One model handles **Choice**, **Noul** (yes/no), and **Score** (ordered ratings).
 
@@ -86,7 +86,7 @@ On a CUDA GPU, initialize a new domain-training run from a Qev-9B checkpoint:
 python -m qev.train \
   --config configs/qev-9b-finetune.json \
   --data data/support --out runs/support \
-  --init-checkpoint checkpoints/qev-9b
+  --init-checkpoint AustinFu/Qev-9B@v0.1.0
 ```
 
 `--init-checkpoint` loads model parameters and starts a fresh optimizer and schedule. `--resume` continues the same run with its original data checks. Omit initialization to start from the Qwen base in the configuration.
@@ -97,11 +97,11 @@ The [formal four-GPU recipe](configs/qev-9b.json) uses rank 64, global batch 32,
 
 | Model | Base and architecture | Availability |
 |---|---|---|
-| **Qev-9B** | Qwen3.5-9B-Base, rank-64 LoRA, two-layer 256-dimensional set head | Locally exported `checkpoints/qev-9b`; a public Hub URL has not been assigned |
+| **Qev-9B** | Qwen3.5-9B-Base, rank-64 LoRA, two-layer 256-dimensional set head | [Hugging Face · v0.1.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.1.0) |
 
 The selected checkpoint is seed 17, step 2327. It was called BranchKev during research; those record and checkpoint formats remain readable. An inference export contains LoRA, the decision head, joint gate, tokenizer and metadata, excluding base weights and optimizer state.
 
-See [checkpoint export and loading](docs/checkpoints.md) for local exports, base-model cache overrides, and pinned Hub loading after hosting. The [model card](docs/model-card.md) records the selected model's identity and limits.
+The approximately 690 MiB checkpoint downloads automatically; the loader fetches the pinned Qwen base separately. See [checkpoint export and loading](docs/checkpoints.md) for local downloads and base-model cache overrides. The [model card](docs/model-card.md) describes the released model.
 
 ## Inference
 
@@ -112,7 +112,9 @@ Load the model once in your process, then submit requests:
 ```python
 from qev import Qev
 
-model = Qev.from_pretrained("checkpoints/qev-9b", device="cuda")
+model = Qev.from_pretrained(
+    "AustinFu/Qev-9B", revision="v0.1.0", device="cuda"
+)
 answers = model.predict({
     "state": "I was charged twice. Please help immediately.",
     "questions": {
@@ -133,7 +135,7 @@ Use `noul` for a yes/no question and receive `P(true)`. Use `score` for a rubric
 
 ```bash
 python -m qev.predict \
-  --checkpoint checkpoints/qev-9b \
+  --checkpoint AustinFu/Qev-9B@v0.1.0 \
   --input examples/requests.jsonl --out runs/predictions.jsonl \
   --device cuda --weights-dtype checkpoint
 ```

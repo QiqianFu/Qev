@@ -8,7 +8,7 @@
   <a href="LICENSE"><img src="assets/badges/license.svg" alt="Apache-2.0"></a>
 </p>
 
-<p align="center"><a href="README.md">English</a> | <strong>简体中文</strong></p>
+<p align="center"><a href="README.md">English</a> | <strong>简体中文</strong> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 模型权重</a></p>
 
 **Qev 是从 Qwen 微调而来的决策模型。** 给定上下文、问题和候选答案，模型直接返回选择及各选项的概率。同一套模型支持 **Choice 选择、Noul 是非判断、Score 序数评分**。
 
@@ -86,7 +86,7 @@ python -m qev.prepare \
 python -m qev.train \
   --config configs/qev-9b-finetune.json \
   --data data/support --out runs/support \
-  --init-checkpoint checkpoints/qev-9b
+  --init-checkpoint AustinFu/Qev-9B@v0.1.0
 ```
 
 `--init-checkpoint` 加载模型参数，重新建立优化器与学习率计划；`--resume` 恢复同一次训练及其原数据校验。省略初始化参数则从配置中的 Qwen 底座开始。
@@ -97,11 +97,11 @@ python -m qev.train \
 
 | 模型 | 底座与结构 | 当前入口 |
 |---|---|---|
-| **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | 本地导出的 `checkpoints/qev-9b`；公开 Hub 地址尚未发布 |
+| **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | [Hugging Face · v0.1.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.1.0) |
 
 正式检查点为 seed 17、step 2327。研究阶段名称是 BranchKev，旧数据与检查点格式仍可加载。推理导出包含 LoRA、决策头、交互 gate、tokenizer 与元数据，不包含底座和优化器状态。
 
-从研究检查点导出、使用本地底座缓存，以及发布后通过固定 Hub revision 加载的方法见[检查点指南](docs/checkpoints.md)；完整模型信息见[模型卡](docs/model-card.md)。
+约 690 MiB 的检查点会自动下载，加载器另行获取固定版本的 Qwen 底座。本地下载、检查点导出与底座缓存配置见[检查点指南](docs/checkpoints.md)；完整模型信息见[模型卡](docs/model-card.md)。
 
 ## 推理
 
@@ -112,7 +112,9 @@ python -m qev.train \
 ```python
 from qev import Qev
 
-model = Qev.from_pretrained("checkpoints/qev-9b", device="cuda")
+model = Qev.from_pretrained(
+    "AustinFu/Qev-9B", revision="v0.1.0", device="cuda"
+)
 answers = model.predict({
     "state": "同一订单被扣款两次，请立即处理。",
     "questions": {
@@ -133,7 +135,7 @@ print(answers["department"]["probabilities"])
 
 ```bash
 python -m qev.predict \
-  --checkpoint checkpoints/qev-9b \
+  --checkpoint AustinFu/Qev-9B@v0.1.0 \
   --input examples/requests.jsonl --out runs/predictions.jsonl \
   --device cuda --weights-dtype checkpoint
 ```

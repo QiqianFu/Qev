@@ -15,6 +15,24 @@ The exporter accepts Qev and compatible BranchKev LoRA checkpoints. It copies in
 
 ## Local or Hub loading
 
+The released checkpoint is [AustinFu/Qev-9B](https://huggingface.co/AustinFu/Qev-9B), tagged `v0.1.0`. Download it directly through Qev:
+
+```python
+from qev import Qev
+
+model = Qev.from_pretrained(
+    "AustinFu/Qev-9B", revision="v0.1.0", device="cuda"
+)
+```
+
+The inference package is approximately 690 MiB. The loader retrieves Qwen3.5-9B-Base separately at revision `68c46c4b3498877f3ef123c856ecfde50c39f404`. The [release record](../results/huggingface-release.json) records the exact Hub commit and verified file hashes.
+
+To keep the checkpoint in a chosen local directory:
+
+```bash
+hf download AustinFu/Qev-9B --revision v0.1.0 --local-dir checkpoints/qev-9b
+```
+
 ```python
 from qev import Qev
 
@@ -27,7 +45,7 @@ model = Qev.from_pretrained(
 
 A local override must contain the same base revision. Model structure checks cannot prove weight identity; retain the base's original provenance.
 
-After hosting, pass `owner/repository@commit` or use the `revision` argument. Remote checkpoint downloads require an explicit revision. No public Qev Hub repository is configured in this source release, so the generic pattern is not a currently available download URL. Qev loads standard model/tokenizer files without `trust_remote_code`.
+Remote checkpoint downloads require an explicit revision: use `AustinFu/Qev-9B@v0.1.0` in CLI commands, or pass `revision="v0.1.0"` to the Python API. The full commit SHA from the release record can also be used. Qev loads standard model/tokenizer files without `trust_remote_code`.
 
 `weights_dtype="checkpoint"` retains the stored precision; `"fp32"` loads backbone and adapter tensors in FP32. Qev-9B's reported evaluation uses the former with `execution="reference"`. Defaults for the Python API and prediction CLI use cached inference. Formal benchmark commands explicitly set the execution and precision.
 

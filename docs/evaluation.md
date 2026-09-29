@@ -50,9 +50,11 @@ Precision, prompts, and implementations differ across models; these are model-le
 
 ## Rerun Qev's public evaluation
 
-After preparing a portable Qev checkpoint:
+Download the released checkpoint, then prepare and evaluate the public tasks:
 
 ```bash
+hf download AustinFu/Qev-9B --revision v0.1.0 --local-dir checkpoints/qev-9b
+
 python scripts/prepare_jevbench.py \
   --root data/jevbench --source-dir data/jevbench/source \
   --tokenizer checkpoints/qev-9b/tokenizer --config configs/qev-9b.json

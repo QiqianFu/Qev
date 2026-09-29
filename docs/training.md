@@ -18,7 +18,7 @@ The trainer consumes `manifest.json` and a `train` partition, checks file hashes
 ```bash
 python -m qev.train --config configs/qev-9b-finetune.json \
   --data data/support --out runs/support \
-  --init-checkpoint checkpoints/qev-9b
+  --init-checkpoint AustinFu/Qev-9B@v0.1.0
 ```
 
 This loads LoRA, the set head and the candidate-interaction gate, and starts a fresh optimizer/schedule. Calibration is reset to temperature 1. The configuration must match the checkpoint's model structure. Training data and token limits can differ; `initialization.json` records the source metadata hash.

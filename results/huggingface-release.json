@@ -1,0 +1,98 @@
+{
+  "verified_at": "2026-09-29T16:00:48.204845+00:00",
+  "repo_id": "AustinFu/Qev-9B",
+  "url": "https://huggingface.co/AustinFu/Qev-9B",
+  "revision": "54a0dbfd2b9416b556a54d6c185cb9667a24902b",
+  "tag": "v0.1.0",
+  "public": true,
+  "checkpoint": {
+    "base": "Qwen/Qwen3.5-9B-Base",
+    "base_revision": "68c46c4b3498877f3ef123c856ecfde50c39f404",
+    "research_name": "BranchKev",
+    "run": "c21-science-wk-late1783-9b-4gpu-r64-late50x3-s17",
+    "step": 2327,
+    "dtype": "bf16",
+    "execution": "reference",
+    "seed": 17,
+    "temperature": 1.0
+  },
+  "inference_bytes": 723592233,
+  "verification": {
+    "anonymous_download": true,
+    "fresh_cache": true,
+    "qev_resolver": true,
+    "release_tag_matches_commit": true,
+    "inference_files_verified": 7,
+    "published_files_verified": 14,
+    "tokenizer_loaded": true,
+    "safetensors_headers_read": {
+      "adapter/adapter_model.safetensors": 496,
+      "head.safetensors": 35,
+      "joint.safetensors": 1
+    },
+    "full_size_gpu_inference": "not rerun; this is a publication and download verification",
+    "public_interface_tests": {
+      "command": "python -m pytest -q tests/test_public_interface.py",
+      "passed": 5,
+      "failed": 0
+    }
+  },
+  "files": {
+    "LICENSE": {
+      "sha256": "6b08bb37982c233aa12bcbdf19106da12f3f4fcf800773ea42e28ebeddd34fb8",
+      "bytes": 11343
+    },
+    "NOTICE": {
+      "sha256": "2757e17a342e1be7ffe5637d2806800c6b61a69d3fa1d296b68226203b162188",
+      "bytes": 1475
+    },
+    "README.md": {
+      "sha256": "9d08cc7918ab6c7df0e7eef7b8422d2e1316ff77420430900e5228bd5e94bcc3",
+      "bytes": 6512
+    },
+    "SHA256SUMS.json": {
+      "sha256": "aad8d4428d6ab8f9434eed454664da0745668b98fdb983c0174827c1976a6f0e",
+      "bytes": 808
+    },
+    "adapter/adapter_config.json": {
+      "sha256": "3e8ecebad2f7bf7b983fa3d40e8fae4749fa4923150231b41b9ad9a11c74baa3",
+      "bytes": 1310
+    },
+    "adapter/adapter_model.safetensors": {
+      "sha256": "54314a19f8f9c45fce24f04e14c3615fb1b43be13e231b51a060e9f88d4c57f4",
+      "bytes": 692518608
+    },
+    "benchmarks.json": {
+      "sha256": "bbc002f8aa1228ea7e84965a9229601ae7ee4ccef5d2160e3a2016c842247905",
+      "bytes": 6123
+    },
+    "head.safetensors": {
+      "sha256": "6640fcc2045f21e0a0edb4d80d797c2134d160cebba662885cde04efeaafb91c",
+      "bytes": 11080748
+    },
+    "joint.safetensors": {
+      "sha256": "6020d9fde51efc8f12f089fbe10b5f738c00ddf59c8df738ca0eb1edb344a979",
+      "bytes": 136
+    },
+    "model.json": {
+      "sha256": "3bd2d22791d94410fc6a30df3653cdd128c5a73da8f5671b8f787b0d4d99b094",
+      "bytes": 980
+    },
+    "provenance.json": {
+      "sha256": "4fe72644fa5bf13234a63d7bd53118e968a3b7319aaba6a349a3d34e9852a344",
+      "bytes": 1290
+    },
+    "tokenizer/tokenizer.json": {
+      "sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+      "bytes": 19989325
+    },
+    "tokenizer/tokenizer_config.json": {
+      "sha256": "353c083805d863719e54973335a38e252a92e1ac64d32b83bb0b333cc1644ef2",
+      "bytes": 1126
+    },
+    "training_config.json": {
+      "sha256": "f399d57bc00420b317d95a93a3e742343bda10cd26a4c818d379101e2769f966",
+      "bytes": 1285
+    }
+  }
+}

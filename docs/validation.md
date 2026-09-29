@@ -16,7 +16,7 @@ Validated on 2026-09-28, using Python 3.12, Torch 2.8.0+cpu, Transformers 5.17.0
 
 The skipped tests require CUDA, including two-GPU FSDP cases. A new full-size Qev-9B GPU inference run, GPU numerical regression, and benchmark rerun have not been performed as part of this packaging task. Benchmark tables preserve the earlier research results; package tests and the random tiny-model smoke run do not remeasure those scores.
 
-The prepared local 9B inference export preserves tensor bytes and omits optimizer state. Its `SHA256SUMS.json` records exported files. This file accompanies the local checkpoint and is not an assertion that a public Hub release already exists.
+The 9B inference export preserves tensor bytes and omits optimizer state. Its `SHA256SUMS.json` records the seven inference files. The source-package checks above preceded the public weight release documented below.
 
 Reproduce the checks in a suitable environment:
 
@@ -27,3 +27,14 @@ python scripts/check_release.py
 ```
 
 A portable [machine-readable validation record](../results/validation.json) stores the observed outcomes. The CPU GitHub Actions workflow is supplied for subsequent pushes; it has not been run on GitHub during this local preparation.
+
+## Hugging Face release verification — 2026-09-29
+
+[AustinFu/Qev-9B](https://huggingface.co/AustinFu/Qev-9B) is public. Tag `v0.1.0` resolves to commit `54a0dbfd2b9416b556a54d6c185cb9667a24902b`, containing the selected seed-17, step-2327 checkpoint.
+
+- Downloaded the release anonymously into a fresh cache through Qev's checkpoint resolver.
+- Downloaded and checked all 14 published files against the staged package. All SHA256 hashes match; the seven inference files also match the original export inventory.
+- Loaded the downloaded tokenizer and read all three safetensors weight-file headers successfully.
+- Re-ran the five public-interface tests: **5 passed**, covering export/reload, Python predictions, checkpoint resolution, data preparation, and new-data initialization.
+
+The [release verification record](../results/huggingface-release.json) contains the commit, file sizes and hashes. This check verifies publication and download; full-size GPU inference and benchmark measurements were not rerun.

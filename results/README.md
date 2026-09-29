@@ -6,4 +6,6 @@
 
 [validation.json](validation.json) records the source-package checks separately from model benchmark measurements.
 
+[huggingface-release.json](huggingface-release.json) records the public `AustinFu/Qev-9B` v0.1.0 release, its exact commit, and anonymous download verification with file hashes. It is a publication check, not a new benchmark run.
+
 The model was named BranchKev in the source run and is now released as Qev. These files describe the recorded checkpoint and are not results from a new run of the renamed package. See [evaluation.md](../docs/evaluation.md) for protocol differences, ablations and limitations.

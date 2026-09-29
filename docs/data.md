@@ -37,7 +37,7 @@ The selected Qev-9B training manifest is identified by SHA256:
 
 The alignment pack contains 249 selected earlier records and 1,170 synthetic records. The 249 selected records also occur in the main partition as intentional replay; late/main are training partitions, not an evaluation split. The 364 rule judgments consist of 182 positive/negative pairs. Late examples start at the final 50% of main-training steps and repeat three times.
 
-**The complete research corpus and its original generation/review pipeline are not included in this source release.** This repository supports training on user data and rerunning public evaluation when weights are available. Rebuilding the exact reported training run additionally requires the frozen dataset. Code availability alone is not a claim of full data reproducibility.
+**The complete research corpus and its original generation/review pipeline are not included in this source release.** This repository supports training on user data and rerunning public evaluation with the [released Qev-9B weights](https://huggingface.co/AustinFu/Qev-9B). Rebuilding the exact reported training run additionally requires the frozen dataset. Code availability alone is not a claim of full data reproducibility.
 
 Any later data release must carry its per-source terms, provenance, revisions, attribution, and train/evaluation roles. In particular, the original Wikipedia-based synthetic world-knowledge pack carried CC BY-SA attribution where applicable. These terms are separate from the code's Apache-2.0 license.
 
