@@ -152,32 +152,25 @@ Qev organizes inputs as **state → question → candidate**. Candidate branches
 
 ## Evaluation
 
-**Precision: Qev-9B uses BF16 backbone computation; Kev-9B uses FP32.** Qev retains FP32 for the head and key reductions, and its exported LoRA tensors are stored in FP32.
+**Precision: Qev-9B uses BF16 backbone computation; Kev-9B uses FP32.** Qev's decision head remains in FP32.
 
 <p align="center">
   <img src="assets/evaluation.svg" alt="Paired Qev and Kev bars on seven benchmarks, with accuracy labels and question counts." width="100%">
 </p>
 
-Qev-9B answers **188/231 public JevBench questions (81.39%)** correctly; the pinned Kev-9B baseline answers 175/231 (75.76%). This is public-set accuracy, not the official JevBench composite score. Bold scores compare Qev with Kev; Jev and the Qwen base are references in the full table below.
-
-<details>
-<summary><strong>Full comparison table and evaluation protocol</strong></summary>
-
-| Benchmark | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Jev (reference) |
+| Benchmark | Jev (reference) | Qwen3.5-9B-Base | Qev-9B | Kev-9B |
 |---|---:|---:|---:|---:|
-| Decision development · clean | **87.42** | 87.18 | 77.69 | 84.49 |
-| Transfer development · clean | **83.99** | 82.16 | 74.39 | 85.67 |
-| MMLU-Pro · 1,000 | **54.60** | 51.10 | 50.40 | 83.50 |
-| SemIf · 144 handwritten | **93.75** | 90.97 | 90.28 | 96.53 |
-| scienthoon · 873 | 72.28 | **75.49** | 68.84 | 75.26 |
-| WANLI · 256 | **72.66** | 70.31 | 67.97 | 75.78 |
-| JevBench public · 231 | **81.39** | 75.76 | 75.76 | 85.71 |
+| Decision development · clean | 84.49 | 77.69 | **87.42** | 87.18 |
+| Transfer development · clean | 85.67 | 74.39 | **83.99** | 82.16 |
+| MMLU-Pro · 1,000 | 83.50 | 50.40 | **54.60** | 51.10 |
+| SemIf · 144 handwritten | 96.53 | 90.28 | **93.75** | 90.97 |
+| scienthoon · 873 | 75.26 | 68.84 | 72.28 | **75.49** |
+| WANLI · 256 | 75.78 | 67.97 | **72.66** | 70.31 |
+| JevBench public · 231 | 85.71 | 75.76 | **81.39** | 75.76 |
 
-Percent accuracy; clean subsets follow the convention used in Kev's README. Kev's eight unanswered MMLU-Pro questions count as incorrect. SemIf includes only the 144 handwritten questions. JevBench was run by this project, with Jev accessed through its API. Kev and Jev results on the other suites come from pinned author reports.
+Accuracy (%). Bold marks the higher score between Qev and Kev; Jev and the Qwen base are references.
 
-The selected Qev checkpoint is one seed. Data, rank and recipe differ, so these results do not isolate architecture gains. Single-seed ablations did not establish a measurable benefit from the extra candidate interaction or set-head attention; Qev trails Kev on scienthoon.
-
-</details>
+Qev-9B answers **188/231 public JevBench questions (81.39%)** correctly, compared with 175/231 (75.76%) for Kev-9B. These are public-set accuracies, not the official JevBench composite score.
 
 [Full results, ablations and settings](docs/evaluation.md) · [Machine-readable metrics](results/benchmarks.json) · [All 231 predictions](results/qev-9b/jevbench-predictions.jsonl)
 

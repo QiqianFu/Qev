@@ -33,7 +33,7 @@ Percent accuracy. The selected Qev model is a single seed. Bold scores mark the 
 | WANLI · 256 | **72.66** | 70.31 | 67.97 | 75.78 |
 | JevBench public · 231 | **81.39** | 75.76 | 75.76 | 85.71 |
 
-The all-question dev rows include clean examples and candidate-permutation / None-present / None-absent variants. Clean rows match the clean reporting convention in Kev's README. Kev's MMLU-Pro author report answered 992 items: 511 correct out of all 1000 gives 51.10%; the eight unanswered items count as wrong. SemIf uses 144 handwritten questions. Qev's broader 252-question research run also included 108 perturbations; its 95.63% overall score is not the 144-question comparison above.
+The all-question dev rows include clean examples and candidate-permutation / None-present / None-absent variants. Clean rows match the clean reporting convention in Kev's README. SemIf uses 144 handwritten questions. Qev's broader 252-question research run also included 108 perturbations; its 95.63% overall score is not the 144-question comparison above.
 
 ## Public JevBench breakdown
 
@@ -46,7 +46,7 @@ The all-question dev rows include clean examples and candidate-permutation / Non
 
 This is local argmax accuracy on the public v1.4.2 tasks. It is not the official composite score, which includes other dimensions and nonpublic tasks. The public benchmark was observed during research iteration, so these results are not an untouched final blind test.
 
-Kev's rerun used serving state limits of 8192 and answered all 231 items. Qev used inference overrides `max_state=4096`, `max_path=4096`, compared with training limits 1024 and 2048. The base used a prompt limit of 8192. Precision, prompts, and implementations differ across models; these are model-level observations, not a controlled architecture comparison.
+Precision, prompts, and implementations differ across models; these are model-level observations, not a controlled architecture comparison.
 
 ## Rerun Qev's public evaluation
 

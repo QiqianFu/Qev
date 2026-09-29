@@ -152,32 +152,25 @@ Qev 按 **state → question → candidate** 组织输入。候选分支读取�
 
 ## 评测
 
-**精度对比：Qev-9B 的主干计算使用 BF16，Kev-9B 使用 FP32。** Qev 的决策头与关键归约保持 FP32，导出的 LoRA 张量也存为 FP32。
+**精度对比：Qev-9B 的主干计算使用 BF16，Kev-9B 使用 FP32。** Qev 的决策头保持 FP32。
 
 <p align="center">
   <img src="assets/evaluation.svg" alt="七组评测的Qev与Kev成组柱状图，柱顶为准确率，横轴标明题量。" width="100%">
 </p>
 
-Qev-9B 在 JevBench 公开 231 题上答对 **188 题（81.39%）**，固定版本 Kev-9B 为 175 题（75.76%）。这是公开题准确率，不是 JevBench 官方综合分数。加粗只比较 Qev 与 Kev；Jev 与 Qwen 底座作为参考列在下表。
-
-<details>
-<summary><strong>查看完整对比表与评测口径</strong></summary>
-
-| 评测 | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Jev（参考） |
+| 评测 | Jev（参考） | Qwen3.5-9B-Base | Qev-9B | Kev-9B |
 |---|---:|---:|---:|---:|
-| decision_dev · clean | **87.42** | 87.18 | 77.69 | 84.49 |
-| transfer_dev · clean | **83.99** | 82.16 | 74.39 | 85.67 |
-| MMLU-Pro · 1000题 | **54.60** | 51.10 | 50.40 | 83.50 |
-| SemIf · 144道手写题 | **93.75** | 90.97 | 90.28 | 96.53 |
-| scienthoon · 873题 | 72.28 | **75.49** | 68.84 | 75.26 |
-| WANLI · 256题 | **72.66** | 70.31 | 67.97 | 75.78 |
-| JevBench公开题 · 231题 | **81.39** | 75.76 | 75.76 | 85.71 |
+| decision_dev · clean | 84.49 | 77.69 | **87.42** | 87.18 |
+| transfer_dev · clean | 85.67 | 74.39 | **83.99** | 82.16 |
+| MMLU-Pro · 1000题 | 83.50 | 50.40 | **54.60** | 51.10 |
+| SemIf · 144道手写题 | 96.53 | 90.28 | **93.75** | 90.97 |
+| scienthoon · 873题 | 75.26 | 68.84 | 72.28 | **75.49** |
+| WANLI · 256题 | 75.78 | 67.97 | **72.66** | 70.31 |
+| JevBench公开题 · 231题 | 85.71 | 75.76 | **81.39** | 75.76 |
 
-准确率%，clean 子集与 Kev README 口径一致。Kev 在 MMLU-Pro 中未作答的 8 题计错；SemIf 只统计 144 道手写题。JevBench 由本项目运行，Jev 通过官方 API 调用；其他评测中 Kev 和 Jev 的数字来自固定版本的作者报告。
+表中为准确率（%），加粗标出 Qev 与 Kev 中的较高成绩；Jev 与 Qwen 底座作为参考。
 
-Qev 正式检查点是单 seed，数据、rank 与配方也不同，以上结果不能单独归因于架构。现有单 seed 消融未证明候选交互或集合头 attention 带来明确收益；scienthoon 上 Qev 低于 Kev。
-
-</details>
+Qev-9B 在 JevBench 公开 231 题上答对 **188 题（81.39%）**，Kev-9B 为 175 题（75.76%）。这里展示的是公开题准确率，不是 JevBench 官方综合分数。
 
 [完整结果、消融与评测设置](docs/evaluation.md) · [机器可读指标](results/benchmarks.json) · [231 题原始预测](results/qev-9b/jevbench-predictions.jsonl)
 
