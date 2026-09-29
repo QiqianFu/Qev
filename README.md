@@ -16,8 +16,19 @@ This repository provides the model architecture, training and evaluation code, P
 
 | Start here | What you can do |
 |---|---|
+| **[Get model weights](#model-and-checkpoints)** | Find the released Qev-9B checkpoint and download details |
 | **[Run a model](#inference)** | Get decisions and option probabilities through Python or JSONL |
 | **[Train a model](#training)** | Prepare labelled data, train from Qwen, or fine-tune an existing Qev checkpoint |
+
+## Model and checkpoints
+
+| Model | Base and architecture | Availability |
+|---|---|---|
+| **Qev-9B** | Qwen3.5-9B-Base, rank-64 LoRA, two-layer 256-dimensional set head | [Hugging Face · v0.1.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.1.0) |
+
+The approximately 690 MiB checkpoint downloads automatically; the loader fetches the pinned Qwen base separately. See [checkpoint export and loading](docs/checkpoints.md) for local downloads and base-model cache overrides. The [model card](docs/model-card.md) describes the released model.
+
+The selected checkpoint is seed 17, step 2327. It was called BranchKev during research; those record and checkpoint formats remain readable. An inference export contains LoRA, the decision head, joint gate, tokenizer and metadata, excluding base weights and optimizer state.
 
 ## Installation
 
@@ -130,16 +141,6 @@ Recorded Snake and Crafter decision replays showing action selection and candida
 </table>
 
 [Recording details](docs/demos.md).
-
-## Model and checkpoints
-
-| Model | Base and architecture | Availability |
-|---|---|---|
-| **Qev-9B** | Qwen3.5-9B-Base, rank-64 LoRA, two-layer 256-dimensional set head | [Hugging Face · v0.1.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.1.0) |
-
-The selected checkpoint is seed 17, step 2327. It was called BranchKev during research; those record and checkpoint formats remain readable. An inference export contains LoRA, the decision head, joint gate, tokenizer and metadata, excluding base weights and optimizer state.
-
-The approximately 690 MiB checkpoint downloads automatically; the loader fetches the pinned Qwen base separately. See [checkpoint export and loading](docs/checkpoints.md) for local downloads and base-model cache overrides. The [model card](docs/model-card.md) describes the released model.
 
 ## How decisions are made
 

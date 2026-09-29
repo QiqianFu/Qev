@@ -16,8 +16,19 @@
 
 | 从这里开始 | 可以做什么 |
 |---|---|
+| **[获取模型权重](#模型与检查点)** | 查看已发布的 Qev-9B 检查点与下载说明 |
 | **[运行模型](#推理)** | 通过 Python 或 JSONL 接口，获取选项概率和决策 |
 | **[训练模型](#训练)** | 准备标注数据，从 Qwen 底座训练，或在 Qev 检查点上继续微调 |
+
+## 模型与检查点
+
+| 模型 | 底座与结构 | 当前入口 |
+|---|---|---|
+| **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | [Hugging Face · v0.1.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.1.0) |
+
+约 690 MiB 的检查点会自动下载，加载器另行获取固定版本的 Qwen 底座。本地下载、检查点导出与底座缓存配置见[检查点指南](docs/checkpoints.md)；完整模型信息见[模型卡](docs/model-card.md)。
+
+正式检查点为 seed 17、step 2327。研究阶段名称是 BranchKev，旧数据与检查点格式仍可加载。推理导出包含 LoRA、决策头、交互 gate、tokenizer 与元数据，不包含底座和优化器状态。
 
 ## 安装
 
@@ -130,16 +141,6 @@ python -m qev.train \
 </table>
 
 [录屏详情](docs/demos.md)。
-
-## 模型与检查点
-
-| 模型 | 底座与结构 | 当前入口 |
-|---|---|---|
-| **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | [Hugging Face · v0.1.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.1.0) |
-
-正式检查点为 seed 17、step 2327。研究阶段名称是 BranchKev，旧数据与检查点格式仍可加载。推理导出包含 LoRA、决策头、交互 gate、tokenizer 与元数据，不包含底座和优化器状态。
-
-约 690 MiB 的检查点会自动下载，加载器另行获取固定版本的 Qwen 底座。本地下载、检查点导出与底座缓存配置见[检查点指南](docs/checkpoints.md)；完整模型信息见[模型卡](docs/model-card.md)。
 
 ## 模型怎样作出决策
 
