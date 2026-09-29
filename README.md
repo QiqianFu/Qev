@@ -185,7 +185,8 @@ Qev builds on Qwen and adapts delimiter, rendering, LoRA-target and cache-fork c
 
 ## Acknowledgments
 
-We thank these two projects for their contributions and inspiration:
+We thank the following projects and author for their work and inspiration:
 
 - **BranchKev**: the research work on candidate-branch encoding, decision heads and training workflows provided the foundation for Qev's standalone release. See [NOTICE](NOTICE) and [provenance.json](provenance.json) for the code lineage.
 - **[Jev / the TypeSafe team](https://typesafe.ai/)**: thank you for advancing decision models and providing [public API documentation](https://docs.typesafe.ai/introduction) for typed decisions and probability outputs.
+- **[Archer Hume — Jev’s Architecture Unmasked](https://archerhume.com/posts/jevs-architecture-unmasked/)**: thank you for the independent API experiments and architectural analysis, offering useful perspectives on shared-state computation, question isolation and interactions between candidate answers.

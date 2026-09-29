@@ -185,7 +185,8 @@ Qev 基于 Qwen，并参考 [Jared Palmer 的 Kev](https://github.com/jaredpalme
 
 ## 致谢
 
-感谢以下两个项目的工作与启发：
+感谢以下项目与作者的工作和启发：
 
 - **BranchKev**：感谢研究阶段在候选分支编码、决策头与训练流程上的探索，为 Qev 的独立发布奠定了基础。代码沿革见 [NOTICE](NOTICE) 与 [provenance.json](provenance.json)。
 - **[Jev / TypeSafe 官方团队](https://typesafe.ai/)**：感谢在决策模型方向上的探索，以及围绕类型化决策与概率输出提供的[公开接口文档](https://docs.typesafe.ai/introduction)。
+- **[Archer Hume — Jev’s Architecture Unmasked](https://archerhume.com/posts/jevs-architecture-unmasked/)**：感谢通过独立 API 实验与架构分析，为理解共享状态计算、问题隔离和候选答案之间的交互提供了有价值的思路。
