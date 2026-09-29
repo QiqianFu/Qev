@@ -323,6 +323,16 @@ def main():
     if not isinstance(insert_exempt, list) or not all(isinstance(s, str) and s for s in insert_exempt):
         raise ValueError("none_insert_exempt_sources must be a list of non-empty source prefixes")
     insert_exempt = tuple(insert_exempt)
+    teacher_cache = None
+    if kd := settings.get("distillation"):
+        if ord_w or score_hl_sigma:
+            raise ValueError("distillation requires unmodified soft-target cross entropy")
+        from .distillation import TeacherCache, training_views, view_protocol
+        teacher_cache = TeacherCache(kd["cache"], protocol=view_protocol(config), weight=kd.get("weight", 1.0))
+        teacher_cache.verify_coverage(training_views(encoded, n_main, encoder, config))
+        data_files["teacher_manifest"] = file_hash(teacher_cache.path / "manifest.json")
+        for entry in teacher_cache.manifest["shards"]:
+            data_files["teacher/" + entry["file"]] = file_hash(teacher_cache.path / entry["file"])
     if ord_w < 0:
         raise ValueError("ord_w must be non-negative")
     if score_hl_sigma < 0:
@@ -453,6 +463,8 @@ def main():
                     added = absent = 0
                     if not view.record.source.startswith(insert_exempt):
                         view, added, absent = inserter(view, seed=seed, epoch=epoch)
+                    if teacher_cache is not None:
+                        view = teacher_cache.apply(view)
                     chunk.append(view)
                     relabelled += count
                     inserted += added

@@ -48,3 +48,13 @@ The [original release record](../results/history/huggingface-v0.1.0.json) preser
 - Hugging Face documentation and license files were downloaded anonymously and compared with the published sources. The three trained weight files are unchanged, and the original `v0.1.0` release is preserved.
 
 These changes simplify packaging and usage; the GPU-only tests remain skipped and the benchmark scores are the original model measurements.
+
+## Qev-2B release preparation — 2026-09-29
+
+- CPU regression: **306 passed, 10 skipped, 6 deselected**. The current sandbox prevents loopback TCP, so six distributed-process tests could not run; the ten skipped cases require CUDA.
+- The 25 distillation checks pass, including teacher targets for augmented inputs, label-blind edits, response geometry and gradients, and exact CPU continuation/resume. Probability distillation also runs through the standard trainer and rejects changed teacher targets on resume.
+- The selected 2B export preserves all three trained tensor files exactly and omits optimizer state. Zero-preview research metadata loads through the public checkpoint format.
+- The 2B student and native-base results are recomputed on the same clean development subsets and 144 handwritten SemIf questions used by the existing tables. All seven benchmark groups and both new JevBench prediction files are checked.
+- The updated cover, grouped bars and six-model matrix were rendered and visually inspected. The model's full-size GPU inference and benchmarks were not rerun.
+
+These changes were prepared in an isolated checkout because the current session cannot write to the destination repository. The 2B Hub release remains pending; publication status is recorded in its [model card](model-card-2b.md).

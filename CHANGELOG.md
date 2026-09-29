@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added Qev-2B teacher-probability training, programmatic context edits, representation-response continuation, and matching training documentation.
+- Added the selected 2B student and native Qwen3.5-2B baseline to the model selector, benchmark table and plots.
+
 - Simplified model downloads, checkpoint export and dataset preparation. Model versions are optional; exports no longer produce checksum inventories.
 - Removed the server-specific checkpoint archive handshake. Resume still checks training data automatically.
 - Replaced internal experiment names with plain descriptions of the model and training recipe.

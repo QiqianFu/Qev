@@ -38,3 +38,7 @@ Data licensing and attribution are described in [third-party notices](../THIRD_P
 ## JevBench
 
 [prepare_jevbench.py](../scripts/prepare_jevbench.py) downloads JevBench v1.4.2. It retains every public task and its gold probabilities, performs explicit Noul label mapping, and exports evaluation-only views. Token-length checks record overflows without dropping tasks. See [evaluation.md](evaluation.md) for commands and the distinction between local accuracy and the official score.
+
+## Distillation data
+
+`qev.teacher logits` prepares teacher probabilities for every training input, including option augmentation. `qev.teacher responses` creates label-blind context edits, teacher probabilities, internal-response matrices and original-question replay. Diagnostic parent groups and identical inputs are kept outside training. See the [two-stage distillation workflow](distillation.md).

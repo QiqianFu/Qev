@@ -2,6 +2,8 @@
 
 All commands run from the repository root. Python 3.12 and the pinned dependencies in `pyproject.toml` match the tested CPU environment and the research training stack. Install a hardware-compatible PyTorch 2.8.0 wheel first. CUDA acceleration packages such as compatible flash-linear-attention kernels are optional; identify the actual execution path when reporting speed.
 
+For Qev-2B, use `configs/qev-2b-finetune.json` and the 2B checkpoint. To reproduce its teacher-training method, see the [distillation guide](distillation.md).
+
 ## Prepare user data
 
 ```bash

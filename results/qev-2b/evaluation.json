@@ -1,0 +1,93 @@
+{
+  "model": "Qev-2B",
+  "method": "Teacher-probability cross entropy followed by replay and representation-response distillation",
+  "candidate_preview": false,
+  "seed": 17,
+  "continuation_steps": 800,
+  "full_suites": {
+    "decision_dev": {
+      "qev_2b": {
+        "questions": 1468,
+        "correct": 1266,
+        "accuracy": 0.8623978201634878
+      },
+      "qwen35_2b_base": {
+        "questions": 1468,
+        "correct": 927,
+        "accuracy": 0.6314713896457765
+      }
+    },
+    "transfer_dev": {
+      "qev_2b": {
+        "questions": 764,
+        "correct": 584,
+        "accuracy": 0.7643979057591623
+      },
+      "qwen35_2b_base": {
+        "questions": 764,
+        "correct": 493,
+        "accuracy": 0.6452879581151832
+      }
+    },
+    "mmlupro": {
+      "qev_2b": {
+        "questions": 1000,
+        "correct": 387,
+        "accuracy": 0.387
+      },
+      "qwen35_2b_base": {
+        "questions": 1000,
+        "correct": 312,
+        "accuracy": 0.312
+      }
+    },
+    "semif": {
+      "qev_2b": {
+        "questions": 252,
+        "correct": 215,
+        "accuracy": 0.8531746031746031
+      },
+      "qwen35_2b_base": {
+        "questions": 252,
+        "correct": 152,
+        "accuracy": 0.6031746031746031
+      }
+    },
+    "scienthoon": {
+      "qev_2b": {
+        "questions": 873,
+        "correct": 628,
+        "accuracy": 0.7193585337915235
+      },
+      "qwen35_2b_base": {
+        "questions": 873,
+        "correct": 470,
+        "accuracy": 0.5383734249713631
+      }
+    },
+    "wanli": {
+      "qev_2b": {
+        "questions": 256,
+        "correct": 173,
+        "accuracy": 0.67578125
+      },
+      "qwen35_2b_base": {
+        "questions": 256,
+        "correct": 129,
+        "accuracy": 0.50390625
+      }
+    },
+    "public": {
+      "qev_2b": {
+        "questions": 231,
+        "correct": 172,
+        "accuracy": 0.7445887445887446
+      },
+      "qwen35_2b_base": {
+        "questions": 231,
+        "correct": 146,
+        "accuracy": 0.6320346320346321
+      }
+    }
+  }
+}

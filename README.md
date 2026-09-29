@@ -8,7 +8,7 @@
   <a href="LICENSE"><img src="assets/badges/license.svg" alt="Apache-2.0"></a>
 </p>
 
-<p align="center"><strong>English</strong> | <a href="README.zh-CN.md">简体中文</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Model weights</a></p>
+<p align="center"><strong>English</strong> | <a href="README.zh-CN.md">简体中文</a> | <a href="docs/model-card-2b.md">Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a></p>
 
 **Qev fine-tunes Qwen into a decision model.** Give it context, a question, and candidate answers; get a choice and a probability for every option. One model handles **Choice**, **Noul** (yes/no), and **Score** (ordered ratings).
 
@@ -18,6 +18,11 @@ This repository provides the model architecture, training and evaluation code, P
 |---|---|
 | **[Train a model](#training)** | Prepare labelled data, train from Qwen, or fine-tune an existing Qev checkpoint |
 | **[Run a model](#inference)** | Get decisions and option probabilities through Python or JSONL |
+
+| Choose a model | Qev-2B | Qev-9B |
+|---|---|---|
+| Role | Compact student distilled from Qev-9B | Decision model and distillation teacher |
+| Get started | [2B model and loading](docs/model-card-2b.md) | [9B model weights](https://huggingface.co/AustinFu/Qev-9B) |
 
 ## Demos
 
@@ -93,10 +98,15 @@ python -m qev.train \
 
 The [formal four-GPU recipe](configs/qev-9b.json) uses rank 64, global batch 32, two epochs, and a late-training partition. Single-GPU use, distributed training, resume and full fine-tuning are documented in the [training guide](docs/training.md).
 
+### Distill a 2B model
+
+Qev-2B first learns the 9B teacher's option probabilities with cross entropy. It then learns from programmatic context edits mixed with original-question replay, matching both teacher probabilities and representation changes. See the [2B distillation guide](docs/distillation.md) for data preparation, both training stages and the loss equations.
+
 ## Model and checkpoints
 
 | Model | Base and architecture | Availability |
 |---|---|---|
+| **Qev-2B** | Qwen3.5-2B-Base, rank-64 LoRA, two-layer 256-dimensional head | [Local export and release status](docs/model-card-2b.md) |
 | **Qev-9B** | Qwen3.5-9B-Base, rank-64 LoRA, two-layer 256-dimensional set head | [Hugging Face · Download](https://huggingface.co/AustinFu/Qev-9B) |
 
 Qev-9B was trained on a general decision dataset, with additional alignment and rule-compliance examples mixed into the second half of training and repeated three times. The download includes the LoRA adapter, decision head, interaction gate, tokenizer and configuration.
@@ -112,6 +122,7 @@ Load the model once in your process, then submit requests:
 ```python
 from qev import Qev
 
+# A local Qev-2B export can be loaded from "checkpoints/qev-2b".
 model = Qev.from_pretrained(
     "AustinFu/Qev-9B", device="cuda"
 )
@@ -154,31 +165,31 @@ Qev organizes inputs as **state → question → candidate**. Candidate branches
 
 ## Evaluation
 
-**Precision: Qev-9B uses BF16 backbone computation; Kev-9B uses FP32.** Qev's decision head remains in FP32.
+**Precision: Qev-9B and Qev-2B use BF16 backbone computation; Kev-9B uses FP32.** Qev's decision head remains in FP32.
 
 <p align="center">
-  <img src="assets/evaluation.svg" alt="Paired Qev and Kev bars on seven benchmarks, with accuracy labels and question counts." width="100%">
+  <img src="assets/evaluation.svg" alt="Matched benchmark bars: Qev-9B versus Kev-9B, and Qev-2B versus Qwen3.5-2B-Base." width="100%">
 </p>
 
-| Benchmark | Jev (reference) | Qwen3.5-9B-Base | Qev-9B | Kev-9B |
-|---|---:|---:|---:|---:|
-| Decision development · clean | 84.49 | 77.69 | **87.42** | 87.18 |
-| Transfer development · clean | 85.67 | 74.39 | **83.99** | 82.16 |
-| MMLU-Pro · 1,000 | 83.50 | 50.40 | **54.60** | 51.10 |
-| SemIf · 144 handwritten | 96.53 | 90.28 | **93.75** | 90.97 |
-| scienthoon · 873 | 75.26 | 68.84 | 72.28 | **75.49** |
-| WANLI · 256 | 75.78 | 67.97 | **72.66** | 70.31 |
-| JevBench public · 231 | 85.71 | 75.76 | **81.39** | 75.76 |
+| Benchmark | Jev (reference) | Qwen3.5-9B-Base | Qev-9B | Kev-9B | Qwen3.5-2B-Base | Qev-2B |
+|---|---:|---:|---:|---:|---:|---:|
+| Decision development · clean | 84.49 | 77.69 | **87.42** | 87.18 | 65.43 | 85.36 |
+| Transfer development · clean | 85.67 | 74.39 | **83.99** | 82.16 | 65.09 | 77.29 |
+| MMLU-Pro · 1,000 | 83.50 | 50.40 | **54.60** | 51.10 | 31.20 | 38.70 |
+| SemIf · 144 handwritten | 96.53 | 90.28 | **93.75** | 90.97 | 63.89 | 82.64 |
+| scienthoon · 873 | 75.26 | 68.84 | 72.28 | **75.49** | 53.84 | 71.94 |
+| WANLI · 256 | 75.78 | 67.97 | **72.66** | 70.31 | 50.39 | 67.58 |
+| JevBench public · 231 | 85.71 | 75.76 | **81.39** | 75.76 | 63.20 | 74.46 |
 
-Accuracy (%). Bold marks the higher score between Qev and Kev; Jev and the Qwen base are references.
+Accuracy (%). Bold marks the higher score between Qev-9B and Kev-9B; Jev and the Qwen base are references.
 
 Qev-9B answers **188/231 public JevBench questions (81.39%)** correctly, compared with 175/231 (75.76%) for Kev-9B. These are public-set accuracies, not the official JevBench composite score.
 
-[Full results, ablations and settings](docs/evaluation.md) · [Machine-readable metrics](results/benchmarks.json) · [All 231 predictions](results/qev-9b/jevbench-predictions.jsonl)
+[Six-model benchmark matrix](assets/evaluation-matrix.svg) · [Full results, ablations and settings](docs/evaluation.md) · [Machine-readable metrics](results/benchmarks.json) · [All 231 predictions](results/qev-9b/jevbench-predictions.jsonl)
 
 ## Documentation and contributions
 
-[Architecture](docs/architecture.md) · [Training](docs/training.md) · [Checkpoints](docs/checkpoints.md) · [Data and outputs](docs/data.md) · [Evaluation](docs/evaluation.md) · [Contributing](CONTRIBUTING.md)
+[Architecture](docs/architecture.md) · [Training](docs/training.md) · [2B distillation](docs/distillation.md) · [Checkpoints](docs/checkpoints.md) · [Data and outputs](docs/data.md) · [Evaluation](docs/evaluation.md) · [Contributing](CONTRIBUTING.md)
 
 Run `python -m pytest -q` and `python scripts/check_release.py` to check the code and documentation. The [validation record](docs/validation.md) lists the actual checks and GPU skips.
 

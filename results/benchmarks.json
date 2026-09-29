@@ -26,6 +26,20 @@
     "qwen35_9b_base": {
       "description": "Frozen native LM head; zero-shot candidate code probabilities",
       "dtype": "bf16"
+    },
+    "qev_2b": {
+      "base": "Qwen/Qwen3.5-2B-Base",
+      "base_revision": "b1485b2fa6dfa1287294f269f5fb618e03d52d7c",
+      "dtype": "bf16",
+      "description": "Probability and representation-response distillation from Qev-9B; no candidate preview",
+      "seed": 17,
+      "continuation_steps": 800
+    },
+    "qwen35_2b_base": {
+      "description": "Frozen native LM head; zero-shot candidate code probabilities",
+      "dtype": "bf16",
+      "base": "Qwen/Qwen3.5-2B-Base",
+      "base_revision": "b1485b2fa6dfa1287294f269f5fb618e03d52d7c"
     }
   },
   "results": {
@@ -47,6 +61,14 @@
         "qwen35_9b_base": {
           "correct": 1112,
           "accuracy": 0.7574931880108992
+        },
+        "qev_2b": {
+          "correct": 1266,
+          "accuracy": 0.8623978201634878
+        },
+        "qwen35_2b_base": {
+          "correct": 927,
+          "accuracy": 0.6314713896457765
         }
       }
     },
@@ -68,6 +90,14 @@
         "qwen35_9b_base": {
           "correct": 982,
           "accuracy": 0.7768987341772152
+        },
+        "qev_2b": {
+          "correct": 1079,
+          "accuracy": 0.8536392405063291
+        },
+        "qwen35_2b_base": {
+          "correct": 827,
+          "accuracy": 0.6542721518987342
         }
       }
     },
@@ -89,6 +119,14 @@
         "qwen35_9b_base": {
           "correct": 561,
           "accuracy": 0.7342931937172775
+        },
+        "qev_2b": {
+          "correct": 584,
+          "accuracy": 0.7643979057591623
+        },
+        "qwen35_2b_base": {
+          "correct": 493,
+          "accuracy": 0.6452879581151832
         }
       }
     },
@@ -110,6 +148,14 @@
         "qwen35_9b_base": {
           "correct": 488,
           "accuracy": 0.7439024390243902
+        },
+        "qev_2b": {
+          "correct": 507,
+          "accuracy": 0.7728658536585366
+        },
+        "qwen35_2b_base": {
+          "correct": 427,
+          "accuracy": 0.6509146341463414
         }
       }
     },
@@ -131,6 +177,14 @@
         "qwen35_9b_base": {
           "correct": 504,
           "accuracy": 0.504
+        },
+        "qev_2b": {
+          "correct": 387,
+          "accuracy": 0.387
+        },
+        "qwen35_2b_base": {
+          "correct": 312,
+          "accuracy": 0.312
         }
       }
     },
@@ -152,6 +206,14 @@
         "qwen35_9b_base": {
           "correct": 130,
           "accuracy": 0.9027777777777778
+        },
+        "qev_2b": {
+          "correct": 119,
+          "accuracy": 0.8263888888888888
+        },
+        "qwen35_2b_base": {
+          "correct": 92,
+          "accuracy": 0.6388888888888888
         }
       }
     },
@@ -173,6 +235,14 @@
         "qwen35_9b_base": {
           "correct": 601,
           "accuracy": 0.6884306987399771
+        },
+        "qev_2b": {
+          "correct": 628,
+          "accuracy": 0.7193585337915235
+        },
+        "qwen35_2b_base": {
+          "correct": 470,
+          "accuracy": 0.5383734249713631
         }
       }
     },
@@ -194,6 +264,14 @@
         "qwen35_9b_base": {
           "correct": 174,
           "accuracy": 0.6796875
+        },
+        "qev_2b": {
+          "correct": 173,
+          "accuracy": 0.67578125
+        },
+        "qwen35_2b_base": {
+          "correct": 129,
+          "accuracy": 0.50390625
         }
       }
     },
@@ -215,6 +293,14 @@
         "qwen35_9b_base": {
           "correct": 175,
           "accuracy": 0.7575757575757576
+        },
+        "qev_2b": {
+          "correct": 172,
+          "accuracy": 0.7445887445887446
+        },
+        "qwen35_2b_base": {
+          "correct": 146,
+          "accuracy": 0.6320346320346321
         }
       }
     }
@@ -226,7 +312,9 @@
         "jev": 71,
         "kev_9b": 65,
         "qev_9b": 65,
-        "qwen35_9b_base": 59
+        "qwen35_9b_base": 59,
+        "qev_2b": 64,
+        "qwen35_2b_base": 44
       }
     },
     "easy": {
@@ -235,7 +323,9 @@
         "jev": 48,
         "kev_9b": 48,
         "qev_9b": 48,
-        "qwen35_9b_base": 48
+        "qwen35_9b_base": 48,
+        "qev_2b": 48,
+        "qwen35_2b_base": 48
       }
     },
     "hard": {
@@ -244,7 +334,9 @@
         "jev": 79,
         "kev_9b": 62,
         "qev_9b": 75,
-        "qwen35_9b_base": 68
+        "qwen35_9b_base": 68,
+        "qev_2b": 60,
+        "qwen35_2b_base": 54
       }
     }
   },
@@ -253,7 +345,8 @@
     "MMLU-Pro: Kev answered 992/1000; its 8 unanswered items count as wrong.",
     "SemIf: the 144 handwritten questions, excluding the 108 perturbations.",
     "Cross-model precisions and execution implementations differ.",
-    "The Qev release is one seed, and these comparisons do not isolate architecture gains."
+    "The Qev release is one seed, and these comparisons do not isolate architecture gains.",
+    "The 2B columns use the same clean development and 144-question SemIf subsets as the 9B comparison."
   ],
   "research_report_sha256": "6f094e2e35217089b1ef9365525d3ddbfa46d1354e2faff4b4a25e1bbcfa63d9"
 }

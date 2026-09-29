@@ -81,6 +81,8 @@ def load_model(path, device="cpu", *, merge_lora=False, weights_dtype=None,
     if meta.get("format") not in {FORMAT, "branchkev.checkpoint.v1"} or meta.get("layout") != LAYOUT:
         raise ValueError("not a compatible Qev checkpoint")
     spec_values = dict(meta["spec"])
+    if spec_values.pop("candidate_preview_tokens", 0) != 0:
+        raise ValueError("this checkpoint requires candidate-preview support")
     if meta.get("backbone") == "full":
         if base is not None or base_revision is not None:
             raise ValueError("a full checkpoint already contains its backbone")

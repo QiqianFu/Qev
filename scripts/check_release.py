@@ -65,9 +65,19 @@ def main():
             errors.append(f"invalid probabilities: {row['record_id']}")
         if probs[row['prediction']]!=max(values) or row['correct']!=(row['prediction']==row['label']):
             errors.append(f"prediction/label mismatch: {row['record_id']}")
+    for folder, model, correct in [('qev-2b', 'qev_2b', 172), ('qwen3.5-2b-base', 'qwen35_2b_base', 146)]:
+        records=[json.loads(line) for line in (ROOT/'results'/folder/'jevbench-predictions.jsonl').read_text().splitlines()]
+        if len(records)!=231 or sum(row['correct'] for row in records)!=correct:
+            errors.append(f'{folder}: inconsistent JevBench results')
+        for row in records:
+            ps=row['probabilities']
+            if not all(math.isfinite(p) and 0<=p<=1 for p in ps.values()) or not math.isclose(sum(ps.values()),1,abs_tol=1e-5):
+                errors.append(f'{folder}: invalid probabilities')
+            if ps[row['prediction']]!=max(ps.values()) or row['correct']!=(row['prediction']==row['label']):
+                errors.append(f'{folder}: inconsistent prediction')
     for error in errors:print(error)
     print(f'{len(docs)} documents, {checked_links} local links, {len(pyfiles)} Python files, '
-          f'231 frozen predictions; {len(errors)} errors')
+          f'693 frozen predictions; {len(errors)} errors')
     return bool(errors)
 
 

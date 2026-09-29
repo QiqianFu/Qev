@@ -28,6 +28,10 @@ model = Qev.from_pretrained(
 
 CLI commands accept either a local directory or `AustinFu/Qev-9B`. Append `@v0.1.0` to select a particular release. Qev does not need `trust_remote_code`.
 
+## Load the prepared 2B model
+
+Qev-2B uses the same loader with `checkpoints/qev-2b`. Its local export contains the selected 800-step response-distillation model. See the [2B model card](model-card-2b.md) for release status.
+
 ## Export a trained model
 
 ```bash

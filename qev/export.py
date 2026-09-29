@@ -51,6 +51,8 @@ def export_checkpoint(checkpoint, out, *, base=None, revision=None):
                 write_json(p, value)
         meta['format'] = 'qev.checkpoint.v1'
         meta['spec'].update(base=base, revision=revision)
+        if meta["spec"].pop("candidate_preview_tokens", 0) != 0:
+            raise ValueError("this exporter supports checkpoints without candidate preview")
         meta.pop('extra', None)
         write_json(stage / 'model.json', meta)
         for name in ('LICENSE', 'NOTICE', 'THIRD_PARTY_NOTICES.md'):

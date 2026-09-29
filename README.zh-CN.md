@@ -8,7 +8,7 @@
   <a href="LICENSE"><img src="assets/badges/license.svg" alt="Apache-2.0"></a>
 </p>
 
-<p align="center"><a href="README.md">English</a> | <strong>简体中文</strong> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 模型权重</a></p>
+<p align="center"><a href="README.md">English</a> | <strong>简体中文</strong> | <a href="docs/model-card-2b.md">Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a></p>
 
 **Qev 是从 Qwen 微调而来的决策模型。** 给定上下文、问题和候选答案，模型直接返回选择及各选项的概率。同一套模型支持 **Choice 选择、Noul 是非判断、Score 序数评分**。
 
@@ -18,6 +18,11 @@
 |---|---|
 | **[训练模型](#训练)** | 准备标注数据，从 Qwen 底座训练，或在 Qev 检查点上继续微调 |
 | **[运行模型](#推理)** | 通过 Python 或 JSONL 接口，获取选项概率和决策 |
+
+| 选择模型 | Qev-2B | Qev-9B |
+|---|---|---|
+| 定位 | 从 9B 蒸馏的轻量学生模型 | 决策模型与蒸馏教师 |
+| 使用 | [2B 模型与加载方式](docs/model-card-2b.md) | [9B 模型权重](https://huggingface.co/AustinFu/Qev-9B) |
 
 ## 演示
 
@@ -93,10 +98,15 @@ python -m qev.train \
 
 [正式四卡配置](configs/qev-9b.json)使用 rank 64、全局 batch 32、两轮训练和收尾分区混入。单卡、多卡、断点恢复与全参训练见[训练指南](docs/training.md)。
 
+### 蒸馏 2B 模型
+
+Qev-2B 先用 9B 教师的选项概率做交叉熵训练，再通过程序化的随机文本编辑构造原题／改写题对，混合原题回放，学习教师的概率和内部表示变化关系。完整的数据准备、两阶段训练命令和损失公式见 [2B 蒸馏训练指南](docs/distillation.zh-CN.md)。
+
 ## 模型与检查点
 
 | 模型 | 底座与结构 | 当前入口 |
 |---|---|---|
+| **Qev-2B** | Qwen3.5-2B-Base，rank-64 LoRA，256 维两层决策头 | [本地导出与发布状态](docs/model-card-2b.md) |
 | **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | [Hugging Face · 下载](https://huggingface.co/AustinFu/Qev-9B) |
 
 Qev-9B 在通用决策数据上训练，并在训练后半程加入对齐题与规则判断题，重复学习三次。下载包包含 LoRA、决策头、候选交互参数、tokenizer 和模型配置。
@@ -112,6 +122,7 @@ Qev-9B 在通用决策数据上训练，并在训练后半程加入对齐题与�
 ```python
 from qev import Qev
 
+# 也可使用本地导出的 "checkpoints/qev-2b"。
 model = Qev.from_pretrained(
     "AustinFu/Qev-9B", device="cuda"
 )
@@ -154,31 +165,31 @@ Qev 按 **state → question → candidate** 组织输入。候选分支读取�
 
 ## 评测
 
-**精度对比：Qev-9B 的主干计算使用 BF16，Kev-9B 使用 FP32。** Qev 的决策头保持 FP32。
+**精度对比：Qev-9B 与 Qev-2B 的主干计算使用 BF16，Kev-9B 使用 FP32。** Qev 的决策头保持 FP32。
 
 <p align="center">
-  <img src="assets/evaluation.svg" alt="七组评测的Qev与Kev成组柱状图，柱顶为准确率，横轴标明题量。" width="100%">
+  <img src="assets/evaluation.svg" alt="七组相同评测上，9B组比较Qev与Kev，2B组比较Qev与Qwen底座。" width="100%">
 </p>
 
-| 评测 | Jev（参考） | Qwen3.5-9B-Base | Qev-9B | Kev-9B |
-|---|---:|---:|---:|---:|
-| decision_dev · clean | 84.49 | 77.69 | **87.42** | 87.18 |
-| transfer_dev · clean | 85.67 | 74.39 | **83.99** | 82.16 |
-| MMLU-Pro · 1000题 | 83.50 | 50.40 | **54.60** | 51.10 |
-| SemIf · 144道手写题 | 96.53 | 90.28 | **93.75** | 90.97 |
-| scienthoon · 873题 | 75.26 | 68.84 | 72.28 | **75.49** |
-| WANLI · 256题 | 75.78 | 67.97 | **72.66** | 70.31 |
-| JevBench公开题 · 231题 | 85.71 | 75.76 | **81.39** | 75.76 |
+| 评测 | Jev（参考） | Qwen3.5-9B-Base | Qev-9B | Kev-9B | Qwen3.5-2B-Base | Qev-2B |
+|---|---:|---:|---:|---:|---:|---:|
+| decision_dev · clean | 84.49 | 77.69 | **87.42** | 87.18 | 65.43 | 85.36 |
+| transfer_dev · clean | 85.67 | 74.39 | **83.99** | 82.16 | 65.09 | 77.29 |
+| MMLU-Pro · 1000题 | 83.50 | 50.40 | **54.60** | 51.10 | 31.20 | 38.70 |
+| SemIf · 144道手写题 | 96.53 | 90.28 | **93.75** | 90.97 | 63.89 | 82.64 |
+| scienthoon · 873题 | 75.26 | 68.84 | 72.28 | **75.49** | 53.84 | 71.94 |
+| WANLI · 256题 | 75.78 | 67.97 | **72.66** | 70.31 | 50.39 | 67.58 |
+| JevBench公开题 · 231题 | 85.71 | 75.76 | **81.39** | 75.76 | 63.20 | 74.46 |
 
-表中为准确率（%），加粗标出 Qev 与 Kev 中的较高成绩；Jev 与 Qwen 底座作为参考。
+表中为准确率（%），加粗标出 Qev-9B 与 Kev-9B 中的较高成绩；Jev 与 Qwen 底座作为参考。
 
 Qev-9B 在 JevBench 公开 231 题上答对 **188 题（81.39%）**，Kev-9B 为 175 题（75.76%）。这里展示的是公开题准确率，不是 JevBench 官方综合分数。
 
-[完整结果、消融与评测设置](docs/evaluation.md) · [机器可读指标](results/benchmarks.json) · [231 题原始预测](results/qev-9b/jevbench-predictions.jsonl)
+[六模型评测矩阵](assets/evaluation-matrix.svg) · [完整结果、消融与评测设置](docs/evaluation.md) · [机器可读指标](results/benchmarks.json) · [231 题原始预测](results/qev-9b/jevbench-predictions.jsonl)
 
 ## 文档与贡献
 
-[架构](docs/architecture.md) · [训练](docs/training.md) · [检查点](docs/checkpoints.md) · [数据与输出](docs/data.md) · [评测](docs/evaluation.md) · [贡献指南](CONTRIBUTING.md)
+[架构](docs/architecture.md) · [训练](docs/training.md) · [2B 蒸馏](docs/distillation.zh-CN.md) · [检查点](docs/checkpoints.md) · [数据与输出](docs/data.md) · [评测](docs/evaluation.md) · [贡献指南](CONTRIBUTING.md)
 
 运行 `python -m pytest -q` 和 `python scripts/check_release.py` 检查代码与文档；实际验证范围和 GPU 跳过项见[验证记录](docs/validation.md)。
 

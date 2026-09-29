@@ -7,3 +7,12 @@
 `qev-9b-independent.json` and `qev-9b-readout-cross.json` preserve the corresponding research ablation settings. `qev-0.8b.json` and `qev-9b-fullft.json` are additional research recipes; they do not identify the selected Qev-9B checkpoint.
 
 [Training guide](../docs/training.md) · [Architecture](../docs/architecture.md)
+
+## 2B models
+
+- `qev-2b.json`: the 2B architecture and two-epoch supervised-training recipe.
+- `qev-2b-finetune.json`: fine-tune a Qev-2B checkpoint on your own data.
+- `qev-2b-distill.json`: train on Qev-9B probability targets with the same data and augmentation schedule.
+- `qev-2b-response.json`: 800 continuation steps with teacher-probability cross entropy, original-question replay and representation-response matching.
+
+[Distillation workflow](../docs/distillation.md).

@@ -57,6 +57,7 @@ def test_portable_export_legacy_load_and_python_api(tmp_path, tokenizer, record)
     (original/'licenses').mkdir()
     (original/'licenses/upstream.txt').write_text('Upstream attribution')
     metadata=json.loads((original/'model.json').read_text());metadata['format']='branchkev.checkpoint.v1'
+    metadata['spec']['candidate_preview_tokens']=0
     (original/'model.json').write_text(json.dumps(metadata))
     exported=export_checkpoint(original,tmp_path/'export',base='example/base',revision='release-1')
     assert not (exported/'training.pt').exists()
@@ -65,6 +66,7 @@ def test_portable_export_legacy_load_and_python_api(tmp_path, tokenizer, record)
     assert (exported/'licenses/upstream.txt').read_bytes()==(original/'licenses/upstream.txt').read_bytes()
     assert file_hash(original/'head.safetensors')==file_hash(exported/'head.safetensors')
     assert json.loads((exported/'model.json').read_text())['spec']['base']=='example/base'
+    assert 'candidate_preview_tokens' not in json.loads((exported/'model.json').read_text())['spec']
     loaded,_,enc,_=load_model(exported,'cpu',base=str(base))
     model.eval();loaded.eval();encoded=enc(record)
     for a,b in zip(model.predict(encoded,cached=False),loaded.predict(encoded,cached=False)):

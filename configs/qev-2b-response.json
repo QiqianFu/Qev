@@ -1,0 +1,22 @@
+{
+  "steps": 800,
+  "batch_endpoints": 32,
+  "microbatch_endpoints": 16,
+  "replay_fraction": 0.75,
+  "seed": 17,
+  "lr": 1e-05,
+  "head_lr": 5e-05,
+  "gate_lr": 0.005,
+  "weight_decay": 0.01,
+  "warmup_steps": 20,
+  "minimum_lr_fraction": 0.1,
+  "gradient_clip": 1.0,
+  "save_steps": [
+    400,
+    800
+  ],
+  "teacher_temperature": 1.563437713227029,
+  "student_temperature": 1.0,
+  "response_weight": 0.1,
+  "gradient_checkpointing": true
+}
