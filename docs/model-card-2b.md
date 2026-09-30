@@ -2,6 +2,8 @@
 license: apache-2.0
 base_model: Qwen/Qwen3.5-2B-Base
 base_model_relation: adapter
+datasets:
+  - AustinFu/Qev-train
 language:
   - en
   - zh
@@ -51,7 +53,9 @@ To fine-tune on your own data, use `configs/qev-2b-finetune.json` with `python -
 
 Accuracy (%). Public JevBench accuracy is 172/231. These are the selected checkpoint's recorded results. The native base uses its language-model head and zero-shot prompts. The comparison therefore includes architecture, training and readout differences; it does not isolate the contribution of response distillation. [Full results](evaluation.md).
 
-The package includes the LoRA adapter, decision head, interaction gate, tokenizer, model configuration, both training configurations, recorded evaluation results and license files. The three trained tensor files preserve the selected checkpoint exactly; optimizer state and base weights are excluded. The complete research training corpus is not distributed.
+The package includes the LoRA adapter, decision head, interaction gate, tokenizer, model configuration, both training configurations, recorded evaluation results and license files. The three trained tensor files preserve the selected checkpoint exactly; optimizer state and base weights are excluded.
+
+[Qev-train](https://huggingface.co/datasets/AustinFu/Qev-train) publishes 1,842 synthetic source examples with original hard labels and a description of their generation. The full mixed training corpus, teacher probability caches and response-distillation data are not distributed.
 
 Qev supports research and development of routing, rule judgments and rubric ratings over explicit options. Evaluate the model on your application's inputs; probability calibration and production reliability have not been established.
 

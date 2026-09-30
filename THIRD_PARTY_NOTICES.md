@@ -33,6 +33,8 @@ Their source code and dependency distributions are not vendored in Qev's Python 
 
 ## Training data
 
-The complete research training mixture is not distributed here. Public weight availability does not make the training data available under Apache-2.0. Any future dataset release needs its own source-specific permissions and attribution. The Wikipedia-derived training subset, for example, carries CC BY-SA attribution where applicable.
+The [Qev-train dataset](https://huggingface.co/datasets/AustinFu/Qev-train) publishes 1,842 synthetic training examples separately from this code repository. Its 1,534 original alignment and rule-compliance examples use Apache-2.0 where copyright applies. Its 308 Wikipedia-grounded knowledge examples retain CC BY-SA 4.0, with article versions, contributor links and changes recorded in `ATTRIBUTION.jsonl`. The [dataset license](https://huggingface.co/datasets/AustinFu/Qev-train/blob/main/LICENSE.md) identifies the scope of each component. Combining them in one dataset does not relicense the Wikipedia-grounded component under Apache-2.0.
+
+The complete research training mixture and distillation data are not distributed. Other source datasets retain their own terms.
 
 The small JSONL requests in `examples/` were written for Qev and are covered by its Apache-2.0 license. The benchmark result tables and prediction files contain Qev's recorded outputs, not the original benchmark question text.

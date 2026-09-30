@@ -22,6 +22,18 @@ Each split lists its file, purpose and record/question counts. Only `role: train
 
 The model supports variable candidate counts; the selected configuration admits at most 128 candidates, state 1024 tokens, question 512, candidate 256 and full path 2048. Runtime overrides for longer evaluation inputs are described separately from training limits.
 
+## Released synthetic training data
+
+[AustinFu/Qev-train](https://huggingface.co/datasets/AustinFu/Qev-train) provides **1,842 examples** from the released models' source training data: 1,170 alignment questions, 364 document-rule judgments and 308 Wikipedia-grounded knowledge questions. The dataset card documents generation, blind review, filtering and component-specific licenses in English and Chinese.
+
+```bash
+hf download AustinFu/Qev-train --repo-type dataset --local-dir data/qev-train
+```
+
+The download includes canonical `train.jsonl`, a Qev `manifest.json`, an equivalent Parquet file, exact statistics and source attribution. Pass `--data data/qev-train` to `qev.train` with a configuration that does not require a separate late partition, such as `configs/qev-9b-finetune.json` or `configs/qev-2b-finetune.json`. No additional format conversion is needed. The first dataset release is tagged `v1.0.0`.
+
+All records retain the original input, candidate order and hard labels. `target` contains one-hot label encodings; teacher probability caches, response targets and distillation pairs are not distributed. Metadata records the component, domain, planned language, license and related `group_id`. There is one training split: these examples are already seen by the released models and are not an independent evaluation set.
+
 ## Research recipe and availability
 
 | Partition | Records / questions | Composition |
@@ -31,9 +43,9 @@ The model supports variable candidate counts; the selected configuration admits 
 
 The alignment pack contains 249 selected earlier records and 1,170 synthetic records. The 249 selected records also occur in the main partition as intentional replay; late/main are training partitions, not an evaluation split. The 364 rule judgments consist of 182 positive/negative pairs. Late examples start at the final 50% of main-training steps and repeat three times.
 
-**The complete research corpus and its original generation/review pipeline are not included in this source release.** This repository supports training on user data and rerunning public evaluation with the [released Qev-9B weights](https://huggingface.co/AustinFu/Qev-9B). Rebuilding the exact reported training run additionally requires the frozen dataset. Code availability alone is not a claim of full data reproducibility.
+**Qev-train publishes the synthetic subset; the complete mixed research corpus and its original generation/review pipeline are not included in this source release.** This repository supports training on user data and rerunning public evaluation with the released weights. Rebuilding the exact reported training run additionally requires the remaining data and original training settings.
 
-Data licensing and attribution are described in [third-party notices](../THIRD_PARTY_NOTICES.md). Any later data release must retain its source-specific terms. In particular, the original Wikipedia-based synthetic world-knowledge pack carried CC BY-SA attribution where applicable. These terms are separate from the code's Apache-2.0 license.
+Data licensing and attribution are described in [third-party notices](../THIRD_PARTY_NOTICES.md) and the [dataset license](https://huggingface.co/datasets/AustinFu/Qev-train/blob/main/LICENSE.md). The 1,534 original alignment/rule examples use Apache-2.0 where copyright applies; the 308 Wikipedia-grounded examples retain CC BY-SA 4.0 and per-example attribution.
 
 ## JevBench
 

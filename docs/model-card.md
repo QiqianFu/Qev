@@ -2,6 +2,8 @@
 license: apache-2.0
 base_model: Qwen/Qwen3.5-9B-Base
 base_model_relation: adapter
+datasets:
+  - AustinFu/Qev-train
 language:
   - en
   - zh
@@ -90,7 +92,7 @@ python -m qev.predict \
 | Late mixing | Starts halfway through main training; late examples repeat three times |
 | Selected checkpoint | Step 2327 |
 
-The main and late partitions intentionally share 249 replay records. The complete research training corpus is not distributed with this release. [Training guide](https://github.com/QiqianFu/Qev/blob/main/docs/training.md) · [Data recipe](https://github.com/QiqianFu/Qev/blob/main/docs/data.md).
+The main and late partitions intentionally share 249 replay records. [Qev-train](https://huggingface.co/datasets/AustinFu/Qev-train) publishes the 1,842 synthetic alignment, rule-compliance and world-knowledge examples, with generation methods and source-specific licenses. The complete mixed training corpus is not distributed. [Training guide](https://github.com/QiqianFu/Qev/blob/main/docs/training.md) · [Data recipe](https://github.com/QiqianFu/Qev/blob/main/docs/data.md).
 
 ## Evaluation
 

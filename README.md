@@ -8,7 +8,7 @@
   <a href="LICENSE"><img src="assets/badges/license.svg" alt="Apache-2.0"></a>
 </p>
 
-<p align="center"><strong>English</strong> | <a href="README.zh-CN.md">简体中文</a> | <a href="https://huggingface.co/AustinFu/Qev-2B">🤗 Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a></p>
+<p align="center"><strong>English</strong> | <a href="README.zh-CN.md">简体中文</a> | <a href="https://huggingface.co/AustinFu/Qev-2B">🤗 Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a> | <a href="https://huggingface.co/datasets/AustinFu/Qev-train">🤗 Training data</a></p>
 
 **Qev fine-tunes Qwen into a decision model.** Give it context, a question, and candidate answers; get a choice and a probability for every option. One model handles **Choice**, **Noul** (yes/no), and **Score** (ordered ratings).
 
@@ -108,6 +108,7 @@ Training examples use the same `state` and `questions` as inference, with a `lab
 | Data | Contents | Entry point |
 |---|---|---|
 | Included examples | Six training and two validation requests, covering all three tasks | [examples/](examples/README.md) |
+| **Qev-train** | **1,842 synthetic training examples**: alignment, document-rule judgments and world knowledge | [Dataset and synthesis methods](https://huggingface.co/datasets/AustinFu/Qev-train) |
 | Your data | Labelled or soft-target JSONL requests | [Data format](docs/data.md) |
 | Research recipe | 34,546 main and 1,783 late records; the full corpus is not bundled | [Composition and availability](docs/data.md#research-recipe-and-availability) |
 

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Published Qev-train: 1,842 synthetic training examples, bilingual synthesis documentation, compatible JSONL/Parquet formats and component-specific licenses.
+
 - Added Qev-2B teacher-probability training, programmatic context edits, representation-response continuation, and matching training documentation.
 - Added the selected 2B student and native Qwen3.5-2B baseline to the model selector, benchmark table and plots.
 - Published Qev-2B weights on Hugging Face with the same loading interface as Qev-9B.

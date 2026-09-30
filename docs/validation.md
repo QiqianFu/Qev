@@ -68,3 +68,15 @@ The prepared changes have been integrated into the source repository, preserving
 - Resolved the tagged Hub model through Qev's checkpoint loader.
 
 This verifies publication, download and checkpoint resolution. Full-size GPU inference and benchmark measurements were not rerun.
+
+## Qev-train data release — 2026-09-29
+
+[Qev-train v1.0.0](https://huggingface.co/datasets/AustinFu/Qev-train/tree/v1.0.0) contains 1,842 original synthetic training examples, with source-specific licenses and bilingual generation documentation.
+
+- Verified every released example against the original training inputs and hard labels. No duplicate inputs or exact input/group overlaps with the checked development, calibration and test partitions were found.
+- Loaded all 1,842 records through Qev's training-data loader. JSONL and Parquet both round-trip through Hugging Face Datasets without record changes.
+- Validated dataset-card metadata and local documentation links.
+- Downloaded all 10 uploaded files anonymously into a fresh cache and compared them with the prepared package. Anonymous `load_dataset` of the tagged release returned the same 1,842 records.
+- Confirmed that the Hub dataset viewer exposes the training split and its first 100 examples, and that all 182 rule-compliance pairs contain one positive and one negative label.
+
+This is a data publication check; model training and benchmarks were not rerun.
