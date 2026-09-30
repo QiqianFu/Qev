@@ -1,24 +1,27 @@
 # Gameplay recordings / 游戏录屏
 
-The README opens with two side-by-side recording slots. Both currently contain explicitly labelled placeholders; no Qev Snake or Crafter performance is claimed by these cards.
+The [English README](../README.md) and [中文 README](../README.zh-CN.md) show looping GIF previews of recorded decision replays. Each preview links to an MP4 version. The interface retains the research name, BranchKev.
 
-| Slot | Current preview | Suggested recording preview |
+中英文 README 展示决策回放录屏的循环 GIF，点击可打开 MP4 版本。录屏界面保留研究阶段的名称 BranchKev。
+
+| Recording / 录屏 | GIF | MP4 |
 |---|---|---|
-| Snake / 贪吃蛇 | `assets/demos/snake-placeholder.svg` | `assets/demos/snake.gif` |
-| Crafter / 生存建造 | `assets/demos/crafter-placeholder.svg` | `assets/demos/crafter.gif` |
+| Snake / 贪吃蛇 | [snake.gif](../assets/demos/snake.gif) | [snake.mp4](../assets/demos/snake.mp4) |
+| Crafter / 生存建造 | [crafter.gif](../assets/demos/crafter.gif) | [crafter.mp4](../assets/demos/crafter.mp4) |
 
-## Replace the slots
+## Visible run details / 画面中的运行信息
 
-1. Add a small GIF or another supported image preview under `assets/demos/`. Keep a full-resolution MP4 separately if the recording is large. Matching preview aspect ratios (for example, 16:9) keep the two columns aligned.
-2. Replace the two image `src` values inside the `DEMO SLOTS` block in both [English README](../README.md) and [中文 README](../README.zh-CN.md). Optionally wrap each image in a link to the full recording. A GitHub-uploaded video can use the attachment link supplied by GitHub.
-3. Replace the placeholder introduction with a brief description of the actual run: the checkpoint used, environment/settings, and playback speed. Any score or completion claim should come from that recording's run.
+- **Snake:** the interface identifies `BranchKev 9B · cleaned-v2-aqua`, seed 101, and 119 recorded decisions. The replay shows the board after each action alongside the selected action and candidate probabilities.
+- **Crafter:** the interface identifies `BranchKev 9B · step2327`, seed 77, and 40 steps. The replay shows the environment after each action alongside the current goal, selected action and probabilities.
 
-例如，真实录屏补充后可以把对应位置改为：
+贪吃蛇画面标注 `BranchKev 9B · cleaned-v2-aqua`、种子 101、119 次已记录决策；Crafter 画面标注 `BranchKev 9B · step2327`、种子 77、40 步。两段均展示动作执行后的环境以及决策信息。
 
-```html
-<a href="YOUR_FULL_RECORDING_URL">
-  <img src="assets/demos/snake.gif" alt="Qev在贪吃蛇中的实际运行录屏" width="100%">
-</a>
-```
+These individual replays illustrate behavior; benchmark results and evaluation settings are documented in [evaluation.md](evaluation.md).
 
-这里预留的是媒体展示位置，相关运行信息与真实录屏一起补充；现有的模型评测见 [evaluation.md](evaluation.md)。
+单局回放用于展示行为，评测结果与设置见 [evaluation.md](evaluation.md)。
+
+## Media settings / 媒体设置
+
+Both previews use an 800 × 680 canvas at 20 fps. The complete recorded frame is scaled proportionally and padded to keep the README columns aligned. GIFs loop indefinitely; MP4s use H.264 with fast-start metadata and no audio. Original recordings are kept outside the repository.
+
+两段预览均为 800 × 680、20 fps，完整画面按比例缩放并补边，保持 README 两列对齐。GIF 无限循环；MP4 使用 H.264 编码、支持渐进播放且无音轨。原始录屏保留在仓库外。

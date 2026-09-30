@@ -29,3 +29,8 @@ third-party notices, and per-question provenance with the prepared data.
 
 See THIRD_PARTY_NOTICES.md for licensing scope and external dependencies.
 Third-party datasets and services retain their own terms.
+
+Crafter visuals in the project gameplay recording:
+  https://github.com/danijar/crafter
+  Copyright (c) 2021 Danijar Hafner
+  MIT License; see licenses/Crafter-MIT.txt.

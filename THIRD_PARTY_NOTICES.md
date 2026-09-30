@@ -15,10 +15,11 @@ Third-party materials retain the terms listed below. The Qev license does not re
 | Kev conventions and adapted implementation | [Jared Palmer's Kev](https://github.com/jaredpalmer/kev), Copyright 2026 Jared Palmer | [Apache-2.0, original notice retained](licenses/Kev-Apache-2.0.txt). Qev adapts delimiter and rendering conventions, LoRA targets, and cache forking. Modified source files identify the Qev adaptation. |
 | Qwen models and tokenizers | [Qwen3.5-9B-Base](https://huggingface.co/Qwen/Qwen3.5-9B-Base) and [Qwen3.5-2B-Base](https://huggingface.co/Qwen/Qwen3.5-2B-Base), Copyright 2026 Alibaba Cloud | [Apache-2.0](licenses/Qwen3.5-Apache-2.0.txt). Tokenizers accompany the corresponding Qev checkpoints; base weights are downloaded separately. |
 | JevBench public evaluation tasks | [JevBench](https://github.com/fstandhartinger/jevbench), Copyright 2026 Florian Standhartinger and contributors | [MIT](licenses/JevBench-MIT.txt), with [upstream third-party notices](licenses/JevBench-THIRD-PARTY.md). Tasks are downloaded by the optional preparation script. The original license, third-party notice, and per-question provenance accompany the prepared dataset. |
+| Crafter visuals in the gameplay recording | [Crafter](https://github.com/danijar/crafter), Copyright 2021 Danijar Hafner | [MIT](licenses/Crafter-MIT.txt). The gameplay recording contains the environment's visual assets; the recording and Qev decision overlay were produced for this project. |
 
 The reviewed Kev version is [557598f](https://github.com/jaredpalmer/kev/tree/557598fced1dada75dfbf36ed144dce309ac6ceb); the evaluation data use [JevBench v1.4.2](https://github.com/fstandhartinger/jevbench/tree/1df665e3956d7aab7fa0208ff6c4f2d8557f9f90). The 231 downloaded public tasks carry MIT in their individual provenance records; upstream notices describe the scope of other JevBench materials and evaluated services.
 
-The README layout takes inspiration from [JevAny](https://github.com/weitianxin/JevAny). Qev's SVG illustrations and chart code are original; this release includes no JevAny game code or recordings.
+The README layout takes inspiration from [JevAny](https://github.com/weitianxin/JevAny). Qev's SVG illustrations and chart code are original. The GIF and MP4 demos are this project's recordings of 9B research models. The Crafter research integration used JevAny's environment adapters; this source package does not vendor those adapters or JevAny's bundled recordings.
 
 ## Dependencies installed separately
 
