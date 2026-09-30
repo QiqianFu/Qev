@@ -16,7 +16,7 @@ tags:
 
 # Qev-2B
 
-Qev-2B is the compact member of the Qev decision-model family. It learns option probabilities and representation responses from Qev-9B, and supports Choice, Noul and Score with the same request format.
+Qev-2B is the compact member of the Qev decision-model family. It learns option probabilities and representation responses from Qev-9B v0.1.0, and supports Choice, Noul and Score with the same request format.
 
 [Model weights](https://huggingface.co/AustinFu/Qev-2B) · [Source and installation](https://github.com/QiqianFu/Qev#installation) · [中文说明](https://github.com/QiqianFu/Qev/blob/main/README.zh-CN.md)
 
@@ -55,7 +55,7 @@ Accuracy (%). Public JevBench accuracy is 172/231. These are the selected checkp
 
 The package includes the LoRA adapter, decision head, interaction gate, tokenizer, model configuration, both training configurations, recorded evaluation results and license files. The three trained tensor files preserve the selected checkpoint exactly; optimizer state and base weights are excluded.
 
-[Qev-train](https://huggingface.co/datasets/AustinFu/Qev-train) publishes 1,842 synthetic source examples with original hard labels and a description of their generation. The full mixed training corpus, teacher probability caches and response-distillation data are not distributed.
+[Qev-train v1.0.0](https://huggingface.co/datasets/AustinFu/Qev-train/tree/v1.0.0) publishes the 1,842 synthetic source examples used for this release with original hard labels and a description of their generation. The full mixed training corpus, teacher probability caches and response-distillation data are not distributed.
 
 Qev supports research and development of routing, rule judgments and rubric ratings over explicit options. Evaluate the model on your application's inputs; probability calibration and production reliability have not been established.
 

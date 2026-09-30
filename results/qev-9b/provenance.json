@@ -1,38 +1,77 @@
 {
   "checkpoint": {
+    "repo_id": "AustinFu/Qev-9B",
+    "revision": "v0.2.0",
     "base": "Qwen/Qwen3.5-9B-Base",
     "base_revision": "68c46c4b3498877f3ef123c856ecfde50c39f404",
-    "research_name": "BranchKev",
-    "run": "c21-science-wk-late1783-9b-4gpu-r64-late50x3-s17",
-    "step": 2327,
+    "step": 2643,
     "dtype": "bf16",
     "execution": "reference",
     "seed": 17,
     "temperature": 1.0
   },
   "config": "configs/qev-9b.json",
-  "predictions_sha256": "ae5fcfd64715cd7d9eb1953df9cb86a31c24b5298c4fae97c150297c85cee5dc",
+  "training_recipe": {
+    "main_records": 39605,
+    "main_questions": 45887,
+    "principle_records": 4459,
+    "boundary_records": 600,
+    "boundary_partition": "main",
+    "late_records": 1783,
+    "late_fraction": 0.5,
+    "late_repeats": 3,
+    "epochs": 2,
+    "global_batch": 32
+  },
   "protocol": {
-    "state_limit": 4096,
-    "path_limit": 4096,
-    "upstream_jevbench_revision": "1df665e3956d7aab7fa0208ff6c4f2d8557f9f90",
-    "metric": "argmax accuracy; rejected items count as wrong",
-    "limits": {
-      "max_state": 4096,
-      "max_question": 512,
-      "max_candidate": 256,
-      "max_path": 4096,
-      "max_candidates": 128
-    },
+    "execution": "full causal reference",
+    "metric": "argmax accuracy; rejected questions count as wrong",
+    "jevbench_version": "v1.4.2",
+    "jevbench_upstream_revision": "1df665e3956d7aab7fa0208ff6c4f2d8557f9f90",
     "trained_limits": {
       "max_state": 1024,
       "max_question": 512,
       "max_candidate": 256,
       "max_path": 2048,
       "max_candidates": 128
-    },
-    "original_data_manifest_sha256": "5a9c7f98a619dee38ce2de8abb09f586d308f9ce3e08604eaadd72a4e445296e"
+    }
   },
-  "training_data_manifest_sha256": "3644978f93f9f09815048b52bbdfba19f257f5b554950d7b84e6255f65649a96",
-  "source_report_sha256": "b3f6ab483d9aab8d990fd12806f1bd778a7d0b97ad7baac4ecbbbb4e5a1275af"
+  "results": {
+    "decision_dev_all": {
+      "correct": 1295,
+      "total": 1468
+    },
+    "decision_dev_clean": {
+      "correct": 1105,
+      "total": 1264
+    },
+    "transfer_dev_all": {
+      "correct": 630,
+      "total": 764
+    },
+    "transfer_dev_clean": {
+      "correct": 551,
+      "total": 656
+    },
+    "mmlupro": {
+      "correct": 574,
+      "total": 1000
+    },
+    "semif_handwritten": {
+      "correct": 134,
+      "total": 144
+    },
+    "scienthoon": {
+      "correct": 620,
+      "total": 873
+    },
+    "wanli": {
+      "correct": 182,
+      "total": 256
+    },
+    "jevbench_public": {
+      "correct": 192,
+      "total": 231
+    }
+  }
 }

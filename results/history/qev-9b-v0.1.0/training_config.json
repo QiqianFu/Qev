@@ -43,8 +43,7 @@
     "none_insert_prob": 0.2,
     "none_insert_absent_frac": 0.5,
     "none_insert_exempt_sources": [
-      "jev_distill/",
-      "synthetic/hs3_preference_boundary/"
+      "jev_distill/"
     ],
     "late_split": "late_train",
     "late_fraction": 0.5,

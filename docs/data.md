@@ -24,28 +24,32 @@ The model supports variable candidate counts; the selected configuration admits 
 
 ## Released synthetic training data
 
-[AustinFu/Qev-train](https://huggingface.co/datasets/AustinFu/Qev-train) provides **1,842 examples** from the released models' source training data: 1,170 alignment questions, 364 document-rule judgments and 308 Wikipedia-grounded knowledge questions. The dataset card documents generation, blind review, filtering and component-specific licenses in English and Chinese.
+[AustinFu/Qev-train](https://huggingface.co/datasets/AustinFu/Qev-train) provides **2,442 examples** from Qev-9B v0.2.0 training: 1,170 alignment questions, 364 document-rule judgments, 308 Wikipedia-grounded knowledge questions and 600 controlled boundary questions adapted from HelpSteer3 contexts. The dataset card documents generation, blind review, filtering and component-specific licenses in English and Chinese.
 
 ```bash
 hf download AustinFu/Qev-train --repo-type dataset --local-dir data/qev-train
 ```
 
-The download includes canonical `train.jsonl`, a Qev `manifest.json`, an equivalent Parquet file, exact statistics and source attribution. Pass `--data data/qev-train` to `qev.train` with a configuration that does not require a separate late partition, such as `configs/qev-9b-finetune.json` or `configs/qev-2b-finetune.json`. No additional format conversion is needed. The first dataset release is tagged `v1.0.0`.
+The download includes canonical `train.jsonl`, a Qev `manifest.json`, an equivalent Parquet file, exact statistics and source attribution. Pass `--data data/qev-train` to `qev.train` with a configuration that does not require a separate late partition, such as `configs/qev-9b-finetune.json` or `configs/qev-2b-finetune.json`. No additional format conversion is needed. The current dataset is `v1.1.0`; `v1.0.0` preserves the original 1,842 examples used for the first 9B and released 2B models.
 
-All records retain the original input, candidate order and hard labels. `target` contains one-hot label encodings; teacher probability caches, response targets and distillation pairs are not distributed. Metadata records the component, domain, planned language, license and related `group_id`. There is one training split: these examples are already seen by the released models and are not an independent evaluation set.
+The fine-tuning configurations exempt `synthetic/hs3_preference_boundary/` from online None-option insertion. Retain that exemption with a custom configuration: changing the candidate set changes these reviewed boundary tasks.
+
+All records retain the original input, candidate order and hard labels. `target` contains one-hot label encodings; teacher probability caches, response targets and distillation pairs are not distributed. Metadata records the component, domain, planned language, license and related `group_id`. There is one training split: these examples are already seen by Qev-9B v0.2.0 and are not an independent evaluation set.
 
 ## Research recipe and availability
 
 | Partition | Records / questions | Composition |
 |---|---:|---|
-| Main | 34,546 / 40,828 | Science-reviewed + AQuA pool (34,238 records), then 308 world-knowledge records |
+| Main | 39,605 / 45,887 | Previous 34,546-record pool, plus 4,459 HelpSteer3 Principle judgments and 600 synthetic boundary questions |
 | Late | 1,783 / 1,783 | 1,419 alignment records and 364 rule-compliance judgments |
 
 The alignment pack contains 249 selected earlier records and 1,170 synthetic records. The 249 selected records also occur in the main partition as intentional replay; late/main are training partitions, not an evaluation split. The 364 rule judgments consist of 182 positive/negative pairs. Late examples start at the final 50% of main-training steps and repeat three times.
 
+The selected 9B recipe places all 600 boundary questions in the **main** set; they are not added to the late partition. HelpSteer3 Principle supplies judgments about whether responses satisfy stated principles. The boundary tasks instead adapt Preference contexts into new hard-label tasks; original preference rankings are not used. The upstream [NVIDIA HelpSteer3 dataset](https://huggingface.co/datasets/nvidia/HelpSteer3) is pinned at revision `f6d145777bcbde96137596340fab89793acd1031`.
+
 **Qev-train publishes the synthetic subset; the complete mixed research corpus and its original generation/review pipeline are not included in this source release.** This repository supports training on user data and rerunning public evaluation with the released weights. Rebuilding the exact reported training run additionally requires the remaining data and original training settings.
 
-Data licensing and attribution are described in [third-party notices](../THIRD_PARTY_NOTICES.md) and the [dataset license](https://huggingface.co/datasets/AustinFu/Qev-train/blob/main/LICENSE.md). The 1,534 original alignment/rule examples use Apache-2.0 where copyright applies; the 308 Wikipedia-grounded examples retain CC BY-SA 4.0 and per-example attribution.
+Data licensing and attribution are described in [third-party notices](../THIRD_PARTY_NOTICES.md) and the [dataset license](https://huggingface.co/datasets/AustinFu/Qev-train/blob/main/LICENSE.md). The 1,534 original alignment/rule examples use Apache-2.0 where copyright applies; the 308 Wikipedia-grounded examples retain CC BY-SA 4.0; the 600 HelpSteer3-derived boundary examples retain CC BY 4.0. Both derived components carry per-example attribution.
 
 ## JevBench
 

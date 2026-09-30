@@ -41,6 +41,9 @@
     "prefix_execution": "tree-batched",
     "joint_gate_lr": 0.01,
     "none_insert_prob": 0.2,
-    "none_insert_absent_frac": 0.5
+    "none_insert_absent_frac": 0.5,
+    "none_insert_exempt_sources": [
+      "synthetic/hs3_preference_boundary/"
+    ]
   }
 }

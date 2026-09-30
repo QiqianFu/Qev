@@ -80,3 +80,17 @@ This verifies publication, download and checkpoint resolution. Full-size GPU inf
 - Confirmed that the Hub dataset viewer exposes the training split and its first 100 examples, and that all 182 rule-compliance pairs contain one positive and one negative label.
 
 This is a data publication check; model training and benchmarks were not rerun.
+
+## Qev-9B v0.2.0 and Qev-train v1.1.0 — 2026-09-30
+
+The current [9B weights](https://huggingface.co/AustinFu/Qev-9B/tree/v0.2.0) are the selected 2,643-step checkpoint with Principle judgments and 600 boundary questions in the main set. The [dataset update](https://huggingface.co/datasets/AustinFu/Qev-train/tree/v1.1.0) contains 2,442 examples.
+
+- Recomputed every current 9B table entry from saved per-question predictions on the same benchmark subsets: MMLU-Pro 574/1,000 and public JevBench 192/231. All seven original evaluation files have zero rejected questions.
+- Compared the three exported tensor files with the selected checkpoint exactly; read their safetensors headers and loaded the tokenizer successfully.
+- Loaded and encoded all 2,442 dataset records with Qev and the real 9B tokenizer. Verified that the 600 controlled-boundary records match the training source-prefix exemption in the formal and fine-tuning configurations.
+- Compared JSONL and Parquet through Hugging Face Datasets. Checked the new records against the original training set, and checked exact input/group separation from the existing development, calibration and test files.
+- Downloaded and compared all 12 dataset files and 24 model files anonymously in fresh caches. The tagged dataset loaded all 2,442 records unchanged.
+- Preserved the original model and dataset tags, and archived the original 9B predictions and recipe. Qev-2B weights and results are unchanged; its teacher is explicitly pinned to Qev-9B v0.1.0.
+- Passed eight focused CPU tests covering data validation, versioned checkpoint resolution and source-prefix exemptions for None-option augmentation.
+
+These checks verify the selected artifacts and their publication. Full-size GPU inference and benchmark measurements were not rerun during packaging.

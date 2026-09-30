@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-30",
+  "date": "2026-09-28",
   "metric": "argmax_accuracy",
   "models": {
     "jev": {
@@ -13,11 +13,11 @@
       "source": "JevBench locally rerun; other suites from author reports"
     },
     "qev_9b": {
-      "repo_id": "AustinFu/Qev-9B",
-      "revision": "v0.2.0",
       "base": "Qwen/Qwen3.5-9B-Base",
       "base_revision": "68c46c4b3498877f3ef123c856ecfde50c39f404",
-      "step": 2643,
+      "research_name": "BranchKev",
+      "run": "c21-science-wk-late1783-9b-4gpu-r64-late50x3-s17",
+      "step": 2327,
       "dtype": "bf16",
       "execution": "reference",
       "seed": 17,
@@ -31,10 +31,9 @@
       "base": "Qwen/Qwen3.5-2B-Base",
       "base_revision": "b1485b2fa6dfa1287294f269f5fb618e03d52d7c",
       "dtype": "bf16",
-      "description": "Probability and representation-response distillation from Qev-9B v0.1.0",
+      "description": "Probability and representation-response distillation from Qev-9B; no candidate preview",
       "seed": 17,
-      "continuation_steps": 800,
-      "teacher_revision": "v0.1.0"
+      "continuation_steps": 800
     },
     "qwen35_2b_base": {
       "description": "Frozen native LM head; zero-shot candidate code probabilities",
@@ -56,8 +55,8 @@
           "accuracy": 0.8780653950953679
         },
         "qev_9b": {
-          "correct": 1295,
-          "accuracy": 0.8821525885558583
+          "correct": 1296,
+          "accuracy": 0.8828337874659401
         },
         "qwen35_9b_base": {
           "correct": 1112,
@@ -172,8 +171,8 @@
           "accuracy": 0.511
         },
         "qev_9b": {
-          "correct": 574,
-          "accuracy": 0.574
+          "correct": 546,
+          "accuracy": 0.546
         },
         "qwen35_9b_base": {
           "correct": 504,
@@ -201,8 +200,8 @@
           "accuracy": 0.9097222222222222
         },
         "qev_9b": {
-          "correct": 134,
-          "accuracy": 0.9305555555555556
+          "correct": 135,
+          "accuracy": 0.9375
         },
         "qwen35_9b_base": {
           "correct": 130,
@@ -230,8 +229,8 @@
           "accuracy": 0.7548682703321878
         },
         "qev_9b": {
-          "correct": 620,
-          "accuracy": 0.7101947308132875
+          "correct": 631,
+          "accuracy": 0.722794959908362
         },
         "qwen35_9b_base": {
           "correct": 601,
@@ -259,8 +258,8 @@
           "accuracy": 0.703125
         },
         "qev_9b": {
-          "correct": 182,
-          "accuracy": 0.7109375
+          "correct": 186,
+          "accuracy": 0.7265625
         },
         "qwen35_9b_base": {
           "correct": 174,
@@ -288,8 +287,8 @@
           "accuracy": 0.7575757575757576
         },
         "qev_9b": {
-          "correct": 192,
-          "accuracy": 0.8311688311688312
+          "correct": 188,
+          "accuracy": 0.8138528138528138
         },
         "qwen35_9b_base": {
           "correct": 175,
@@ -312,7 +311,7 @@
       "correct": {
         "jev": 71,
         "kev_9b": 65,
-        "qev_9b": 68,
+        "qev_9b": 65,
         "qwen35_9b_base": 59,
         "qev_2b": 64,
         "qwen35_2b_base": 44
@@ -334,7 +333,7 @@
       "correct": {
         "jev": 79,
         "kev_9b": 62,
-        "qev_9b": 76,
+        "qev_9b": 75,
         "qwen35_9b_base": 68,
         "qev_2b": 60,
         "qwen35_2b_base": 54
@@ -348,5 +347,6 @@
     "Cross-model precisions and execution implementations differ.",
     "The Qev release is one seed, and these comparisons do not isolate architecture gains.",
     "The 2B columns use the same clean development and 144-question SemIf subsets as the 9B comparison."
-  ]
+  ],
+  "research_report_sha256": "6f094e2e35217089b1ef9365525d3ddbfa46d1354e2faff4b4a25e1bbcfa63d9"
 }

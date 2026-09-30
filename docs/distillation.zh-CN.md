@@ -1,5 +1,7 @@
 # 用 Qev-9B 教师训练 Qev-2B
 
+已发布的 Qev-2B 使用 **Qev-9B v0.1.0** 作为教师。下方命令固定该版本；后续发布的 9B v0.2.0 没有参与这份 2B 权重的训练。
+
 Qev-2B 沿用 Qev-9B 的决策结构，将底座换为 Qwen3.5-2B-Base。训练分为两阶段：先用教师的选项概率做交叉熵训练，再加入程序化文本编辑、原题回放和内部表示响应蒸馏。
 
 当前选择的模型不使用候选预览，MMLU-Pro 为 38.70%，JevBench 公开题为 172/231。[评测文档](evaluation.md)按相同题目子集对比两个模型尺寸。[English](distillation.md)。
@@ -14,7 +16,7 @@ Qev-2B 沿用 Qev-9B 的决策结构，将底座换为 Qwen3.5-2B-Base。训练�
 
 ```bash
 python -m qev.teacher logits \
-  --teacher AustinFu/Qev-9B \
+  --teacher AustinFu/Qev-9B@v0.1.0 \
   --data data/decisions --config configs/qev-2b-distill.json \
   --out data/teacher-logits --device cuda
 
@@ -35,7 +37,7 @@ torchrun --standalone --nproc_per_node=2 -m qev.train \
 
 ```bash
 python -m qev.teacher responses \
-  --teacher AustinFu/Qev-9B \
+  --teacher AustinFu/Qev-9B@v0.1.0 \
   --data data/decisions --config configs/qev-2b-distill.json \
   --out data/teacher-responses --device cuda
 ```

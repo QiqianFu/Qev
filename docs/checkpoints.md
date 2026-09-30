@@ -8,7 +8,7 @@ from qev import Qev
 model = Qev.from_pretrained("AustinFu/Qev-9B", device="cuda")
 ```
 
-The loader downloads the approximately 690 MiB Qev package and its Qwen base model. The model configuration records the compatible base version. Use `revision="v0.1.0"` when you want the original published release; `revision` is optional for normal use.
+The loader downloads the approximately 690 MiB Qev package and its Qwen base model. The model configuration records the compatible base version. The current 9B release is `v0.2.0` (MMLU-Pro 57.40%, JevBench 192/231). Use `revision="v0.2.0"` to pin it, or `revision="v0.1.0"` for the original release used to distill Qev-2B. Omitting `revision` loads the current release.
 
 For a local download:
 
@@ -26,7 +26,7 @@ model = Qev.from_pretrained(
 )
 ```
 
-CLI commands accept either a local directory or `AustinFu/Qev-9B`. Append `@v0.1.0` to select a particular release. Qev does not need `trust_remote_code`.
+CLI commands accept either a local directory or `AustinFu/Qev-9B`. Append `@v0.2.0` to select the current 9B release explicitly. Qev does not need `trust_remote_code`.
 
 ## Load Qev-2B
 

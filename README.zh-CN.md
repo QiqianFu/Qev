@@ -36,7 +36,7 @@
 | **Qev-2B** | Qwen3.5-2B-Base，rank-64 LoRA，256 维两层决策头 | [Hugging Face · 下载](https://huggingface.co/AustinFu/Qev-2B) |
 | **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | [Hugging Face · 下载](https://huggingface.co/AustinFu/Qev-9B) |
 
-Qev-9B 在通用决策数据上训练，并在训练后半程加入对齐题与规则判断题，重复学习三次。下载包包含 LoRA、决策头、候选交互参数、tokenizer 和模型配置。
+Qev-9B v0.2.0 在通用决策主集中加入 HelpSteer3 Principle 和 600 道合成边界题，并在训练后半程混入对齐题与文档规则判断题，重复学习三次。下载包包含 LoRA、决策头、候选交互参数、tokenizer 和模型配置。
 
 Qev-2B 通过教师概率蒸馏、程序化的随机文本编辑，以及内部表示变化的蒸馏，从 Qev-9B 学习。适配权重包会自动下载：**2B 约 284 MiB，9B 约 690 MiB**，加载器另行获取对应的 Qwen 底座。本地下载与导出见[检查点指南](docs/checkpoints.md)，完整模型信息见 [2B 模型卡](docs/model-card-2b.md)和 [9B 模型卡](docs/model-card.md)。
 
@@ -108,9 +108,9 @@ python -m qev.predict \
 | 数据 | 内容 | 入口 |
 |---|---|---|
 | 随包示例 | 6 条训练请求、2 条验证请求，覆盖三种任务 | [examples/](examples/README.md) |
-| **Qev-train** | **1,842 条自合成训练题**：对齐题、文档规则判断与世界知识 | [数据集与合成方法](https://huggingface.co/datasets/AustinFu/Qev-train/blob/main/README.zh-CN.md) |
+| **Qev-train** | **2,442 条合成训练题**：对齐题、文档规则、世界知识与受控边界题 | [数据集与合成方法](https://huggingface.co/datasets/AustinFu/Qev-train/blob/main/README.zh-CN.md) |
 | 自己的数据 | 带标签或软目标的 JSONL 请求 | [数据格式](docs/data.md) |
-| 正式研究配方 | 主分区 34,546 条，收尾分区 1,783 条；完整数据尚未随代码分发 | [数据构成](docs/data.md#research-recipe-and-availability) |
+| 正式研究配方 | 主分区 39,605 条，收尾分区 1,783 条；完整数据尚未随代码分发 | [数据构成](docs/data.md#research-recipe-and-availability) |
 
 ```bash
 python -m qev.prepare \
@@ -137,7 +137,7 @@ python -m qev.train \
 
 ### 蒸馏 2B 模型
 
-Qev-2B 先用 9B 教师的选项概率做交叉熵训练，再通过程序化的随机文本编辑构造原题／改写题对，混合原题回放，学习教师的概率和内部表示变化关系。完整的数据准备、两阶段训练命令和损失公式见 [2B 蒸馏训练指南](docs/distillation.zh-CN.md)。
+Qev-2B 先用 Qev-9B v0.1.0 教师的选项概率做交叉熵训练，再通过程序化的随机文本编辑构造原题／改写题对，混合原题回放，学习教师的概率和内部表示变化关系。完整的数据准备、两阶段训练命令和损失公式见 [2B 蒸馏训练指南](docs/distillation.zh-CN.md)。
 
 ## 演示
 
@@ -176,11 +176,11 @@ Qev 按 **state → question → candidate** 组织输入。候选分支读取�
 |---|---:|---:|---:|---:|---:|---:|
 | decision_dev · clean | 84.49 | **87.42** | 87.18 | 77.69 | 85.36 | 65.43 |
 | transfer_dev · clean | 85.67 | **83.99** | 82.16 | 74.39 | 77.29 | 65.09 |
-| MMLU-Pro · 1000题 | 83.50 | **54.60** | 51.10 | 50.40 | 38.70 | 31.20 |
-| SemIf · 144道手写题 | 96.53 | **93.75** | 90.97 | 90.28 | 82.64 | 63.89 |
-| scienthoon · 873题 | 75.26 | 72.28 | **75.49** | 68.84 | 71.94 | 53.84 |
-| WANLI · 256题 | 75.78 | **72.66** | 70.31 | 67.97 | 67.58 | 50.39 |
-| JevBench公开题 · 231题 | 85.71 | **81.39** | 75.76 | 75.76 | 74.46 | 63.20 |
+| MMLU-Pro · 1000题 | 83.50 | **57.40** | 51.10 | 50.40 | 38.70 | 31.20 |
+| SemIf · 144道手写题 | 96.53 | **93.06** | 90.97 | 90.28 | 82.64 | 63.89 |
+| scienthoon · 873题 | 75.26 | 71.02 | **75.49** | 68.84 | 71.94 | 53.84 |
+| WANLI · 256题 | 75.78 | **71.09** | 70.31 | 67.97 | 67.58 | 50.39 |
+| JevBench公开题 · 231题 | 85.71 | **83.12** | 75.76 | 75.76 | 74.46 | 63.20 |
 
 表中为准确率（%），加粗标出 Qev-9B 与 Kev-9B 中的较高成绩；Jev 与 Qwen 底座作为参考。
 

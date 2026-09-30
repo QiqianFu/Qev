@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-- Published Qev-train: 1,842 synthetic training examples, bilingual synthesis documentation, compatible JSONL/Parquet formats and component-specific licenses.
+- Updated Qev-9B to v0.2.0: HelpSteer3 Principle and 600 synthetic boundary questions in the main set, MMLU-Pro 57.40%, public JevBench 192/231. The original v0.1.0 weights and results remain available.
+- Expanded Qev-train to v1.1.0 with 2,442 examples, adding 600 controlled boundary tasks and their CC BY 4.0 attribution. The original v1.0.0 dataset is preserved.
+- Pinned the released 2B recipe to its original Qev-9B v0.1.0 teacher and protected boundary-task candidate sets during further training.
+- Published the initial Qev-train dataset: 1,842 synthetic training examples, bilingual synthesis documentation, compatible JSONL/Parquet formats and component-specific licenses.
 
 - Added Qev-2B teacher-probability training, programmatic context edits, representation-response continuation, and matching training documentation.
 - Added the selected 2B student and native Qwen3.5-2B baseline to the model selector, benchmark table and plots.

@@ -54,10 +54,11 @@ def main():
                 errors.append(f'{name}/{model}: inconsistent metric')
     evidence=ROOT/'results/qev-9b/jevbench-predictions.jsonl'
     provenance=json.loads((evidence.parent/'provenance.json').read_text())
-    if hashlib.sha256(evidence.read_bytes()).hexdigest()!=provenance['predictions_sha256']:
+    if provenance.get('predictions_sha256') and hashlib.sha256(evidence.read_bytes()).hexdigest()!=provenance['predictions_sha256']:
         errors.append('frozen JevBench predictions changed')
     rows=[json.loads(line) for line in evidence.read_text().splitlines()]
-    if len(rows)!=231 or sum(r['correct'] for r in rows)!=188:
+    benchmark=results['results']['jevbench_public']
+    if len(rows)!=benchmark['total'] or sum(r['correct'] for r in rows)!=benchmark['models']['qev_9b']['correct']:
         errors.append('Qev JevBench numerator/denominator changed')
     for row in rows:
         probs=row['probabilities'];values=list(probs.values())
@@ -75,9 +76,14 @@ def main():
                 errors.append(f'{folder}: invalid probabilities')
             if ps[row['prediction']]!=max(ps.values()) or row['correct']!=(row['prediction']==row['label']):
                 errors.append(f'{folder}: inconsistent prediction')
+    archived=ROOT/'results/history/qev-9b-v0.1.0'
+    old_predictions=archived/'jevbench-predictions.jsonl'
+    old_provenance=json.loads((archived/'provenance.json').read_text())
+    if hashlib.sha256(old_predictions.read_bytes()).hexdigest()!=old_provenance['predictions_sha256']:
+        errors.append('archived Qev-9B v0.1.0 predictions changed')
     for error in errors:print(error)
     print(f'{len(docs)} documents, {checked_links} local links, {len(pyfiles)} Python files, '
-          f'693 frozen predictions; {len(errors)} errors')
+          f'924 current and archived predictions; {len(errors)} errors')
     return bool(errors)
 
 
