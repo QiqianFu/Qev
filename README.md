@@ -8,7 +8,7 @@
   <a href="LICENSE"><img src="assets/badges/license.svg" alt="Apache-2.0"></a>
 </p>
 
-<p align="center"><strong>English</strong> | <a href="README.zh-CN.md">简体中文</a> | <a href="docs/model-card-2b.md">Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a></p>
+<p align="center"><strong>English</strong> | <a href="README.zh-CN.md">简体中文</a> | <a href="https://huggingface.co/AustinFu/Qev-2B">🤗 Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a></p>
 
 **Qev fine-tunes Qwen into a decision model.** Give it context, a question, and candidate answers; get a choice and a probability for every option. One model handles **Choice**, **Noul** (yes/no), and **Score** (ordered ratings).
 
@@ -23,18 +23,18 @@ This repository provides the model architecture, training and evaluation code, P
 | Choose a model | Qev-2B | Qev-9B |
 |---|---|---|
 | Role | Compact student distilled from Qev-9B | Decision model and distillation teacher |
-| Get started | [2B model and loading](docs/model-card-2b.md) | [9B model weights](https://huggingface.co/AustinFu/Qev-9B) |
+| Get started | [2B model weights](https://huggingface.co/AustinFu/Qev-2B) | [9B model weights](https://huggingface.co/AustinFu/Qev-9B) |
 
 ## Model and checkpoints
 
 | Model | Base and architecture | Availability |
 |---|---|---|
-| **Qev-2B** | Qwen3.5-2B-Base, rank-64 LoRA, two-layer 256-dimensional head | [Local export and release status](docs/model-card-2b.md) |
+| **Qev-2B** | Qwen3.5-2B-Base, rank-64 LoRA, two-layer 256-dimensional head | [Hugging Face · Download](https://huggingface.co/AustinFu/Qev-2B) |
 | **Qev-9B** | Qwen3.5-9B-Base, rank-64 LoRA, two-layer 256-dimensional set head | [Hugging Face · Download](https://huggingface.co/AustinFu/Qev-9B) |
 
 Qev-9B was trained on a general decision dataset, with additional alignment and rule-compliance examples mixed into the second half of training and repeated three times. The download includes the LoRA adapter, decision head, interaction gate, tokenizer and configuration.
 
-The approximately 690 MiB checkpoint downloads automatically; the loader fetches the Qwen base separately. See [checkpoint export and loading](docs/checkpoints.md) for local downloads and base-model cache overrides. The [model card](docs/model-card.md) describes the released model.
+Qev-2B learns from Qev-9B through probability distillation and programmatic context edits, with an additional loss on representation changes. The adaptation packages download automatically: approximately **284 MiB for 2B** and **690 MiB for 9B**; the loader fetches the corresponding Qwen base separately. See [checkpoint export and loading](docs/checkpoints.md) and the model cards for [2B](docs/model-card-2b.md) and [9B](docs/model-card.md).
 
 ## Installation
 
@@ -64,7 +64,7 @@ Load the model once in your process, then submit requests:
 ```python
 from qev import Qev
 
-# A local Qev-2B export can be loaded from "checkpoints/qev-2b".
+# Choose "AustinFu/Qev-2B" or "AustinFu/Qev-9B".
 model = Qev.from_pretrained(
     "AustinFu/Qev-9B", device="cuda"
 )

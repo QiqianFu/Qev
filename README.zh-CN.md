@@ -8,7 +8,7 @@
   <a href="LICENSE"><img src="assets/badges/license.svg" alt="Apache-2.0"></a>
 </p>
 
-<p align="center"><a href="README.md">English</a> | <strong>简体中文</strong> | <a href="docs/model-card-2b.md">Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a></p>
+<p align="center"><a href="README.md">English</a> | <strong>简体中文</strong> | <a href="https://huggingface.co/AustinFu/Qev-2B">🤗 Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a></p>
 
 **Qev 是从 Qwen 微调而来的决策模型。** 给定上下文、问题和候选答案，模型直接返回选择及各选项的概率。同一套模型支持 **Choice 选择、Noul 是非判断、Score 序数评分**。
 
@@ -23,18 +23,18 @@
 | 选择模型 | Qev-2B | Qev-9B |
 |---|---|---|
 | 定位 | 从 9B 蒸馏的轻量学生模型 | 决策模型与蒸馏教师 |
-| 使用 | [2B 模型与加载方式](docs/model-card-2b.md) | [9B 模型权重](https://huggingface.co/AustinFu/Qev-9B) |
+| 使用 | [2B 模型权重](https://huggingface.co/AustinFu/Qev-2B) | [9B 模型权重](https://huggingface.co/AustinFu/Qev-9B) |
 
 ## 模型与检查点
 
 | 模型 | 底座与结构 | 当前入口 |
 |---|---|---|
-| **Qev-2B** | Qwen3.5-2B-Base，rank-64 LoRA，256 维两层决策头 | [本地导出与发布状态](docs/model-card-2b.md) |
+| **Qev-2B** | Qwen3.5-2B-Base，rank-64 LoRA，256 维两层决策头 | [Hugging Face · 下载](https://huggingface.co/AustinFu/Qev-2B) |
 | **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | [Hugging Face · 下载](https://huggingface.co/AustinFu/Qev-9B) |
 
 Qev-9B 在通用决策数据上训练，并在训练后半程加入对齐题与规则判断题，重复学习三次。下载包包含 LoRA、决策头、候选交互参数、tokenizer 和模型配置。
 
-约 690 MiB 的检查点会自动下载，加载器另行获取Qwen 底座。本地下载、检查点导出与底座缓存配置见[检查点指南](docs/checkpoints.md)；完整模型信息见[模型卡](docs/model-card.md)。
+Qev-2B 通过教师概率蒸馏、程序化的随机文本编辑，以及内部表示变化的蒸馏，从 Qev-9B 学习。适配权重包会自动下载：**2B 约 284 MiB，9B 约 690 MiB**，加载器另行获取对应的 Qwen 底座。本地下载与导出见[检查点指南](docs/checkpoints.md)，完整模型信息见 [2B 模型卡](docs/model-card-2b.md)和 [9B 模型卡](docs/model-card.md)。
 
 ## 安装
 
@@ -64,7 +64,7 @@ python scripts/smoke.py --out runs/smoke
 ```python
 from qev import Qev
 
-# 也可使用本地导出的 "checkpoints/qev-2b"。
+# 可选择 "AustinFu/Qev-2B" 或 "AustinFu/Qev-9B"。
 model = Qev.from_pretrained(
     "AustinFu/Qev-9B", device="cuda"
 )

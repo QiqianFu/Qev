@@ -51,10 +51,20 @@ These changes simplify packaging and usage; the GPU-only tests remain skipped an
 
 ## Qev-2B release preparation — 2026-09-29
 
-- CPU regression: **306 passed, 10 skipped, 6 deselected**. The current sandbox prevents loopback TCP, so six distributed-process tests could not run; the ten skipped cases require CUDA.
+- CPU regression: **306 passed, 10 skipped, 6 deselected**. Six distributed-process tests were not run in the preparation environment; the ten skipped cases require CUDA.
 - The 25 distillation checks pass, including teacher targets for augmented inputs, label-blind edits, response geometry and gradients, and exact CPU continuation/resume. Probability distillation also runs through the standard trainer and rejects changed teacher targets on resume.
 - The selected 2B export preserves all three trained tensor files exactly and omits optimizer state. Zero-preview research metadata loads through the public checkpoint format.
 - The 2B student and native-base results are recomputed on the same clean development subsets and 144 handwritten SemIf questions used by the existing tables. All seven benchmark groups and both new JevBench prediction files are checked.
 - The updated cover, grouped bars and six-model matrix were rendered and visually inspected. The model's full-size GPU inference and benchmarks were not rerun.
 
-These changes were prepared in an isolated checkout because the current session cannot write to the destination repository. The 2B Hub release remains pending; publication status is recorded in its [model card](model-card-2b.md).
+The prepared changes have been integrated into the source repository, preserving the gameplay recordings, README layout and acknowledgments.
+
+## Qev-2B publication verification — 2026-09-29
+
+[AustinFu/Qev-2B](https://huggingface.co/AustinFu/Qev-2B) is public. Its [v0.1.0 release](https://huggingface.co/AustinFu/Qev-2B/tree/v0.1.0) contains the selected 800-step checkpoint.
+
+- Downloaded the release anonymously into a fresh cache and compared all 20 uploaded files with the prepared package; every file matches.
+- Read all three safetensors headers and loaded the downloaded tokenizer successfully.
+- Resolved the tagged Hub model through Qev's checkpoint loader.
+
+This verifies publication, download and checkpoint resolution. Full-size GPU inference and benchmark measurements were not rerun.

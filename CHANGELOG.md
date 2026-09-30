@@ -4,7 +4,7 @@
 
 - Added Qev-2B teacher-probability training, programmatic context edits, representation-response continuation, and matching training documentation.
 - Added the selected 2B student and native Qwen3.5-2B baseline to the model selector, benchmark table and plots.
-
+- Published Qev-2B weights on Hugging Face with the same loading interface as Qev-9B.
 - Simplified model downloads, checkpoint export and dataset preparation. Model versions are optional; exports no longer produce checksum inventories.
 - Removed the server-specific checkpoint archive handshake. Resume still checks training data automatically.
 - Replaced internal experiment names with plain descriptions of the model and training recipe.
@@ -20,4 +20,4 @@
 - Included fixed-version benchmark summaries and the selected model's original 231 JevBench prediction rows.
 - Added an offline tiny-model smoke workflow and release validation.
 
-Qev is the public name of the selected research model; this packaging work does not create a new trained checkpoint or new benchmark result. The weights are available at [AustinFu/Qev-9B](https://huggingface.co/AustinFu/Qev-9B). The complete training corpus is not bundled.
+Qev is the public name of the selected research models; packaging preserves their original trained checkpoints and benchmark results. The weights are available at [AustinFu/Qev-2B](https://huggingface.co/AustinFu/Qev-2B) and [AustinFu/Qev-9B](https://huggingface.co/AustinFu/Qev-9B). The complete training corpus is not bundled.

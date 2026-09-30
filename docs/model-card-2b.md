@@ -16,7 +16,7 @@ tags:
 
 Qev-2B is the compact member of the Qev decision-model family. It learns option probabilities and representation responses from Qev-9B, and supports Choice, Noul and Score with the same request format.
 
-**Release status:** the selected checkpoint has been exported locally as `checkpoints/qev-2b`. Hugging Face publication is pending; this page does not advertise an available 2B Hub download.
+[Model weights](https://huggingface.co/AustinFu/Qev-2B) · [Source and installation](https://github.com/QiqianFu/Qev#installation) · [中文说明](https://github.com/QiqianFu/Qev/blob/main/README.zh-CN.md)
 
 | Property | Qev-2B |
 |---|---|
@@ -24,7 +24,6 @@ Qev-2B is the compact member of the Qev decision-model family. It learns option 
 | Adapter | LoRA rank 64, alpha 128 |
 | Decision head | 256 dimensions, two Transformer layers |
 | Candidate interaction | Full sibling interaction in the final full-attention layer |
-| Candidate preview | None |
 | Training | Teacher-probability cross entropy, followed by replay and representation-response distillation |
 | Final continuation | 800 steps; seed 17; response weight 0.1 |
 | Computation | BF16 backbone, FP32 decision head |
@@ -33,10 +32,12 @@ Qev-2B is the compact member of the Qev decision-model family. It learns option 
 ```python
 from qev import Qev
 
-model = Qev.from_pretrained("checkpoints/qev-2b", device="cuda")
+model = Qev.from_pretrained("AustinFu/Qev-2B", device="cuda")
 ```
 
-To fine-tune on your own data, use `configs/qev-2b-finetune.json` with `python -m qev.train --init-checkpoint checkpoints/qev-2b`. To train with a teacher, follow the [distillation guide](distillation.md) or [中文指南](distillation.zh-CN.md).
+Install Qev from the source repository using Python 3.12 and a hardware-compatible PyTorch 2.8.0 build. The loader downloads this adaptation package and the compatible Qwen base separately. The teacher is not needed for inference. Use `revision="v0.1.0"` to select the first published release.
+
+To fine-tune on your own data, use `configs/qev-2b-finetune.json` with `python -m qev.train --init-checkpoint AustinFu/Qev-2B`. To train with a teacher, follow the [distillation guide](distillation.md) or [中文指南](distillation.zh-CN.md).
 
 | Benchmark | Qwen3.5-2B-Base | Qev-2B |
 |---|---:|---:|
@@ -49,5 +50,9 @@ To fine-tune on your own data, use `configs/qev-2b-finetune.json` with `python -
 | JevBench public · 231 | 63.20 | 74.46 |
 
 Accuracy (%). Public JevBench accuracy is 172/231. These are the selected checkpoint's recorded results. The native base uses its language-model head and zero-shot prompts. The comparison therefore includes architecture, training and readout differences; it does not isolate the contribution of response distillation. [Full results](evaluation.md).
+
+The package includes the LoRA adapter, decision head, interaction gate, tokenizer, model configuration, both training configurations, recorded evaluation results and license files. The three trained tensor files preserve the selected checkpoint exactly; optimizer state and base weights are excluded. The complete research training corpus is not distributed.
+
+Qev supports research and development of routing, rule judgments and rubric ratings over explicit options. Evaluate the model on your application's inputs; probability calibration and production reliability have not been established.
 
 Qev adaptation weights use Apache-2.0. Source datasets and the Qwen base retain their own terms. [License and attribution](../THIRD_PARTY_NOTICES.md).

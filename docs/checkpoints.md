@@ -28,9 +28,21 @@ model = Qev.from_pretrained(
 
 CLI commands accept either a local directory or `AustinFu/Qev-9B`. Append `@v0.1.0` to select a particular release. Qev does not need `trust_remote_code`.
 
-## Load the prepared 2B model
+## Load Qev-2B
 
-Qev-2B uses the same loader with `checkpoints/qev-2b`. Its local export contains the selected 800-step response-distillation model. See the [2B model card](model-card-2b.md) for release status.
+Qev-2B uses the same loader and request format:
+
+```python
+model = Qev.from_pretrained("AustinFu/Qev-2B", device="cuda")
+```
+
+The approximately 284 MiB adaptation package contains the selected 800-step response-distillation model. The compatible Qwen3.5-2B base downloads separately. Use `revision="v0.1.0"` to select the first release, or download it locally:
+
+```bash
+hf download AustinFu/Qev-2B --local-dir checkpoints/qev-2b
+```
+
+CLI commands also accept `AustinFu/Qev-2B` or `checkpoints/qev-2b`. See the [2B model card](model-card-2b.md) and [distillation guide](distillation.md).
 
 ## Export a trained model
 
@@ -47,7 +59,7 @@ A Qev checkpoint uses `model.json`, `adapter/`, `tokenizer/`, `head.safetensors`
 
 ## Precision and execution
 
-`weights_dtype="checkpoint"` uses the configured precision. `weights_dtype="fp32"` loads the backbone and adapter in FP32. Qev-9B uses BF16 backbone computation and an FP32 decision head.
+`weights_dtype="checkpoint"` uses the configured precision. `weights_dtype="fp32"` loads the backbone and adapter in FP32. Qev-2B and Qev-9B use BF16 backbone computation and an FP32 decision head.
 
 The Python API and prediction CLI use shared-prefix caching by default. Set `execution="reference"` in Python or `--reference` in the CLI for the execution used in the benchmark reports. Optional `max_state` and `max_path` settings control accepted input sizes.
 
