@@ -20,7 +20,7 @@ PANELS = [
     ('jevbench_public', 'JevBench', '231 public'),
 ]
 GROUPS = [
-    ('9B models', [('qev_9b', 'Qev-9B · BF16', '#7652bb'), ('kev_9b', 'Kev-9B · FP32', '#37958b')]),
+    ('9B models', [('qev_9b', 'Qev-9B · BF16', '#7652bb'), ('qwen35_9b_base', 'Qwen3.5-9B-Base · BF16', '#94a5b9')]),
     ('2B models', [('qev_2b', 'Qev-2B · BF16', '#ae7ed6'), ('qwen35_2b_base', 'Qwen3.5-2B-Base · BF16', '#94a5b9')]),
 ]
 MATRIX = [('jev', 'Jev · reference'), ('qev_9b', 'Qev-9B'),
@@ -66,7 +66,7 @@ def main():
     for i, (_, title, count) in enumerate(PANELS):
         axes[-1].text(i, -.065, title, transform=axes[-1].get_xaxis_transform(), ha='center', va='top', fontsize=10.5, color='#35445e')
         axes[-1].text(i, -.148, count, transform=axes[-1].get_xaxis_transform(), ha='center', va='top', fontsize=9, color='#8190a6')
-    fig.text(.072, .035, 'Qev uses BF16 backbone computation and an FP32 decision head. Bold labels compare Qev-9B with Kev-9B.', fontsize=9, color='#8190a6')
+    fig.text(.072, .035, 'Qev uses BF16 backbone computation and an FP32 decision head. Bold labels compare Qev-9B with Qwen3.5-9B-Base.', fontsize=9, color='#8190a6')
     save(fig, 'evaluation')
 
     values = np.array([[100*results[key]['models'][model]['accuracy'] for key,_,_ in PANELS] for model,_ in MATRIX])

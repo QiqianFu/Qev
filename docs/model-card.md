@@ -97,7 +97,7 @@ The main and late partitions intentionally share 249 replay records. The complet
 **Qev-9B uses BF16 backbone computation; Kev-9B uses FP32.**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/QiqianFu/Qev/main/assets/evaluation.svg" alt="Qev and Kev accuracy on seven benchmarks." width="100%">
+  <img src="https://raw.githubusercontent.com/QiqianFu/Qev/main/assets/evaluation.svg" alt="Qev-9B and Qev-2B accuracy compared with their Qwen3.5 base models on seven benchmarks." width="100%">
 </p>
 
 | Benchmark | Jev (reference) | Qwen3.5-9B-Base | Qev-9B | Kev-9B |
