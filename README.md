@@ -20,6 +20,10 @@ This repository provides the model architecture, training and evaluation code, P
 | **[Run a model](#inference)** | Get decisions and option probabilities through Python or JSONL |
 | **[Train a model](#training)** | Prepare labelled data, train from Qwen, or fine-tune an existing Qev checkpoint |
 
+<p align="center">
+  <img src="assets/evaluation.svg" alt="Matched benchmark bars: Qev-9B versus Kev-9B, and Qev-2B versus Qwen3.5-2B-Base." width="100%">
+</p>
+
 | Choose a model | Qev-2B | Qev-9B |
 |---|---|---|
 | Role | Compact student distilled from Qev-9B | Decision model and distillation teacher |
@@ -167,23 +171,17 @@ Qev organizes inputs as **state → question → candidate**. Candidate branches
 
 **Precision: Qev-9B and Qev-2B use BF16 backbone computation; Kev-9B uses FP32.** Qev's decision head remains in FP32.
 
-<p align="center">
-  <img src="assets/evaluation.svg" alt="Matched benchmark bars: Qev-9B versus Kev-9B, and Qev-2B versus Qwen3.5-2B-Base." width="100%">
-</p>
-
-| Benchmark | Jev (reference) | Qwen3.5-9B-Base | Qev-9B | Kev-9B | Qwen3.5-2B-Base | Qev-2B |
+| Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-2B | Qwen3.5-2B-Base |
 |---|---:|---:|---:|---:|---:|---:|
-| Decision development · clean | 84.49 | 77.69 | **87.42** | 87.18 | 65.43 | 85.36 |
-| Transfer development · clean | 85.67 | 74.39 | **83.99** | 82.16 | 65.09 | 77.29 |
-| MMLU-Pro · 1,000 | 83.50 | 50.40 | **54.60** | 51.10 | 31.20 | 38.70 |
-| SemIf · 144 handwritten | 96.53 | 90.28 | **93.75** | 90.97 | 63.89 | 82.64 |
-| scienthoon · 873 | 75.26 | 68.84 | 72.28 | **75.49** | 53.84 | 71.94 |
-| WANLI · 256 | 75.78 | 67.97 | **72.66** | 70.31 | 50.39 | 67.58 |
-| JevBench public · 231 | 85.71 | 75.76 | **81.39** | 75.76 | 63.20 | 74.46 |
+| Decision development · clean | 84.49 | **87.42** | 87.18 | 77.69 | 85.36 | 65.43 |
+| Transfer development · clean | 85.67 | **83.99** | 82.16 | 74.39 | 77.29 | 65.09 |
+| MMLU-Pro · 1,000 | 83.50 | **54.60** | 51.10 | 50.40 | 38.70 | 31.20 |
+| SemIf · 144 handwritten | 96.53 | **93.75** | 90.97 | 90.28 | 82.64 | 63.89 |
+| scienthoon · 873 | 75.26 | 72.28 | **75.49** | 68.84 | 71.94 | 53.84 |
+| WANLI · 256 | 75.78 | **72.66** | 70.31 | 67.97 | 67.58 | 50.39 |
+| JevBench public · 231 | 85.71 | **81.39** | 75.76 | 75.76 | 74.46 | 63.20 |
 
 Accuracy (%). Bold marks the higher score between Qev-9B and Kev-9B; Jev and the Qwen base are references.
-
-Qev-9B answers **188/231 public JevBench questions (81.39%)** correctly, compared with 175/231 (75.76%) for Kev-9B. These are public-set accuracies, not the official JevBench composite score.
 
 [Six-model benchmark matrix](assets/evaluation-matrix.svg) · [Full results, ablations and settings](docs/evaluation.md) · [Machine-readable metrics](results/benchmarks.json) · [All 231 predictions](results/qev-9b/jevbench-predictions.jsonl)
 

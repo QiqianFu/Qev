@@ -23,9 +23,9 @@ GROUPS = [
     ('9B models', [('qev_9b', 'Qev-9B · BF16', '#7652bb'), ('kev_9b', 'Kev-9B · FP32', '#37958b')]),
     ('2B models', [('qev_2b', 'Qev-2B · BF16', '#ae7ed6'), ('qwen35_2b_base', 'Qwen3.5-2B-Base · BF16', '#94a5b9')]),
 ]
-MATRIX = [('jev', 'Jev · reference'), ('qwen35_9b_base', 'Qwen3.5-9B-Base'),
-          ('qev_9b', 'Qev-9B'), ('kev_9b', 'Kev-9B'),
-          ('qwen35_2b_base', 'Qwen3.5-2B-Base'), ('qev_2b', 'Qev-2B')]
+MATRIX = [('jev', 'Jev · reference'), ('qev_9b', 'Qev-9B'),
+          ('kev_9b', 'Kev-9B'), ('qwen35_9b_base', 'Qwen3.5-9B-Base'),
+          ('qev_2b', 'Qev-2B'), ('qwen35_2b_base', 'Qwen3.5-2B-Base')]
 
 
 def save(fig, name):
@@ -78,9 +78,11 @@ def main():
     ax.set_xticks(range(len(PANELS)), [title for _,title,_ in PANELS], fontsize=9.5, color='#35445e')
     ax.set_yticks(range(len(MATRIX)), [name for _,name in MATRIX], fontsize=10.5, color='#35445e')
     ax.tick_params(length=0, pad=9)
-    for row in range(len(MATRIX)):
-        for col in range(len(PANELS)):
-            bold = row in (2,3) and values[row,col] > values[5-row,col]
+    comparisons = {'qev_9b': 'kev_9b', 'kev_9b': 'qev_9b'}
+    for row, (model, _) in enumerate(MATRIX):
+        for col, (key, _, _) in enumerate(PANELS):
+            other = comparisons.get(model)
+            bold = other is not None and results[key]['models'][model]['accuracy'] > results[key]['models'][other]['accuracy']
             ax.text(col,row,f'{values[row,col]:.2f}',ha='center',va='center',fontsize=11,
                     color='white' if values[row,col]>=65 else '#35445e',fontweight='bold' if bold else 'normal')
     ax.set_xticks(np.arange(-.5, len(PANELS), 1), minor=True)
