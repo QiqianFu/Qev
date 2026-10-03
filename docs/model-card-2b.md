@@ -43,19 +43,18 @@ To fine-tune on your own data, use `configs/qev-2b-finetune.json` with `python -
 
 | Benchmark | Qwen3.5-2B-Base | Qev-2B |
 |---|---:|---:|
+| JevBench public · 231 | 63.20 | 74.46 |
 | Decision development · clean | 65.43 | 85.36 |
 | Transfer development · clean | 65.09 | 77.29 |
 | MMLU-Pro · 1,000 | 31.20 | 38.70 |
 | SemIf · 144 handwritten | 63.89 | 82.64 |
 | scienthoon · 873 | 53.84 | 71.94 |
 | WANLI · 256 | 50.39 | 67.58 |
-| JevBench public · 231 | 63.20 | 74.46 |
 | GSM8K · multiple choice | 30.40 | 37.76 |
 | ChessBench | 8.84 | 10.98 |
-| Amazon ESCI · macro-F1 | 28.10 | 36.34 |
 | BPoMP · variant mean | 50.50 | 73.81 |
 
-Scores (%). The four new rows use [Decision Index raw scores](decision-index.md); the original rows use accuracy. Public JevBench accuracy is 172/231. These are the selected checkpoint's recorded results. The native base uses its language-model head and zero-shot prompts. The comparison therefore includes architecture, training and readout differences; it does not isolate the contribution of response distillation. [Full results](evaluation.md).
+Scores (%). The three new rows use [Decision Index raw scores](decision-index.md); the original rows use accuracy. Public JevBench accuracy is 172/231. These are the selected checkpoint's recorded results. The native base uses its language-model head and zero-shot prompts. The comparison therefore includes architecture, training and readout differences; it does not isolate the contribution of response distillation. [Full results](evaluation.md).
 
 The package includes the LoRA adapter, decision head, interaction gate, tokenizer, model configuration, both training configurations, recorded evaluation results and license files. The three trained tensor files preserve the selected checkpoint exactly; optimizer state and base weights are excluded.
 

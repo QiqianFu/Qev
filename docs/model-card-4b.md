@@ -63,13 +63,13 @@ The loader restores the LoRA adapter, decision head, interaction gate and tokeni
 
 | Benchmark | Correct / total | Accuracy (%) |
 |---|---:|---:|
+| JevBench public | 190 / 231 | 82.25 |
 | Decision development · clean | 1099 / 1264 | 86.95 |
 | Transfer development · clean | 538 / 656 | 82.01 |
 | MMLU-Pro | 503 / 1000 | 50.30 |
 | SemIf · handwritten | 130 / 144 | 90.28 |
 | scienthoon | 670 / 873 | 76.75 |
 | WANLI | 188 / 256 | 73.44 |
-| JevBench public | 190 / 231 | 82.25 |
 
 Results use BF16 backbone computation, an FP32 head, temperature 1 and full causal reference execution. There were zero rejected questions in all seven original evaluations. The development and SemIf rows use the same subsets as the [Qev leaderboard](https://github.com/QiqianFu/Qev#evaluation); full-suite counts are included in `evaluation.json`.
 
@@ -83,10 +83,9 @@ These are measurements from one checkpoint and seed. Training data and objective
 |---|---:|---:|
 | GSM8K · multiple choice | 37.00 | 54.59 |
 | ChessBench · 5,000 | 11.78 | 12.42 |
-| Amazon ESCI · macro-F1 | 29.18 | 42.49 |
 | BPoMP · variant mean | 68.95 | 78.19 |
 
-These are Decision Index 0.2.1 raw scores (%); ESCI uses macro-F1 and BPoMP averages over variants. [Scoring definitions and sources](https://github.com/QiqianFu/Qev/blob/main/docs/decision-index.md).
+These are Decision Index 0.2.1 raw scores (%); BPoMP averages over variants. [Scoring definitions and sources](https://github.com/QiqianFu/Qev/blob/main/docs/decision-index.md).
 
 ## Training and availability
 

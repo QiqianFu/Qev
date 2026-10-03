@@ -11,16 +11,15 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 PANELS = [
+    ('jevbench_public', 'JevBench', '231 public'),
     ('decision_dev_clean', 'Decision dev', '1,264 clean'),
     ('transfer_dev_clean', 'Transfer dev', '656 clean'),
     ('mmlupro', 'MMLU-Pro', '1,000 questions'),
     ('semif_handwritten', 'SemIf', '144 handwritten'),
     ('scienthoon', 'scienthoon', '873 questions'),
     ('wanli', 'WANLI', '256 questions'),
-    ('jevbench_public', 'JevBench', '231 public'),
     ('gsm8k', 'GSM8K', '4 / 10 choices'),
     ('chessbench', 'ChessBench', '5,000 positions'),
-    ('esci', 'Amazon ESCI', 'macro-F1'),
     ('bpomp', 'BPoMP', 'variant mean'),
 ]
 COVER_PANELS = [panel for panel in PANELS if panel[0] != 'decision_dev_clean']
@@ -82,14 +81,14 @@ def main():
     for i, (_, title, count) in enumerate(COVER_PANELS):
         ax.text(i, -.07, title, transform=ax.get_xaxis_transform(), ha='center', va='top', fontsize=10, color='#35445e')
         ax.text(i, -.16, count, transform=ax.get_xaxis_transform(), ha='center', va='top', fontsize=9, color='#8190a6')
-    fig.text(.065, .035, 'Qev: BF16 backbone. Kev / JevAny: FP32. New benchmarks use Decision Index raw scores; ESCI uses macro-F1.', fontsize=9, color='#8190a6')
+    fig.text(.065, .035, 'Qev: BF16 backbone. Kev / JevAny: FP32. New benchmarks use Decision Index raw scores.', fontsize=9, color='#8190a6')
     save(fig, 'evaluation')
 
     values = np.array([[100*score(results[key], model) for key,_,_ in PANELS] for model,_ in MATRIX])
     fig, ax = plt.subplots(figsize=(16.8, 7.7))
     fig.subplots_adjust(left=.205, right=.983, top=.84, bottom=.13)
     fig.text(.038, .95, 'Qev · benchmark matrix', fontsize=17, fontweight='semibold', color='#35445e')
-    fig.text(.038, .902, 'Scores (%) · eleven benchmarks across the Qev family, native bases and reference models', fontsize=10.5, color='#7c89a0')
+    fig.text(.038, .902, 'Scores (%) · ten benchmarks across the Qev family, native bases and reference models', fontsize=10.5, color='#7c89a0')
     ax.imshow(values, cmap='Purples', vmin=0, vmax=100, aspect='auto')
     ax.set_xticks(range(len(PANELS)), [title for _,title,_ in PANELS], fontsize=9.5, color='#35445e')
     ax.set_yticks(range(len(MATRIX)), [name for _,name in MATRIX], fontsize=10.5, color='#35445e')
@@ -105,7 +104,7 @@ def main():
     ax.set_yticks(np.arange(-.5, len(MATRIX), 1), minor=True)
     ax.grid(which='minor', color='white', linewidth=3); ax.tick_params(which='minor', bottom=False, left=False)
     for spine in ax.spines.values():spine.set_visible(False)
-    fig.text(.038, .035, 'Development: clean. SemIf: handwritten. New tasks: Decision Index raw scores (ESCI macro-F1; BPoMP mean across variants).', fontsize=9, color='#8190a6')
+    fig.text(.038, .035, 'Development: clean. SemIf: handwritten. New tasks: Decision Index raw scores (BPoMP mean across variants).', fontsize=9, color='#8190a6')
     save(fig, 'evaluation-matrix')
 
 

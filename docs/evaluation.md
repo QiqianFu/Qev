@@ -27,7 +27,7 @@ Kev's published results are available in its [evaluation reports](https://github
 
 ## Benchmark matrix
 
-![Eleven models across eleven benchmarks](../assets/evaluation-matrix.svg)
+![Eleven models across ten benchmarks](../assets/evaluation-matrix.svg)
 
 ## Full accuracy table
 
@@ -37,6 +37,7 @@ Percent accuracy. Each released Qev model is a single seed. Bold scores mark the
 
 | Scope | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
+| JevBench public · 231 | 85.71 | **83.12** | 75.76 | 75.76 | 82.25 | 67.10 | 74.46 | 63.20 |
 | decision_dev all · 1468 | 83.17 | **88.22** | 87.81 | 75.75 | 87.60 | 71.53 | 86.24 | 63.15 |
 | decision_dev clean · 1264 | 84.49 | **87.42** | 87.18 | 77.69 | 86.95 | 73.73 | 85.36 | 65.43 |
 | transfer_dev all · 764 | 84.69 | **82.46** | 81.15 | 73.43 | 80.89 | 70.29 | 76.44 | 64.53 |
@@ -45,7 +46,6 @@ Percent accuracy. Each released Qev model is a single seed. Bold scores mark the
 | SemIf · 144 handwritten | 96.53 | **93.06** | 90.97 | 90.28 | 90.28 | 77.08 | 82.64 | 63.89 |
 | scienthoon · 873 | 75.26 | 71.02 | **75.49** | 68.84 | 76.75 | 74.34 | 71.94 | 53.84 |
 | WANLI · 256 | 75.78 | **71.09** | 70.31 | 67.97 | 73.44 | 60.55 | 67.58 | 50.39 |
-| JevBench public · 231 | 85.71 | **83.12** | 75.76 | 75.76 | 82.25 | 67.10 | 74.46 | 63.20 |
 
 The all-question dev rows include clean examples and candidate-permutation / None-present / None-absent variants. Clean rows match the clean reporting convention in Kev's README. SemIf uses 144 handwritten questions. Qev's broader 252-question research run also included 108 perturbations; its 94.05% overall score is not the 144-question comparison above.
 
@@ -55,32 +55,30 @@ All rows use the same reporting scopes as the README. Bold compares Qev-4B with 
 
 | Benchmark | Jev (reference) | Qev-4B | Kev-4B | JevAny-4B Pointer | JevAny-4B Direct-Token | Qwen3.5-4B-Base |
 |---|---:|---:|---:|---:|---:|---:|
+| JevBench public · 231 | 85.71 | **82.25** | 75.76 | 78.35 | 79.65 | 67.10 |
 | Decision development · clean | 84.49 | 86.95 | **87.26** | 86.63 | 86.23 | 73.73 |
 | Transfer development · clean | 85.67 | **82.01** | 81.71 | 84.60 | 85.52 | 71.49 |
 | MMLU-Pro · 1,000 | 83.50 | 50.30 | **52.40** | 52.30 | 51.10 | 43.50 |
 | SemIf · 144 handwritten | 96.53 | **90.28** | 88.89 | 90.28 | 90.28 | 77.08 |
 | scienthoon · 873 | 75.26 | **76.75** | 72.28 | 69.30 | 68.84 | 74.34 |
 | WANLI · 256 | 75.78 | **73.44** | 68.75 | 71.09 | 71.09 | 60.55 |
-| JevBench public · 231 | 85.71 | **82.25** | 75.76 | 78.35 | 79.65 | 67.10 |
 | GSM8K · multiple choice | 79.87 | 54.59 | **58.49** | 47.61 | 45.03 | 37.00 |
 | ChessBench · 5,000 | 17.22 | **12.42** | 8.80 | 11.32 | 11.72 | 11.78 |
-| Amazon ESCI · macro-F1 | 55.21 | **42.49** | 39.56 | 54.94 | 54.25 | 29.18 |
 | BPoMP · variant mean | 90.92 | **78.19** | 65.28 | 73.87 | 81.29 | 68.95 |
 
 Qev-4B and Kev-4B start from Qwen3.5-4B-Base; JevAny uses the post-trained Qwen3.5-4B base. Qev uses BF16 backbone computation, while the Kev and JevAny runs use FP32. These are model comparisons, with different training data and objectives, rather than isolated architecture comparisons.
 
 ## Decision Index 0.2.1
 
-The four additional benchmarks use the toolkit's official **raw** score, multiplied by 100. ESCI uses macro-F1; BPoMP averages accuracy across poem variants. GSM8K averages the four-choice and ten-choice tracks; ChessBench accepts all tied best moves.
+The three displayed additional benchmarks use the toolkit's official **raw** score, multiplied by 100. BPoMP averages accuracy across poem variants. GSM8K averages the four-choice and ten-choice tracks; ChessBench accepts all tied best moves.
 
 | Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | GSM8K · multiple choice | 79.87 | **61.37** | 46.36 | 55.53 | 54.59 | 37.00 | 37.76 | 30.40 |
 | ChessBench · 5,000 | 17.22 | 9.76 | **11.76** | 13.22 | 12.42 | 11.78 | 10.98 | 8.84 |
-| Amazon ESCI · macro-F1 | 55.21 | 47.57 | **48.09** | 30.56 | 42.49 | 29.18 | 36.34 | 28.10 |
 | BPoMP · variant mean | 90.92 | **77.52** | 66.93 | 59.39 | 78.19 | 68.95 | 73.81 | 50.50 |
 
-All local models answered every item in these four evaluations. Jev's new scores come from the toolkit's pinned public leaderboard, not a new API run. The [method note](decision-index.md) records exact sources, scoring rules and the GSM8K option-construction limitation. Original benchmark scores remain attached to their original evaluations.
+All local models answered every item in these three evaluations. Jev's new scores come from the toolkit's pinned public leaderboard, not a new API run. The [method note](decision-index.md) records exact sources, scoring rules and the GSM8K option-construction limitation. Original benchmark scores remain attached to their original evaluations.
 
 ## Public JevBench breakdown
 

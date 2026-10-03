@@ -118,3 +118,11 @@ The cover now uses one grouped chart with Qev-2B, Qev-4B, Qev-9B and Qwen3.5-9B-
 - Reran the pinned Decision Index 0.2.1 scorer on saved outputs from ten local models. All 40 raw scores, skill values and coverage values matched the recorded summaries. Jev's four reference scores come from the toolkit's frozen leaderboard.
 - Checked every cover label, matrix cell and bilingual README score against the machine-readable results. The single cover chart has ten benchmarks and four series: Qev-4B, JevAny-4B Pointer, Kev-4B and Jev. Decision dev remains in the tables and matrix. Cover labels use one decimal for readability; tables and the matrix use two.
 - Visually inspected the cover and matrix; release and whitespace checks passed. Existing model scores and weights were preserved. No training, GPU inference or benchmark reruns were performed; this update rescored recorded predictions.
+
+## Display scope and order — 2026-10-03
+
+Removed Amazon ESCI from the displayed charts and tables and moved JevBench to the first position. The cover has nine benchmarks and 36 labels; the matrix has ten benchmarks and 110 cells. The recorded metrics remain unchanged. Checked the displayed values and table order, visually inspected the regenerated figures, and ran the release and whitespace checks.
+
+## README layout and method figure — 2026-10-03
+
+Removed the separate model/checkpoint chapter from both READMEs and placed Demos, How decisions are made and Evaluation immediately after Inference, followed by Training. Model-download navigation now targets the existing model selector. The supplied method PDF is included as `assets/method.pdf`, with a self-contained SVG conversion for inline display and a link to the original PDF. Checked section order, navigation targets, SVG references and exact preservation of the supplied PDF.

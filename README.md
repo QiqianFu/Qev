@@ -16,32 +16,20 @@ This repository provides the model architecture, training and evaluation code, P
 
 | Start here | What you can do |
 |---|---|
-| **[Get model weights](#model-and-checkpoints)** | Compare Qev-2B, Qev-4B and Qev-9B and find their checkpoint details |
+| **[Get model weights](#models)** | Compare Qev-2B, Qev-4B and Qev-9B and find their checkpoint details |
 | **[Run a model](#inference)** | Get decisions and option probabilities through Python or JSONL |
 | **[Train a model](#training)** | Prepare labelled data, train from Qwen, or fine-tune an existing Qev checkpoint |
 
 <p align="center">
-  <img src="assets/evaluation.svg" alt="Qev-4B, JevAny-4B Pointer, Kev-4B and Jev compared on ten benchmarks." width="100%">
+  <img src="assets/evaluation.svg" alt="Qev-4B, JevAny-4B Pointer, Kev-4B and Jev compared on nine benchmarks." width="100%">
 </p>
+
+<a id="models"></a>
 
 | Choose a model | Qev-2B | Qev-4B | Qev-9B |
 |---|---|---|---|
 | Role | Compact model with response distillation | Mid-sized model trained directly from the Qwen base | Largest decision model |
 | Get started | [2B model weights](https://huggingface.co/AustinFu/Qev-2B) | [4B model weights](https://huggingface.co/AustinFu/Qev-4B) | [9B model weights](https://huggingface.co/AustinFu/Qev-9B) |
-
-## Model and checkpoints
-
-| Model | Base and architecture | Availability |
-|---|---|---|
-| **Qev-2B** | Qwen3.5-2B-Base, rank-64 LoRA, two-layer 256-dimensional head | [Hugging Face · Download](https://huggingface.co/AustinFu/Qev-2B) |
-| **Qev-4B** | Qwen3.5-4B-Base, rank-64 LoRA, two-layer 256-dimensional head | [Hugging Face · Download](https://huggingface.co/AustinFu/Qev-4B) |
-| **Qev-9B** | Qwen3.5-9B-Base, rank-64 LoRA, two-layer 256-dimensional set head | [Hugging Face · Download](https://huggingface.co/AustinFu/Qev-9B) |
-
-Qev-9B v0.2.0 combines general decision data with HelpSteer3 Principle and 600 synthetic boundary questions in the main training set. Additional alignment and document-rule examples are mixed into the second half of training and repeated three times. The download includes the LoRA adapter, decision head, interaction gate, tokenizer and configuration.
-
-Qev-4B starts directly from Qwen3.5-4B-Base and learns a 9B teacher's option probabilities over 44,576 inputs. It uses a single two-epoch training stage and supports 4,096-token paths. [4B training method](docs/training-4b.md).
-
-Qev-2B learns from Qev-9B through probability distillation and programmatic context edits, with an additional loss on representation changes. The adaptation packages download automatically: approximately **284 MiB for 2B**, **524 MiB for 4B** and **690 MiB for 9B**; the loader fetches the corresponding Qwen base separately. See [checkpoint export and loading](docs/checkpoints.md) and the model cards for [2B](docs/model-card-2b.md), [4B](docs/model-card-4b.md) and [9B](docs/model-card.md).
 
 ## Installation
 
@@ -102,6 +90,58 @@ python -m qev.predict \
 
 The default uses shared-prefix caching. Add `--reference` for the execution used in the reported evaluation. Output files must be new; precision and length options are in the [loading guide](docs/checkpoints.md).
 
+## Demos
+
+Recorded Snake and Crafter decision replays from the 9B research models showing action selection and candidate probabilities in the environment. Click either animation for the MP4 version. The recordings retain the research name, BranchKev, in their interface.
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <a href="assets/demos/snake.mp4"><img src="assets/demos/snake.gif" alt="Snake decision replay, with selected actions and probabilities" width="100%"></a>
+      <br><strong>Snake · Sequential action selection</strong>
+    </td>
+    <td width="50%" align="center">
+      <a href="assets/demos/crafter.mp4"><img src="assets/demos/crafter.gif" alt="Crafter decision replay, with goals, actions and probabilities" width="100%"></a>
+      <br><strong>Crafter · Survival and crafting</strong>
+    </td>
+  </tr>
+</table>
+
+[Recording details](docs/demos.md).
+
+## How decisions are made
+
+<p align="center">
+  <a href="assets/method.pdf"><img src="assets/method.svg" alt="Qev method: shared-prefix branch encoding, final-layer candidate interaction, and the set decision head." width="100%"></a>
+</p>
+
+Qev organizes inputs as **state → question → candidate**. Candidate branches read the shared context and produce their own summaries. The set head combines the question and option summaries, using the same scoring function for variable numbers of options. The implementation provides full causal reference execution, prefix caching, and tree execution with branched DeltaNet state.
+
+[Architecture and equations](docs/architecture.md) · [Interactive Chinese decision-head walkthrough](docs/decision-head.html#set-head)
+
+## Evaluation
+
+**Precision: Qev-9B, Qev-4B and Qev-2B use BF16 backbone computation; Kev and JevAny use FP32.** Qev's decision head remains in FP32.
+
+| Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| JevBench public · 231 | 85.71 | **83.12** | 75.76 | 75.76 | 82.25 | 67.10 | 74.46 | 63.20 |
+| Decision development · clean | 84.49 | **87.42** | 87.18 | 77.69 | 86.95 | 73.73 | 85.36 | 65.43 |
+| Transfer development · clean | 85.67 | **83.99** | 82.16 | 74.39 | 82.01 | 71.49 | 77.29 | 65.09 |
+| MMLU-Pro · 1,000 | 83.50 | **57.40** | 51.10 | 50.40 | 50.30 | 43.50 | 38.70 | 31.20 |
+| SemIf · 144 handwritten | 96.53 | **93.06** | 90.97 | 90.28 | 90.28 | 77.08 | 82.64 | 63.89 |
+| scienthoon · 873 | 75.26 | 71.02 | **75.49** | 68.84 | 76.75 | 74.34 | 71.94 | 53.84 |
+| WANLI · 256 | 75.78 | **71.09** | 70.31 | 67.97 | 73.44 | 60.55 | 67.58 | 50.39 |
+| GSM8K · multiple choice | 79.87 | **61.37** | 46.36 | 55.53 | 54.59 | 37.00 | 37.76 | 30.40 |
+| ChessBench · 5,000 | 17.22 | 9.76 | **11.76** | 13.22 | 12.42 | 11.78 | 10.98 | 8.84 |
+| BPoMP · variant mean | 90.92 | **77.52** | 66.93 | 59.39 | 78.19 | 68.95 | 73.81 | 50.50 |
+
+Scores (%): accuracy for the original benchmarks; official Decision Index raw scores for GSM8K, ChessBench and BPoMP, with BPoMP averaged across poem variants. Bold compares Qev-9B with Kev-9B; Jev and native bases are references. The cover compares Qev-4B, JevAny-4B Pointer, Kev-4B and Jev.
+
+[4B comparison, including both JevAny versions](docs/evaluation.md#4b-model-comparison) · [New benchmark methods](docs/decision-index.md).
+
+[Full benchmark matrix](assets/evaluation-matrix.svg) · [Full results, ablations and settings](docs/evaluation.md) · [Machine-readable metrics](results/benchmarks.json) · [All 231 predictions](results/qev-9b/jevbench-predictions.jsonl)
+
 ## Training
 
 ### Prepare data
@@ -145,59 +185,6 @@ Use [configs/qev-4b.json](configs/qev-4b.json) to train from the Qwen base with 
 ### Distill a 2B model
 
 Qev-2B first learns the Qev-9B v0.1.0 teacher's option probabilities with cross entropy. It then learns from programmatic context edits mixed with original-question replay, matching both teacher probabilities and representation changes. See the [2B distillation guide](docs/distillation.md) for data preparation, both training stages and the loss equations.
-
-## Demos
-
-Recorded Snake and Crafter decision replays from the 9B research models showing action selection and candidate probabilities in the environment. Click either animation for the MP4 version. The recordings retain the research name, BranchKev, in their interface.
-
-<table>
-  <tr>
-    <td width="50%" align="center">
-      <a href="assets/demos/snake.mp4"><img src="assets/demos/snake.gif" alt="Snake decision replay, with selected actions and probabilities" width="100%"></a>
-      <br><strong>Snake · Sequential action selection</strong>
-    </td>
-    <td width="50%" align="center">
-      <a href="assets/demos/crafter.mp4"><img src="assets/demos/crafter.gif" alt="Crafter decision replay, with goals, actions and probabilities" width="100%"></a>
-      <br><strong>Crafter · Survival and crafting</strong>
-    </td>
-  </tr>
-</table>
-
-[Recording details](docs/demos.md).
-
-## How decisions are made
-
-<p align="center">
-  <img src="assets/architecture.svg" alt="Qev encodes the context, question and answer options into numeric summaries, then applies four decision-head stages. The diagram explains candidates and vectors e1, e2 and e3." width="100%">
-</p>
-
-Qev organizes inputs as **state → question → candidate**. Candidate branches read the shared context and produce their own summaries. The set head combines the question and option summaries, using the same scoring function for variable numbers of options. The implementation provides full causal reference execution, prefix caching, and tree execution with branched DeltaNet state.
-
-[Architecture and equations](docs/architecture.md) · [Interactive Chinese decision-head walkthrough](docs/decision-head.html#set-head)
-
-## Evaluation
-
-**Precision: Qev-9B, Qev-4B and Qev-2B use BF16 backbone computation; Kev and JevAny use FP32.** Qev's decision head remains in FP32.
-
-| Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Decision development · clean | 84.49 | **87.42** | 87.18 | 77.69 | 86.95 | 73.73 | 85.36 | 65.43 |
-| Transfer development · clean | 85.67 | **83.99** | 82.16 | 74.39 | 82.01 | 71.49 | 77.29 | 65.09 |
-| MMLU-Pro · 1,000 | 83.50 | **57.40** | 51.10 | 50.40 | 50.30 | 43.50 | 38.70 | 31.20 |
-| SemIf · 144 handwritten | 96.53 | **93.06** | 90.97 | 90.28 | 90.28 | 77.08 | 82.64 | 63.89 |
-| scienthoon · 873 | 75.26 | 71.02 | **75.49** | 68.84 | 76.75 | 74.34 | 71.94 | 53.84 |
-| WANLI · 256 | 75.78 | **71.09** | 70.31 | 67.97 | 73.44 | 60.55 | 67.58 | 50.39 |
-| JevBench public · 231 | 85.71 | **83.12** | 75.76 | 75.76 | 82.25 | 67.10 | 74.46 | 63.20 |
-| GSM8K · multiple choice | 79.87 | **61.37** | 46.36 | 55.53 | 54.59 | 37.00 | 37.76 | 30.40 |
-| ChessBench · 5,000 | 17.22 | 9.76 | **11.76** | 13.22 | 12.42 | 11.78 | 10.98 | 8.84 |
-| Amazon ESCI · macro-F1 | 55.21 | 47.57 | **48.09** | 30.56 | 42.49 | 29.18 | 36.34 | 28.10 |
-| BPoMP · variant mean | 90.92 | **77.52** | 66.93 | 59.39 | 78.19 | 68.95 | 73.81 | 50.50 |
-
-Scores (%): accuracy for the original benchmarks; official Decision Index raw scores for the four new tasks, including ESCI macro-F1 and BPoMP mean accuracy across variants. Bold compares Qev-9B with Kev-9B; Jev and native bases are references. The cover compares Qev-4B, JevAny-4B Pointer, Kev-4B and Jev.
-
-[4B comparison, including both JevAny versions](docs/evaluation.md#4b-model-comparison) · [New benchmark methods](docs/decision-index.md).
-
-[Full benchmark matrix](assets/evaluation-matrix.svg) · [Full results, ablations and settings](docs/evaluation.md) · [Machine-readable metrics](results/benchmarks.json) · [All 231 predictions](results/qev-9b/jevbench-predictions.jsonl)
 
 ## Documentation and contributions
 

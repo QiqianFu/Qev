@@ -16,32 +16,20 @@
 
 | 从这里开始 | 可以做什么 |
 |---|---|
-| **[获取模型权重](#模型与检查点)** | 比较 Qev-2B、Qev-4B 与 Qev-9B，查看检查点与下载说明 |
+| **[获取模型权重](#models)** | 比较 Qev-2B、Qev-4B 与 Qev-9B，查看检查点与下载说明 |
 | **[运行模型](#推理)** | 通过 Python 或 JSONL 接口，获取选项概率和决策 |
 | **[训练模型](#训练)** | 准备标注数据，从 Qwen 底座训练，或在 Qev 检查点上继续微调 |
 
 <p align="center">
-  <img src="assets/evaluation.svg" alt="Qev-4B、JevAny-4B Pointer、Kev-4B与Jev在十项评测上的柱状图对比。" width="100%">
+  <img src="assets/evaluation.svg" alt="Qev-4B、JevAny-4B Pointer、Kev-4B与Jev在九项评测上的柱状图对比。" width="100%">
 </p>
+
+<a id="models"></a>
 
 | 选择模型 | Qev-2B | Qev-4B | Qev-9B |
 |---|---|---|---|
 | 定位 | 经过响应蒸馏的轻量模型 | 从 Qwen 底座直接训练的中等规模模型 | 最大规模的决策模型 |
 | 使用 | [2B 模型权重](https://huggingface.co/AustinFu/Qev-2B) | [4B 模型权重](https://huggingface.co/AustinFu/Qev-4B) | [9B 模型权重](https://huggingface.co/AustinFu/Qev-9B) |
-
-## 模型与检查点
-
-| 模型 | 底座与结构 | 当前入口 |
-|---|---|---|
-| **Qev-2B** | Qwen3.5-2B-Base，rank-64 LoRA，256 维两层决策头 | [Hugging Face · 下载](https://huggingface.co/AustinFu/Qev-2B) |
-| **Qev-4B** | Qwen3.5-4B-Base，rank-64 LoRA，256 维两层决策头 | [Hugging Face · 下载](https://huggingface.co/AustinFu/Qev-4B) |
-| **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | [Hugging Face · 下载](https://huggingface.co/AustinFu/Qev-9B) |
-
-Qev-9B v0.2.0 在通用决策主集中加入 HelpSteer3 Principle 和 600 道合成边界题，并在训练后半程混入对齐题与文档规则判断题，重复学习三次。下载包包含 LoRA、决策头、候选交互参数、tokenizer 和模型配置。
-
-Qev-4B 从 Qwen3.5-4B-Base 直接开始，在 44,576 道输入上学习 9B 教师的选项概率。它采用单阶段、两轮训练，支持 4,096 token 的完整路径。[4B 训练方法](docs/training-4b.zh-CN.md)。
-
-Qev-2B 通过教师概率蒸馏、程序化的随机文本编辑，以及内部表示变化的蒸馏，从 Qev-9B 学习。适配权重包会自动下载：**2B 约 284 MiB，4B 约 524 MiB，9B 约 690 MiB**，加载器另行获取对应的 Qwen 底座。本地下载与导出见[检查点指南](docs/checkpoints.md)，完整模型信息见 [2B 模型卡](docs/model-card-2b.md)、[4B 模型卡](docs/model-card-4b.md)和 [9B 模型卡](docs/model-card.md)。
 
 ## 安装
 
@@ -102,6 +90,58 @@ python -m qev.predict \
 
 默认使用共享前缀缓存；复现正式评测的执行路径时加 `--reference`。输出文件使用新名字，精度与长度选项见[加载说明](docs/checkpoints.md)。
 
+## 演示
+
+9B 研究模型在贪吃蛇与 Crafter 中的决策回放录屏，展示环境中的动作选择与候选概率。点击动画可打开 MP4 版本；录屏界面保留了研究阶段的名称 BranchKev。
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <a href="assets/demos/snake.mp4"><img src="assets/demos/snake.gif" alt="贪吃蛇决策回放，展示动作选择与概率" width="100%"></a>
+      <br><strong>贪吃蛇 · 连续动作选择</strong>
+    </td>
+    <td width="50%" align="center">
+      <a href="assets/demos/crafter.mp4"><img src="assets/demos/crafter.gif" alt="Crafter 决策回放，展示目标、动作与概率" width="100%"></a>
+      <br><strong>Crafter · 生存与建造</strong>
+    </td>
+  </tr>
+</table>
+
+[录屏详情](docs/demos.md)。
+
+## 模型怎样作出决策
+
+<p align="center">
+  <a href="assets/method.pdf"><img src="assets/method.svg" alt="Qev 方法图：共享前缀分支编码、末层候选交互与集合决策头。" width="100%"></a>
+</p>
+
+Qev 按 **state → question → candidate** 组织输入。候选分支读取共享上下文，各自形成摘要；集合决策头将问题与候选摘要结合，为不同数量的选项使用同一个打分函数。实现同时提供完整因果参考路径、前缀缓存和带 DeltaNet 分支状态的树形执行。
+
+[模型设计与公式](docs/architecture.md) · [交互式决策头图解](docs/decision-head.html#set-head)
+
+## 评测
+
+**精度对比：Qev-9B、Qev-4B 与 Qev-2B 的主干计算使用 BF16，Kev 和 JevAny 使用 FP32。** Qev 的决策头保持 FP32。
+
+| 评测 | Jev（参考） | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| JevBench公开题 · 231题 | 85.71 | **83.12** | 75.76 | 75.76 | 82.25 | 67.10 | 74.46 | 63.20 |
+| decision_dev · clean | 84.49 | **87.42** | 87.18 | 77.69 | 86.95 | 73.73 | 85.36 | 65.43 |
+| transfer_dev · clean | 85.67 | **83.99** | 82.16 | 74.39 | 82.01 | 71.49 | 77.29 | 65.09 |
+| MMLU-Pro · 1000题 | 83.50 | **57.40** | 51.10 | 50.40 | 50.30 | 43.50 | 38.70 | 31.20 |
+| SemIf · 144道手写题 | 96.53 | **93.06** | 90.97 | 90.28 | 90.28 | 77.08 | 82.64 | 63.89 |
+| scienthoon · 873题 | 75.26 | 71.02 | **75.49** | 68.84 | 76.75 | 74.34 | 71.94 | 53.84 |
+| WANLI · 256题 | 75.78 | **71.09** | 70.31 | 67.97 | 73.44 | 60.55 | 67.58 | 50.39 |
+| GSM8K · 选择题改编 | 79.87 | **61.37** | 46.36 | 55.53 | 54.59 | 37.00 | 37.76 | 30.40 |
+| ChessBench · 5000题 | 17.22 | 9.76 | **11.76** | 13.22 | 12.42 | 11.78 | 10.98 | 8.84 |
+| BPoMP · 变体平均 | 90.92 | **77.52** | 66.93 | 59.39 | 78.19 | 68.95 | 73.81 | 50.50 |
+
+表中均为百分制：原有评测为准确率，GSM8K、ChessBench 和 BPoMP 采用 Decision Index 官方原始分，其中 BPoMP 为不同变体的平均准确率。加粗比较 Qev-9B 与 Kev-9B；Jev 和原生底座作为参考。封面图比较 Qev-4B、JevAny-4B Pointer、Kev-4B 与 Jev。
+
+[4B 完整对比，含两个 JevAny 版本](docs/evaluation.md#4b-model-comparison) · [新增评测方法](docs/decision-index.md)。
+
+[完整评测矩阵](assets/evaluation-matrix.svg) · [完整结果、消融与评测设置](docs/evaluation.md) · [机器可读指标](results/benchmarks.json) · [231 题原始预测](results/qev-9b/jevbench-predictions.jsonl)
+
 ## 训练
 
 ### 准备数据
@@ -145,59 +185,6 @@ python -m qev.train \
 ### 蒸馏 2B 模型
 
 Qev-2B 先用 Qev-9B v0.1.0 教师的选项概率做交叉熵训练，再通过程序化的随机文本编辑构造原题／改写题对，混合原题回放，学习教师的概率和内部表示变化关系。完整的数据准备、两阶段训练命令和损失公式见 [2B 蒸馏训练指南](docs/distillation.zh-CN.md)。
-
-## 演示
-
-9B 研究模型在贪吃蛇与 Crafter 中的决策回放录屏，展示环境中的动作选择与候选概率。点击动画可打开 MP4 版本；录屏界面保留了研究阶段的名称 BranchKev。
-
-<table>
-  <tr>
-    <td width="50%" align="center">
-      <a href="assets/demos/snake.mp4"><img src="assets/demos/snake.gif" alt="贪吃蛇决策回放，展示动作选择与概率" width="100%"></a>
-      <br><strong>贪吃蛇 · 连续动作选择</strong>
-    </td>
-    <td width="50%" align="center">
-      <a href="assets/demos/crafter.mp4"><img src="assets/demos/crafter.gif" alt="Crafter 决策回放，展示目标、动作与概率" width="100%"></a>
-      <br><strong>Crafter · 生存与建造</strong>
-    </td>
-  </tr>
-</table>
-
-[录屏详情](docs/demos.md)。
-
-## 模型怎样作出决策
-
-<p align="center">
-  <img src="assets/architecture.zh-CN.svg" alt="Qev将消息、问题和候选答案编码为数值摘要，再经过四步决策头得到选项分数。图内解释候选答案与e₁、e₂、e₃的含义。" width="100%">
-</p>
-
-Qev 按 **state → question → candidate** 组织输入。候选分支读取共享上下文，各自形成摘要；集合决策头将问题与候选摘要结合，为不同数量的选项使用同一个打分函数。实现同时提供完整因果参考路径、前缀缓存和带 DeltaNet 分支状态的树形执行。
-
-[模型设计与公式](docs/architecture.md) · [交互式决策头图解](docs/decision-head.html#set-head)
-
-## 评测
-
-**精度对比：Qev-9B、Qev-4B 与 Qev-2B 的主干计算使用 BF16，Kev 和 JevAny 使用 FP32。** Qev 的决策头保持 FP32。
-
-| 评测 | Jev（参考） | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| decision_dev · clean | 84.49 | **87.42** | 87.18 | 77.69 | 86.95 | 73.73 | 85.36 | 65.43 |
-| transfer_dev · clean | 85.67 | **83.99** | 82.16 | 74.39 | 82.01 | 71.49 | 77.29 | 65.09 |
-| MMLU-Pro · 1000题 | 83.50 | **57.40** | 51.10 | 50.40 | 50.30 | 43.50 | 38.70 | 31.20 |
-| SemIf · 144道手写题 | 96.53 | **93.06** | 90.97 | 90.28 | 90.28 | 77.08 | 82.64 | 63.89 |
-| scienthoon · 873题 | 75.26 | 71.02 | **75.49** | 68.84 | 76.75 | 74.34 | 71.94 | 53.84 |
-| WANLI · 256题 | 75.78 | **71.09** | 70.31 | 67.97 | 73.44 | 60.55 | 67.58 | 50.39 |
-| JevBench公开题 · 231题 | 85.71 | **83.12** | 75.76 | 75.76 | 82.25 | 67.10 | 74.46 | 63.20 |
-| GSM8K · 选择题改编 | 79.87 | **61.37** | 46.36 | 55.53 | 54.59 | 37.00 | 37.76 | 30.40 |
-| ChessBench · 5000题 | 17.22 | 9.76 | **11.76** | 13.22 | 12.42 | 11.78 | 10.98 | 8.84 |
-| Amazon ESCI · macro-F1 | 55.21 | 47.57 | **48.09** | 30.56 | 42.49 | 29.18 | 36.34 | 28.10 |
-| BPoMP · 变体平均 | 90.92 | **77.52** | 66.93 | 59.39 | 78.19 | 68.95 | 73.81 | 50.50 |
-
-表中均为百分制：原有评测为准确率，新增四项采用 Decision Index 官方原始分，其中 ESCI 为 macro-F1，BPoMP 为不同变体的平均准确率。加粗比较 Qev-9B 与 Kev-9B；Jev 和原生底座作为参考。封面图比较 Qev-4B、JevAny-4B Pointer、Kev-4B 与 Jev。
-
-[4B 完整对比，含两个 JevAny 版本](docs/evaluation.md#4b-model-comparison) · [新增评测方法](docs/decision-index.md)。
-
-[完整评测矩阵](assets/evaluation-matrix.svg) · [完整结果、消融与评测设置](docs/evaluation.md) · [机器可读指标](results/benchmarks.json) · [231 题原始预测](results/qev-9b/jevbench-predictions.jsonl)
 
 ## 文档与贡献
 

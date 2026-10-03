@@ -100,24 +100,23 @@ The main and late partitions intentionally share 249 replay records. [Qev-train]
 **Qev-9B uses BF16 backbone computation; Kev-9B uses FP32.**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/QiqianFu/Qev/main/assets/evaluation-matrix.svg" alt="Qev models, native bases and reference models across eleven benchmarks." width="100%">
+  <img src="https://raw.githubusercontent.com/QiqianFu/Qev/main/assets/evaluation-matrix.svg" alt="Qev models, native bases and reference models across ten benchmarks." width="100%">
 </p>
 
 | Benchmark | Jev (reference) | Qwen3.5-9B-Base | Qev-9B | Kev-9B |
 |---|---:|---:|---:|---:|
+| JevBench public · 231 | 85.71 | 75.76 | **83.12** | 75.76 |
 | Decision development · clean | 84.49 | 77.69 | **87.42** | 87.18 |
 | Transfer development · clean | 85.67 | 74.39 | **83.99** | 82.16 |
 | MMLU-Pro · 1,000 | 83.50 | 50.40 | **57.40** | 51.10 |
 | SemIf · 144 handwritten | 96.53 | 90.28 | **93.06** | 90.97 |
 | scienthoon · 873 | 75.26 | 68.84 | 71.02 | **75.49** |
 | WANLI · 256 | 75.78 | 67.97 | **71.09** | 70.31 |
-| JevBench public · 231 | 85.71 | 75.76 | **83.12** | 75.76 |
 | GSM8K · multiple choice | 79.87 | 55.53 | **61.37** | 46.36 |
 | ChessBench | 17.22 | 13.22 | 9.76 | **11.76** |
-| Amazon ESCI · macro-F1 | 55.21 | 30.56 | 47.57 | **48.09** |
 | BPoMP · variant mean | 90.92 | 59.39 | **77.52** | 66.93 |
 
-Scores (%). The new GSM8K, ChessBench, ESCI and BPoMP rows use [Decision Index raw scores](https://github.com/QiqianFu/Qev/blob/main/docs/decision-index.md); the original rows use accuracy. Bold compares Qev with Kev.
+Scores (%). The new GSM8K, ChessBench and BPoMP rows use [Decision Index raw scores](https://github.com/QiqianFu/Qev/blob/main/docs/decision-index.md); the original rows use accuracy. Bold compares Qev with Kev.
 
 These are the recorded results for the released checkpoint, using full causal reference execution. The selected model is a single seed, and public benchmarks were observed during research iteration. The comparisons do not isolate architecture gains. [Results, sources, and reproduction commands](https://github.com/QiqianFu/Qev/blob/main/docs/evaluation.md).
 
