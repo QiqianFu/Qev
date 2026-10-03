@@ -19,10 +19,11 @@ PANELS = [
     ('wanli', 'WANLI', '256 questions'),
     ('jevbench_public', 'JevBench', '231 public'),
 ]
-GROUPS = [
-    ('9B models', [('qev_9b', 'Qev-9B · BF16', '#7652bb'), ('qwen35_9b_base', 'Qwen3.5-9B-Base · BF16', '#94a5b9')]),
-    ('4B model', [('qev_4b', 'Qev-4B · BF16', '#9468c4')]),
-    ('2B models', [('qev_2b', 'Qev-2B · BF16', '#ae7ed6'), ('qwen35_2b_base', 'Qwen3.5-2B-Base · BF16', '#94a5b9')]),
+BAR_MODELS = [
+    ('qev_2b', 'Qev-2B', '#ae7ed6'),
+    ('qev_4b', 'Qev-4B', '#9468c4'),
+    ('qev_9b', 'Qev-9B', '#7652bb'),
+    ('qwen35_9b_base', 'Qwen3.5-9B-Base', '#94a5b9'),
 ]
 MATRIX = [('jev', 'Jev · reference'), ('qev_9b', 'Qev-9B'),
           ('kev_9b', 'Kev-9B'), ('qwen35_9b_base', 'Qwen3.5-9B-Base'),
@@ -43,32 +44,30 @@ def save(fig, name):
 def main():
     results = json.loads((ROOT/'results/benchmarks.json').read_text())['results']
     plt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 11, 'svg.fonttype': 'none'})
-    fig, axes = plt.subplots(3, 1, figsize=(12.8, 11.8), sharex=True)
-    fig.subplots_adjust(left=.072, right=.992, bottom=.11, top=.9, hspace=.45)
-    fig.text(.072, .971, 'Qev · 9B, 4B and 2B', fontsize=18, fontweight='semibold', color='#35445e')
-    fig.text(.072, .944, 'Decision accuracy on the same seven benchmark subsets', fontsize=11, color='#7c89a0')
-    for group_index, (ax, (title, models)) in enumerate(zip(axes, GROUPS)):
-        ax.text(0, 1.07, title, transform=ax.transAxes, fontsize=12, fontweight='semibold', color='#35445e')
-        ax.legend(handles=[Patch(facecolor=c, label=n) for _,n,c in models], loc='lower right',
-                  bbox_to_anchor=(1, 1.02), ncol=2, frameon=False, labelcolor='#46546b', fontsize=10)
-        for i, (key, _, _) in enumerate(PANELS):
-            row = results[key]
-            values = [100*row['models'][model]['correct']/row['total'] for model,_,_ in models]
-            for j, (_,_,color) in enumerate(models):
-                x = i + (j - (len(models)-1)/2) * .37
-                ax.bar(x, values[j], width=.44 if len(models)==1 else .315, color=color, linewidth=0, zorder=3)
-                ax.text(x, values[j]+2, f'{values[j]:.2f}', ha='center', va='bottom', fontsize=10.4,
-                        color='#40516a', fontweight='bold' if group_index==0 and values[j]>values[1-j] else 'normal')
-        ax.set_ylim(0, 108); ax.set_xlim(-.65, len(PANELS)-.35); ax.set_xticks([])
-        ax.set_yticks([0,20,40,60,80,100]); ax.set_ylabel('Accuracy (%)', color='#7c89a0', fontsize=10)
-        ax.tick_params(axis='y', length=0, pad=8, labelcolor='#8190a6', labelsize=9)
-        ax.yaxis.grid(True, color='#e9edf4', linewidth=.8, zorder=0)
-        for name, spine in ax.spines.items():
-            spine.set_visible(name=='bottom'); spine.set_color('#d7dfea')
+    fig, ax = plt.subplots(figsize=(13.6, 5.6))
+    fig.subplots_adjust(left=.065, right=.992, bottom=.21, top=.74)
+    fig.text(.065, .951, 'Qev · 2B, 4B and 9B', fontsize=18, fontweight='semibold', color='#35445e')
+    fig.text(.065, .885, 'Decision accuracy on the same seven benchmark subsets', fontsize=11, color='#7c89a0')
+    ax.legend(handles=[Patch(facecolor=c, label=n) for _,n,c in BAR_MODELS], loc='lower left',
+              bbox_to_anchor=(-.007, 1.025), ncol=4, frameon=False, labelcolor='#46546b', fontsize=10)
+    for i, (key, _, _) in enumerate(PANELS):
+        row = results[key]
+        for j, (model, _, color) in enumerate(BAR_MODELS):
+            value = 100*row['models'][model]['correct']/row['total']
+            x = i + (j - (len(BAR_MODELS)-1)/2) * .225
+            ax.bar(x, value, width=.195, color=color, linewidth=0, zorder=3)
+            ax.text(x, value+2, f'{value:.2f}', ha='center', va='bottom', fontsize=8.8,
+                    color='#40516a')
+    ax.set_ylim(0, 108); ax.set_xlim(-.58, len(PANELS)-.42); ax.set_xticks([])
+    ax.set_yticks([0,20,40,60,80,100]); ax.set_ylabel('Accuracy (%)', color='#7c89a0', fontsize=10)
+    ax.tick_params(axis='y', length=0, pad=8, labelcolor='#8190a6', labelsize=9)
+    ax.yaxis.grid(True, color='#e9edf4', linewidth=.8, zorder=0)
+    for name, spine in ax.spines.items():
+        spine.set_visible(name=='bottom'); spine.set_color('#d7dfea')
     for i, (_, title, count) in enumerate(PANELS):
-        axes[-1].text(i, -.065, title, transform=axes[-1].get_xaxis_transform(), ha='center', va='top', fontsize=10.5, color='#35445e')
-        axes[-1].text(i, -.148, count, transform=axes[-1].get_xaxis_transform(), ha='center', va='top', fontsize=9, color='#8190a6')
-    fig.text(.072, .035, 'Qev uses BF16 backbone computation and an FP32 decision head. Bold labels compare Qev-9B with Qwen3.5-9B-Base.', fontsize=9, color='#8190a6')
+        ax.text(i, -.07, title, transform=ax.get_xaxis_transform(), ha='center', va='top', fontsize=10.5, color='#35445e')
+        ax.text(i, -.16, count, transform=ax.get_xaxis_transform(), ha='center', va='top', fontsize=9, color='#8190a6')
+    fig.text(.065, .035, 'All four models use BF16 backbone computation. Qev retains an FP32 decision head.', fontsize=9, color='#8190a6')
     save(fig, 'evaluation')
 
     values = np.array([[100*results[key]['models'][model]['accuracy'] for key,_,_ in PANELS] for model,_ in MATRIX])

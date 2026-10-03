@@ -21,7 +21,7 @@
 | **[训练模型](#训练)** | 准备标注数据，从 Qwen 底座训练，或在 Qev 检查点上继续微调 |
 
 <p align="center">
-  <img src="assets/evaluation.svg" alt="Qev-9B、Qev-2B与对应Qwen底座的比较，以及Qev-4B在相同七组评测上的成绩。" width="100%">
+  <img src="assets/evaluation.svg" alt="Qev-2B、Qev-4B、Qev-9B与Qwen3.5-9B-Base在相同七组评测上的柱状图对比。" width="100%">
 </p>
 
 | 选择模型 | Qev-2B | Qev-4B | Qev-9B |

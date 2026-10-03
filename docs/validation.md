@@ -107,3 +107,7 @@ The [4B release](https://huggingface.co/AustinFu/Qev-4B/tree/v0.1.0) is the 2,78
 - Downloaded all 25 published files anonymously in a fresh cache and compared them with the prepared package. Verified the `v0.1.0` tag through Qev's checkpoint resolver.
 
 These checks cover packaging and the training-code changes. The reported model scores come from the original saved evaluation; full-size 4B GPU inference and benchmarks were not rerun for this release.
+
+## Cover chart layout — 2026-10-02
+
+The cover now uses one grouped chart with Qev-2B, Qev-4B, Qev-9B and Qwen3.5-9B-Base, in that order. All 28 labels were checked against the recorded benchmark counts, and the rendered chart was visually inspected. The benchmark matrix and scores are unchanged. English and Chinese image descriptions were updated; no model training or inference code changed.

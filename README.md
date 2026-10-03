@@ -21,7 +21,7 @@ This repository provides the model architecture, training and evaluation code, P
 | **[Train a model](#training)** | Prepare labelled data, train from Qwen, or fine-tune an existing Qev checkpoint |
 
 <p align="center">
-  <img src="assets/evaluation.svg" alt="Qev-9B and Qev-2B versus their Qwen bases, plus Qev-4B on the same seven benchmarks." width="100%">
+  <img src="assets/evaluation.svg" alt="Qev-2B, Qev-4B, Qev-9B and Qwen3.5-9B-Base compared on seven matched benchmarks." width="100%">
 </p>
 
 | Choose a model | Qev-2B | Qev-4B | Qev-9B |
