@@ -1,0 +1,86 @@
+{
+  "model": "jevany_4b_direct",
+  "date": "2026-10-03",
+  "full_suite": {
+    "decision_dev": {
+      "correct": 1278,
+      "total": 1468,
+      "accuracy": 0.8705722070844687,
+      "rejected": 0
+    },
+    "transfer_dev": {
+      "correct": 660,
+      "total": 764,
+      "accuracy": 0.8638743455497382,
+      "rejected": 0
+    },
+    "mmlupro": {
+      "correct": 511,
+      "total": 1000,
+      "accuracy": 0.511,
+      "rejected": 0
+    },
+    "semif": {
+      "correct": 233,
+      "total": 252,
+      "accuracy": 0.9246031746031746,
+      "rejected": 0
+    },
+    "scienthoon": {
+      "correct": 601,
+      "total": 873,
+      "accuracy": 0.6884306987399771,
+      "rejected": 0
+    },
+    "wanli": {
+      "correct": 182,
+      "total": 256,
+      "accuracy": 0.7109375,
+      "rejected": 0
+    },
+    "public": {
+      "correct": 184,
+      "total": 231,
+      "accuracy": 0.7965367965367965,
+      "rejected": 0
+    }
+  },
+  "matched_subsets": {
+    "decision_dev_all": {
+      "correct": 1278,
+      "total": 1468
+    },
+    "decision_dev_clean": {
+      "correct": 1090,
+      "total": 1264
+    },
+    "transfer_dev_all": {
+      "correct": 660,
+      "total": 764
+    },
+    "transfer_dev_clean": {
+      "correct": 561,
+      "total": 656
+    },
+    "semif_handwritten": {
+      "correct": 130,
+      "total": 144
+    },
+    "mmlupro": {
+      "correct": 511,
+      "total": 1000
+    },
+    "scienthoon": {
+      "correct": 601,
+      "total": 873
+    },
+    "wanli": {
+      "correct": 182,
+      "total": 256
+    },
+    "jevbench_public": {
+      "correct": 184,
+      "total": 231
+    }
+  }
+}

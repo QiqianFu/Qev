@@ -1,0 +1,820 @@
+{
+  "date": "2026-10-03",
+  "edition": "0.2.1",
+  "metric": "official_raw_score",
+  "code_revision": "87d4650b42b377c0291a89c1f1a879f9b31082bf",
+  "source_url": "https://github.com/apolinario/decision-index/tree/87d4650b42b377c0291a89c1f1a879f9b31082bf",
+  "jev_reference_url": "https://github.com/apolinario/decision-index/blob/87d4650b42b377c0291a89c1f1a879f9b31082bf/tests/fixtures/board-0.2.1.json",
+  "results": {
+    "gsm8k": {
+      "catalog_id": 30,
+      "title": "GSM8K",
+      "metric": "mean track accuracy",
+      "total": 2638,
+      "models": {
+        "qwen35_2b_base": {
+          "raw": 0.304,
+          "skill": 0.1609,
+          "coverage": 1.0,
+          "answered": 2638,
+          "native_score": 0.30401819560272936,
+          "tracks": [
+            {
+              "track": "GSM8K-4choice",
+              "raw": 0.40788476118271416,
+              "skill": 0.21051301491028554,
+              "random": 0.25,
+              "coverage": 1
+            },
+            {
+              "track": "GSM8K-10choice",
+              "raw": 0.2001516300227445,
+              "skill": 0.11127958891416054,
+              "random": 0.1,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qev_2b": {
+          "raw": 0.3776,
+          "skill": 0.2531,
+          "coverage": 1.0,
+          "answered": 2638,
+          "native_score": 0.3775587566338135,
+          "tracks": [
+            {
+              "track": "GSM8K-4choice",
+              "raw": 0.5026535253980288,
+              "skill": 0.3368713671973717,
+              "random": 0.25,
+              "coverage": 1
+            },
+            {
+              "track": "GSM8K-10choice",
+              "raw": 0.25246398786959817,
+              "skill": 0.16940443096622018,
+              "random": 0.1,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qwen35_4b_base": {
+          "raw": 0.37,
+          "skill": 0.2381,
+          "coverage": 1.0,
+          "answered": 2638,
+          "native_score": 0.36997725549658833,
+          "tracks": [
+            {
+              "track": "GSM8K-4choice",
+              "raw": 0.44275966641395,
+              "skill": 0.2570128885519333,
+              "random": 0.25,
+              "coverage": 1
+            },
+            {
+              "track": "GSM8K-10choice",
+              "raw": 0.2971948445792267,
+              "skill": 0.2191053828658074,
+              "random": 0.1,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qev_4b": {
+          "raw": 0.5459,
+          "skill": 0.4585,
+          "coverage": 1.0,
+          "answered": 2638,
+          "native_score": 0.5458680818802123,
+          "tracks": [
+            {
+              "track": "GSM8K-4choice",
+              "raw": 0.6679302501895376,
+              "skill": 0.5572403335860501,
+              "random": 0.25,
+              "coverage": 1
+            },
+            {
+              "track": "GSM8K-10choice",
+              "raw": 0.42380591357088704,
+              "skill": 0.3597843484120967,
+              "random": 0.1,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qwen35_9b_base": {
+          "raw": 0.5553,
+          "skill": 0.4642,
+          "coverage": 1.0,
+          "answered": 2638,
+          "native_score": 0.5553449583017438,
+          "tracks": [
+            {
+              "track": "GSM8K-4choice",
+              "raw": 0.624715693707354,
+              "skill": 0.4996209249431387,
+              "random": 0.25,
+              "coverage": 1
+            },
+            {
+              "track": "GSM8K-10choice",
+              "raw": 0.48597422289613346,
+              "skill": 0.4288602476623705,
+              "random": 0.1,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qev_9b": {
+          "raw": 0.6137,
+          "skill": 0.539,
+          "coverage": 1.0,
+          "answered": 2638,
+          "native_score": 0.6137225170583775,
+          "tracks": [
+            {
+              "track": "GSM8K-4choice",
+              "raw": 0.714177407126611,
+              "skill": 0.618903209502148,
+              "random": 0.25,
+              "coverage": 1
+            },
+            {
+              "track": "GSM8K-10choice",
+              "raw": 0.513267626990144,
+              "skill": 0.4591862522112712,
+              "random": 0.1,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "kev_9b": {
+          "raw": 0.4636,
+          "skill": 0.357,
+          "coverage": 1.0,
+          "answered": 2638,
+          "native_score": 0.4636087945413192,
+          "tracks": [
+            {
+              "track": "GSM8K-4choice",
+              "raw": 0.5769522365428355,
+              "skill": 0.43593631539044725,
+              "random": 0.25,
+              "coverage": 1
+            },
+            {
+              "track": "GSM8K-10choice",
+              "raw": 0.3502653525398029,
+              "skill": 0.2780726139331143,
+              "random": 0.1,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "kev_4b": {
+          "raw": 0.5849,
+          "skill": 0.5003,
+          "coverage": 1.0,
+          "answered": 2638,
+          "native_score": 0.5849128127369219,
+          "tracks": [
+            {
+              "track": "GSM8K-4choice",
+              "raw": 0.6535253980288097,
+              "skill": 0.5380338640384129,
+              "random": 0.25,
+              "coverage": 1
+            },
+            {
+              "track": "GSM8K-10choice",
+              "raw": 0.5163002274450341,
+              "skill": 0.46255580827226017,
+              "random": 0.1,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "jevany_4b_pointer": {
+          "raw": 0.4761,
+          "skill": 0.3736,
+          "coverage": 1.0,
+          "answered": 2638,
+          "native_score": 0.4761182714177407,
+          "tracks": [
+            {
+              "track": "GSM8K-4choice",
+              "raw": 0.601213040181956,
+              "skill": 0.46828405357594133,
+              "random": 0.25,
+              "coverage": 1
+            },
+            {
+              "track": "GSM8K-10choice",
+              "raw": 0.3510235026535254,
+              "skill": 0.2789150029483615,
+              "random": 0.1,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "jevany_4b_direct": {
+          "raw": 0.4503,
+          "skill": 0.3407,
+          "coverage": 1.0,
+          "answered": 2638,
+          "native_score": 0.45034116755117515,
+          "tracks": [
+            {
+              "track": "GSM8K-4choice",
+              "raw": 0.5625473843821076,
+              "skill": 0.41672984584281014,
+              "random": 0.25,
+              "coverage": 1
+            },
+            {
+              "track": "GSM8K-10choice",
+              "raw": 0.33813495072024263,
+              "skill": 0.2645943896891585,
+              "random": 0.1,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "jev": {
+          "raw": 0.7987,
+          "skill": 0.7565,
+          "coverage": 1,
+          "source": "published_leaderboard",
+          "version": "Jev 1.13.0"
+        }
+      }
+    },
+    "chessbench": {
+      "catalog_id": 31,
+      "title": "ChessBench",
+      "metric": "best-move accuracy, accepting tied optima",
+      "total": 5000,
+      "models": {
+        "qwen35_2b_base": {
+          "raw": 0.0884,
+          "skill": 0.0071,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.0884,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.0884,
+              "skill": 0.00712784287150035,
+              "random": 0.0818556110623024,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qev_2b": {
+          "raw": 0.1098,
+          "skill": 0.0304,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.1098,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.1098,
+              "skill": 0.03043572369922071,
+              "random": 0.0818556110623024,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qwen35_4b_base": {
+          "raw": 0.1178,
+          "skill": 0.0391,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.1178,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.1178,
+              "skill": 0.0391489501768732,
+              "random": 0.0818556110623024,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qev_4b": {
+          "raw": 0.1242,
+          "skill": 0.0461,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.1242,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.1242,
+              "skill": 0.04611953135899518,
+              "random": 0.0818556110623024,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qwen35_9b_base": {
+          "raw": 0.1322,
+          "skill": 0.0548,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.1322,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.1322,
+              "skill": 0.054832757836647664,
+              "random": 0.0818556110623024,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qev_9b": {
+          "raw": 0.0976,
+          "skill": 0.0171,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.0976,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.0976,
+              "skill": 0.0171480533208007,
+              "random": 0.0818556110623024,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "kev_9b": {
+          "raw": 0.1176,
+          "skill": 0.0389,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.1176,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.1176,
+              "skill": 0.038931119514931875,
+              "random": 0.0818556110623024,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "kev_4b": {
+          "raw": 0.088,
+          "skill": 0.0067,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.088,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.088,
+              "skill": 0.0066921815476177135,
+              "random": 0.0818556110623024,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "jevany_4b_pointer": {
+          "raw": 0.1132,
+          "skill": 0.0341,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.1132,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.1132,
+              "skill": 0.03413884495222302,
+              "random": 0.0818556110623024,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "jevany_4b_direct": {
+          "raw": 0.1172,
+          "skill": 0.0385,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.1172,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.1172,
+              "skill": 0.038495458191049256,
+              "random": 0.0818556110623024,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "jev": {
+          "raw": 0.1722,
+          "skill": 0.0984,
+          "coverage": 1,
+          "source": "published_leaderboard",
+          "version": "Jev 1.13.0"
+        }
+      }
+    },
+    "esci": {
+      "catalog_id": 37,
+      "title": "Amazon ESCI",
+      "metric": "macro-F1",
+      "total": 5000,
+      "models": {
+        "qwen35_2b_base": {
+          "raw": 0.281,
+          "skill": 0.0982,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.281041285029981,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.281041285029981,
+              "skill": 0.09821544691532137,
+              "random": 0.20273782411694521,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qev_2b": {
+          "raw": 0.3634,
+          "skill": 0.2015,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.3634004876980141,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.3634004876980141,
+              "skill": 0.2015179804599628,
+              "random": 0.20273782411694521,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qwen35_4b_base": {
+          "raw": 0.2918,
+          "skill": 0.1117,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.2918028420723953,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.2918028420723953,
+              "skill": 0.11171358763734261,
+              "random": 0.20273782411694521,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qev_4b": {
+          "raw": 0.4249,
+          "skill": 0.2786,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.4248617285215504,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.4248617285215504,
+              "skill": 0.2786083563522611,
+              "random": 0.20273782411694521,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qwen35_9b_base": {
+          "raw": 0.3056,
+          "skill": 0.129,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.3055619197954184,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.3055619197954184,
+              "skill": 0.12897149618892217,
+              "random": 0.20273782411694521,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qev_9b": {
+          "raw": 0.4757,
+          "skill": 0.3424,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.4757105323998302,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.4757105323998302,
+              "skill": 0.34238763174803566,
+              "random": 0.20273782411694521,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "kev_9b": {
+          "raw": 0.4809,
+          "skill": 0.3489,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.4809184305561307,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.4809184305561307,
+              "skill": 0.3489198595569521,
+              "random": 0.20273782411694521,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "kev_4b": {
+          "raw": 0.3956,
+          "skill": 0.2419,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.39561788161121436,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.39561788161121436,
+              "skill": 0.24192801731830993,
+              "random": 0.20273782411694521,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "jevany_4b_pointer": {
+          "raw": 0.5494,
+          "skill": 0.4348,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.5493592773788667,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.5493592773788667,
+              "skill": 0.4347647031893874,
+              "random": 0.20273782411694521,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "jevany_4b_direct": {
+          "raw": 0.5425,
+          "skill": 0.4262,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.5424928991743364,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.5424928991743364,
+              "skill": 0.42615225622747677,
+              "random": 0.20273782411694521,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "jev": {
+          "raw": 0.5521,
+          "skill": 0.4382,
+          "coverage": 1,
+          "source": "published_leaderboard",
+          "version": "Jev 1.13.0"
+        }
+      }
+    },
+    "bpomp": {
+      "catalog_id": 20,
+      "title": "BPoMP",
+      "metric": "mean accuracy across poem variants",
+      "total": 5000,
+      "models": {
+        "qwen35_2b_base": {
+          "raw": 0.505,
+          "skill": 0.0101,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.5026,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.5050301177080375,
+              "skill": 0.010060235416075036,
+              "random": 0.5,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qev_2b": {
+          "raw": 0.7381,
+          "skill": 0.4763,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.7346,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.7381339972176438,
+              "skill": 0.47626799443528767,
+              "random": 0.5,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qwen35_4b_base": {
+          "raw": 0.6895,
+          "skill": 0.3791,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.6942,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.689541386353874,
+              "skill": 0.37908277270774793,
+              "random": 0.5,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qev_4b": {
+          "raw": 0.7819,
+          "skill": 0.5638,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.779,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.7818951793165829,
+              "skill": 0.5637903586331658,
+              "random": 0.5,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qwen35_9b_base": {
+          "raw": 0.5939,
+          "skill": 0.1877,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.5954,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.593868528281851,
+              "skill": 0.187737056563702,
+              "random": 0.5,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "qev_9b": {
+          "raw": 0.7752,
+          "skill": 0.5504,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.7698,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.7751900982099691,
+              "skill": 0.5503801964199382,
+              "random": 0.5,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "kev_9b": {
+          "raw": 0.6693,
+          "skill": 0.3387,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.6688,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.6693391049629296,
+              "skill": 0.3386782099258592,
+              "random": 0.5,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "kev_4b": {
+          "raw": 0.6528,
+          "skill": 0.3056,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.6502,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.6528226564034934,
+              "skill": 0.3056453128069867,
+              "random": 0.5,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "jevany_4b_pointer": {
+          "raw": 0.7387,
+          "skill": 0.4773,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.731,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.7386594480630367,
+              "skill": 0.4773188961260735,
+              "random": 0.5,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "jevany_4b_direct": {
+          "raw": 0.8129,
+          "skill": 0.6258,
+          "coverage": 1.0,
+          "answered": 5000,
+          "native_score": 0.8142,
+          "tracks": [
+            {
+              "track": "all",
+              "raw": 0.8128861556266215,
+              "skill": 0.625772311253243,
+              "random": 0.5,
+              "coverage": 1
+            }
+          ],
+          "source": "local_evaluation"
+        },
+        "jev": {
+          "raw": 0.9092,
+          "skill": 0.8184,
+          "coverage": 1,
+          "source": "published_leaderboard",
+          "version": "Jev 1.13.0"
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,7 @@
 # Benchmark results
 
+- [Decision Index scores](decision-index.json): official 0.2.1 raw scores, chance-adjusted skill and per-track details for GSM8K, ChessBench, Amazon ESCI and BPoMP. Jev is a published leaderboard reference.
+- [Qwen3.5-4B-Base](qwen3.5-4b-base/evaluation.json), [Kev-4B](kev-4b/evaluation.json), [JevAny Pointer](jevany-4b-pointer/evaluation.json) and [JevAny Direct-Token](jevany-4b-direct/evaluation.json): original-suite counts and matched subsets. Each folder also preserves public JevBench predictions and inference provenance.
 - [Benchmark metrics](benchmarks.json): correct answers, question counts and model descriptions for the README tables.
 - [JevBench predictions](qev-9b/jevbench-predictions.jsonl): Qev's probabilities and predictions for all 231 public questions, without the question text.
 - [Qev-2B JevBench predictions](qev-2b/jevbench-predictions.jsonl) and [native 2B predictions](qwen3.5-2b-base/jevbench-predictions.jsonl): the selected 2B student and its original Qwen base.

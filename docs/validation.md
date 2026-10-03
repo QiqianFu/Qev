@@ -111,3 +111,10 @@ These checks cover packaging and the training-code changes. The reported model s
 ## Cover chart layout — 2026-10-02
 
 The cover now uses one grouped chart with Qev-2B, Qev-4B, Qev-9B and Qwen3.5-9B-Base, in that order. All 28 labels were checked against the recorded benchmark counts, and the rendered chart was visually inspected. The benchmark matrix and scores are unchanged. English and Chinese image descriptions were updated; no model training or inference code changed.
+
+## Expanded evaluation and 4B cover — 2026-10-03
+
+- Recomputed the native Qwen3.5-4B-Base, Kev-4B and both JevAny-4B results from 19,376 original-suite prediction slots, aligning IDs, candidate sets and labels with the existing Qev evaluation. Checked the clean development and handwritten SemIf subsets separately.
+- Reran the pinned Decision Index 0.2.1 scorer on saved outputs from ten local models. All 40 raw scores, skill values and coverage values matched the recorded summaries. Jev's four reference scores come from the toolkit's frozen leaderboard.
+- Checked every cover label, matrix cell and bilingual README score against the machine-readable results. The single cover chart has ten benchmarks and four series: Qev-4B, JevAny-4B Pointer, Kev-4B and Jev. Decision dev remains in the tables and matrix. Cover labels use one decimal for readability; tables and the matrix use two.
+- Visually inspected the cover and matrix; release and whitespace checks passed. Existing model scores and weights were preserved. No training, GPU inference or benchmark reruns were performed; this update rescored recorded predictions.

@@ -52,6 +52,21 @@ def main():
         for model,row in entry['models'].items():
             if not 0<=row['correct']<=entry['total'] or not math.isclose(row['accuracy'],row['correct']/entry['total']):
                 errors.append(f'{name}/{model}: inconsistent metric')
+    decision_index=json.loads((ROOT/'results/decision-index.json').read_text())
+    for name,entry in decision_index['results'].items():
+        if set(entry['models'])!=set(results['models']):
+            errors.append(f'{name}: model coverage differs from the main results')
+        for model,row in entry['models'].items():
+            if not all(math.isfinite(row[k]) and 0<=row[k]<=1 for k in ['raw','skill','coverage']):
+                errors.append(f'{name}/{model}: invalid Decision Index score')
+            if row['source']=='local_evaluation':
+                if row['answered']!=entry['total'] or row['coverage']!=1:
+                    errors.append(f'{name}/{model}: incomplete local evaluation')
+                mean_raw=sum(t['raw'] for t in row['tracks'])/len(row['tracks'])
+                if not math.isclose(row['raw'],round(mean_raw,4),abs_tol=1e-12):
+                    errors.append(f'{name}/{model}: raw score differs from official track aggregation')
+            elif row['source']!='published_leaderboard':
+                errors.append(f'{name}/{model}: missing result source')
     evidence=ROOT/'results/qev-9b/jevbench-predictions.jsonl'
     provenance=json.loads((evidence.parent/'provenance.json').read_text())
     if provenance.get('predictions_sha256') and hashlib.sha256(evidence.read_bytes()).hexdigest()!=provenance['predictions_sha256']:
@@ -67,7 +82,9 @@ def main():
         if probs[row['prediction']]!=max(values) or row['correct']!=(row['prediction']==row['label']):
             errors.append(f"prediction/label mismatch: {row['record_id']}")
     prediction_count=len(rows)
-    for folder, model in [('qev-4b', 'qev_4b'), ('qev-2b', 'qev_2b'), ('qwen3.5-2b-base', 'qwen35_2b_base')]:
+    for folder, model in [('qev-4b', 'qev_4b'), ('qev-2b', 'qev_2b'), ('qwen3.5-2b-base', 'qwen35_2b_base'),
+                          ('qwen3.5-4b-base','qwen35_4b_base'), ('kev-4b','kev_4b'),
+                          ('jevany-4b-pointer','jevany_4b_pointer'), ('jevany-4b-direct','jevany_4b_direct')]:
         records=[json.loads(line) for line in (ROOT/'results'/folder/'jevbench-predictions.jsonl').read_text().splitlines()]
         prediction_count+=len(records)
         if len(records)!=benchmark['total'] or sum(row['correct'] for row in records)!=benchmark['models'][model]['correct']:
@@ -78,7 +95,8 @@ def main():
                 errors.append(f'{folder}: invalid probabilities')
             if ps[row['prediction']]!=max(ps.values()) or row['correct']!=(row['prediction']==row['label']):
                 errors.append(f'{folder}: inconsistent prediction')
-    for folder,model in [('qev-4b','qev_4b'),('qev-9b','qev_9b')]:
+    for folder,model in [('qev-4b','qev_4b'),('qev-9b','qev_9b'), ('qwen3.5-4b-base','qwen35_4b_base'),
+                        ('kev-4b','kev_4b'), ('jevany-4b-pointer','jevany_4b_pointer'), ('jevany-4b-direct','jevany_4b_direct')]:
         evaluation=json.loads((ROOT/'results'/folder/'evaluation.json').read_text())
         for scope,row in evaluation['matched_subsets'].items():
             expected=results['results'][scope]

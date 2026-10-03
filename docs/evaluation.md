@@ -2,11 +2,11 @@
 
 These results describe Qev-9B v0.2.0: Qwen3.5-9B-Base with rank-64 LoRA, candidate interaction, and a two-layer decision head. The main training set includes 4,459 HelpSteer3 Principle judgments and 600 synthetic boundary questions. The 1,783-example alignment/document-rule partition is mixed into the second half of training and repeated three times.
 
-[Machine-readable results](../results/benchmarks.json) contain integer numerators and denominators. [Qev's 231 JevBench predictions](../results/qev-9b/jevbench-predictions.jsonl) are preserved from the original evaluation.
+[Machine-readable accuracy results](../results/benchmarks.json) contain integer numerators and denominators. [Decision Index scores](../results/decision-index.json) preserve official raw scores, chance-adjusted skill and track details separately. [Qev's 231 JevBench predictions](../results/qev-9b/jevbench-predictions.jsonl) are preserved from the original evaluation.
 
 Qev-2B uses probability distillation followed by context edits, original-question replay and representation-response matching. Its MMLU-Pro accuracy is 38.70%, and its public JevBench accuracy is 172/231 (74.46%). Both 2B models use BF16 backbone computation. See the [training method](distillation.md).
 
-Qev-4B v0.1.0 starts directly from Qwen3.5-4B-Base and learns teacher probabilities for 2,786 steps. It scores 503/1,000 on MMLU-Pro and 190/231 on public JevBench. The [4B recipe](training-4b.md) uses a separate 9B research teacher and a different input mixture from the other releases. A native 4B LM baseline was not run.
+Qev-4B v0.1.0 starts directly from Qwen3.5-4B-Base and learns teacher probabilities for 2,786 steps. It scores 503/1,000 on MMLU-Pro and 190/231 on public JevBench. The [4B recipe](training-4b.md) uses a separate 9B research teacher and a different input mixture from the other releases. The native Qwen3.5-4B-Base baseline scores 43.50% on MMLU-Pro and 155/231 on JevBench, using its original language-model head.
 
 ## Models and sources
 
@@ -16,35 +16,71 @@ Qev-4B v0.1.0 starts directly from Qwen3.5-4B-Base and learns teacher probabilit
 | Kev-9B | [jaredpalmer/kev-9b](https://huggingface.co/jaredpalmer/kev-9b) | JevBench rerun locally with Kev's own `kev.benchmark`, FP32 and T=1; other suites from pinned author reports |
 | Qwen3.5-9B-Base | [Qwen3.5-9B-Base](https://huggingface.co/Qwen/Qwen3.5-9B-Base) | Frozen native LM head, zero-shot prompt, probabilities normalized over valid answer codes |
 | Qev-4B | Qwen3.5-4B-Base + rank-64 LoRA + 256×2 head, seed 17, step 2786 | Recorded BF16 full causal reference execution |
+| Qwen3.5-4B-Base | Qwen3.5-4B-Base at `710fd005` | BF16 native LM head, zero-shot candidate codes |
+| Kev-4B | [jaredpalmer/kev-4b](https://huggingface.co/jaredpalmer/kev-4b) at `139fdd9`; Kev code `5920c5f` | Author inference implementation, FP32, T=1, unmerged adapter |
+| JevAny-4B Pointer / Direct-Token | [Pointer](https://huggingface.co/SimpleJev/JevAny-Qwen3.5-4B-LoRA) / [Direct-Token](https://huggingface.co/SimpleJev/JevAny-Qwen3.5-4B-Direct-Token-LoRA), code `33cb677` | Post-trained Qwen3.5-4B base, author exact FP32 inference path |
 | Qev-2B | Qwen3.5-2B-Base + rank-64 LoRA + 256×2 head; no candidate preview | Recorded reference execution after response distillation |
 | Qwen3.5-2B-Base | Original language-model head, zero-shot candidate codes | Recorded native-base evaluation |
-| Jev | Hosted service; JevBench used Jev 1.13.0 | JevBench API run on 2026-09-26; other suites from Jev reports preserved by the Kev authors |
+| Jev | Hosted service; JevBench used Jev 1.13.0 | JevBench API run on 2026-09-26; older suites from Jev reports preserved by the Kev authors; new tasks from the pinned Decision Index 0.2.1 board |
 
 Kev's published results are available in its [evaluation reports](https://github.com/jaredpalmer/kev/tree/557598fced1dada75dfbf36ed144dce309ac6ceb/runs). JevBench was evaluated locally for Qev, Kev, and the Qwen base, and through the Jev API for the hosted reference.
 
 ## Benchmark matrix
 
-![Accuracy for seven models on seven matched subsets](../assets/evaluation-matrix.svg)
+![Eleven models across eleven benchmarks](../assets/evaluation-matrix.svg)
 
 ## Full accuracy table
 
 Percent accuracy. Each released Qev model is a single seed. Bold scores mark the higher result between Qev-9B and Kev-9B; ties are unbolded. Jev is a hosted reference.
 
-**Precision comparison: Kev-9B uses FP32; Qev-9B, Qev-4B and Qev-2B use BF16 backbone computation.** Qev retains FP32 for its decision head and key reductions; its exported LoRA tensors are stored in FP32. These are not identical precision settings.
+**Precision comparison: Kev and JevAny use FP32; Qev-9B, Qev-4B and Qev-2B use BF16 backbone computation.** Qev retains FP32 for its decision head and key reductions; its exported LoRA tensors are stored in FP32. These are not identical precision settings.
 
-| Scope | Qev-9B | Kev-9B | Qwen base | Jev (reference) | Qwen 2B base | Qev-2B | Qev-4B |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| decision_dev all · 1468 | **88.22** | 87.81 | 75.75 | 83.17 | 63.15 | 86.24 | 87.60 |
-| decision_dev clean · 1264 | **87.42** | 87.18 | 77.69 | 84.49 | 65.43 | 85.36 | 86.95 |
-| transfer_dev all · 764 | **82.46** | 81.15 | 73.43 | 84.69 | 64.53 | 76.44 | 80.89 |
-| transfer_dev clean · 656 | **83.99** | 82.16 | 74.39 | 85.67 | 65.09 | 77.29 | 82.01 |
-| MMLU-Pro · 1000 | **57.40** | 51.10 | 50.40 | 83.50 | 31.20 | 38.70 | 50.30 |
-| SemIf handwritten · 144 | **93.06** | 90.97 | 90.28 | 96.53 | 63.89 | 82.64 | 90.28 |
-| scienthoon · 873 | 71.02 | **75.49** | 68.84 | 75.26 | 53.84 | 71.94 | 76.75 |
-| WANLI · 256 | **71.09** | 70.31 | 67.97 | 75.78 | 50.39 | 67.58 | 73.44 |
-| JevBench public · 231 | **83.12** | 75.76 | 75.76 | 85.71 | 63.20 | 74.46 | 82.25 |
+| Scope | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| decision_dev all · 1468 | 83.17 | **88.22** | 87.81 | 75.75 | 87.60 | 71.53 | 86.24 | 63.15 |
+| decision_dev clean · 1264 | 84.49 | **87.42** | 87.18 | 77.69 | 86.95 | 73.73 | 85.36 | 65.43 |
+| transfer_dev all · 764 | 84.69 | **82.46** | 81.15 | 73.43 | 80.89 | 70.29 | 76.44 | 64.53 |
+| transfer_dev clean · 656 | 85.67 | **83.99** | 82.16 | 74.39 | 82.01 | 71.49 | 77.29 | 65.09 |
+| MMLU-Pro · 1,000 | 83.50 | **57.40** | 51.10 | 50.40 | 50.30 | 43.50 | 38.70 | 31.20 |
+| SemIf · 144 handwritten | 96.53 | **93.06** | 90.97 | 90.28 | 90.28 | 77.08 | 82.64 | 63.89 |
+| scienthoon · 873 | 75.26 | 71.02 | **75.49** | 68.84 | 76.75 | 74.34 | 71.94 | 53.84 |
+| WANLI · 256 | 75.78 | **71.09** | 70.31 | 67.97 | 73.44 | 60.55 | 67.58 | 50.39 |
+| JevBench public · 231 | 85.71 | **83.12** | 75.76 | 75.76 | 82.25 | 67.10 | 74.46 | 63.20 |
 
 The all-question dev rows include clean examples and candidate-permutation / None-present / None-absent variants. Clean rows match the clean reporting convention in Kev's README. SemIf uses 144 handwritten questions. Qev's broader 252-question research run also included 108 perturbations; its 94.05% overall score is not the 144-question comparison above.
+
+## 4B model comparison
+
+All rows use the same reporting scopes as the README. Bold compares Qev-4B with Kev-4B; Jev and JevAny are references. The cover uses the standard JevAny Pointer release consistently across all tasks; the Direct-Token variant is also shown here.
+
+| Benchmark | Jev (reference) | Qev-4B | Kev-4B | JevAny-4B Pointer | JevAny-4B Direct-Token | Qwen3.5-4B-Base |
+|---|---:|---:|---:|---:|---:|---:|
+| Decision development · clean | 84.49 | 86.95 | **87.26** | 86.63 | 86.23 | 73.73 |
+| Transfer development · clean | 85.67 | **82.01** | 81.71 | 84.60 | 85.52 | 71.49 |
+| MMLU-Pro · 1,000 | 83.50 | 50.30 | **52.40** | 52.30 | 51.10 | 43.50 |
+| SemIf · 144 handwritten | 96.53 | **90.28** | 88.89 | 90.28 | 90.28 | 77.08 |
+| scienthoon · 873 | 75.26 | **76.75** | 72.28 | 69.30 | 68.84 | 74.34 |
+| WANLI · 256 | 75.78 | **73.44** | 68.75 | 71.09 | 71.09 | 60.55 |
+| JevBench public · 231 | 85.71 | **82.25** | 75.76 | 78.35 | 79.65 | 67.10 |
+| GSM8K · multiple choice | 79.87 | 54.59 | **58.49** | 47.61 | 45.03 | 37.00 |
+| ChessBench · 5,000 | 17.22 | **12.42** | 8.80 | 11.32 | 11.72 | 11.78 |
+| Amazon ESCI · macro-F1 | 55.21 | **42.49** | 39.56 | 54.94 | 54.25 | 29.18 |
+| BPoMP · variant mean | 90.92 | **78.19** | 65.28 | 73.87 | 81.29 | 68.95 |
+
+Qev-4B and Kev-4B start from Qwen3.5-4B-Base; JevAny uses the post-trained Qwen3.5-4B base. Qev uses BF16 backbone computation, while the Kev and JevAny runs use FP32. These are model comparisons, with different training data and objectives, rather than isolated architecture comparisons.
+
+## Decision Index 0.2.1
+
+The four additional benchmarks use the toolkit's official **raw** score, multiplied by 100. ESCI uses macro-F1; BPoMP averages accuracy across poem variants. GSM8K averages the four-choice and ten-choice tracks; ChessBench accepts all tied best moves.
+
+| Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| GSM8K · multiple choice | 79.87 | **61.37** | 46.36 | 55.53 | 54.59 | 37.00 | 37.76 | 30.40 |
+| ChessBench · 5,000 | 17.22 | 9.76 | **11.76** | 13.22 | 12.42 | 11.78 | 10.98 | 8.84 |
+| Amazon ESCI · macro-F1 | 55.21 | 47.57 | **48.09** | 30.56 | 42.49 | 29.18 | 36.34 | 28.10 |
+| BPoMP · variant mean | 90.92 | **77.52** | 66.93 | 59.39 | 78.19 | 68.95 | 73.81 | 50.50 |
+
+All local models answered every item in these four evaluations. Jev's new scores come from the toolkit's pinned public leaderboard, not a new API run. The [method note](decision-index.md) records exact sources, scoring rules and the GSM8K option-construction limitation. Original benchmark scores remain attached to their original evaluations.
 
 ## Public JevBench breakdown
 

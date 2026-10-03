@@ -1,0 +1,10 @@
+{
+  "repo_id": "SimpleJev/JevAny-Qwen3.5-4B-LoRA",
+  "code_revision": "33cb677",
+  "dtype": "fp32",
+  "temperature": 1.0,
+  "description": "Pointer head on post-trained Qwen3.5-4B, author exact inference path",
+  "source": "Recorded local evaluation with original model inference code",
+  "subset_convention": "Clean development questions; 144 authored SemIf questions; complete public JevBench",
+  "unanswered_policy": "count as incorrect"
+}

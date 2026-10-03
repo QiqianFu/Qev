@@ -1,0 +1,11 @@
+{
+  "repo_id": "jaredpalmer/kev-4b",
+  "revision": "139fdd9",
+  "code_revision": "5920c5f",
+  "dtype": "fp32",
+  "temperature": 1.0,
+  "description": "Author inference code, unmerged adapter; Qwen3.5-4B-Base",
+  "source": "Recorded local evaluation with original model inference code",
+  "subset_convention": "Clean development questions; 144 authored SemIf questions; complete public JevBench",
+  "unanswered_policy": "count as incorrect"
+}

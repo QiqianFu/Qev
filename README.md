@@ -21,7 +21,7 @@ This repository provides the model architecture, training and evaluation code, P
 | **[Train a model](#training)** | Prepare labelled data, train from Qwen, or fine-tune an existing Qev checkpoint |
 
 <p align="center">
-  <img src="assets/evaluation.svg" alt="Qev-2B, Qev-4B, Qev-9B and Qwen3.5-9B-Base compared on seven matched benchmarks." width="100%">
+  <img src="assets/evaluation.svg" alt="Qev-4B, JevAny-4B Pointer, Kev-4B and Jev compared on ten benchmarks." width="100%">
 </p>
 
 | Choose a model | Qev-2B | Qev-4B | Qev-9B |
@@ -177,21 +177,27 @@ Qev organizes inputs as **state → question → candidate**. Candidate branches
 
 ## Evaluation
 
-**Precision: Qev-9B, Qev-4B and Qev-2B use BF16 backbone computation; Kev-9B uses FP32.** Qev's decision head remains in FP32.
+**Precision: Qev-9B, Qev-4B and Qev-2B use BF16 backbone computation; Kev and JevAny use FP32.** Qev's decision head remains in FP32.
 
-| Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qev-2B | Qwen3.5-2B-Base |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| Decision development · clean | 84.49 | **87.42** | 87.18 | 77.69 | 86.95 | 85.36 | 65.43 |
-| Transfer development · clean | 85.67 | **83.99** | 82.16 | 74.39 | 82.01 | 77.29 | 65.09 |
-| MMLU-Pro · 1,000 | 83.50 | **57.40** | 51.10 | 50.40 | 50.30 | 38.70 | 31.20 |
-| SemIf · 144 handwritten | 96.53 | **93.06** | 90.97 | 90.28 | 90.28 | 82.64 | 63.89 |
-| scienthoon · 873 | 75.26 | 71.02 | **75.49** | 68.84 | 76.75 | 71.94 | 53.84 |
-| WANLI · 256 | 75.78 | **71.09** | 70.31 | 67.97 | 73.44 | 67.58 | 50.39 |
-| JevBench public · 231 | 85.71 | **83.12** | 75.76 | 75.76 | 82.25 | 74.46 | 63.20 |
+| Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Decision development · clean | 84.49 | **87.42** | 87.18 | 77.69 | 86.95 | 73.73 | 85.36 | 65.43 |
+| Transfer development · clean | 85.67 | **83.99** | 82.16 | 74.39 | 82.01 | 71.49 | 77.29 | 65.09 |
+| MMLU-Pro · 1,000 | 83.50 | **57.40** | 51.10 | 50.40 | 50.30 | 43.50 | 38.70 | 31.20 |
+| SemIf · 144 handwritten | 96.53 | **93.06** | 90.97 | 90.28 | 90.28 | 77.08 | 82.64 | 63.89 |
+| scienthoon · 873 | 75.26 | 71.02 | **75.49** | 68.84 | 76.75 | 74.34 | 71.94 | 53.84 |
+| WANLI · 256 | 75.78 | **71.09** | 70.31 | 67.97 | 73.44 | 60.55 | 67.58 | 50.39 |
+| JevBench public · 231 | 85.71 | **83.12** | 75.76 | 75.76 | 82.25 | 67.10 | 74.46 | 63.20 |
+| GSM8K · multiple choice | 79.87 | **61.37** | 46.36 | 55.53 | 54.59 | 37.00 | 37.76 | 30.40 |
+| ChessBench · 5,000 | 17.22 | 9.76 | **11.76** | 13.22 | 12.42 | 11.78 | 10.98 | 8.84 |
+| Amazon ESCI · macro-F1 | 55.21 | 47.57 | **48.09** | 30.56 | 42.49 | 29.18 | 36.34 | 28.10 |
+| BPoMP · variant mean | 90.92 | **77.52** | 66.93 | 59.39 | 78.19 | 68.95 | 73.81 | 50.50 |
 
-Accuracy (%). Bold marks the higher score between Qev-9B and Kev-9B; Jev and the Qwen base are references.
+Scores (%): accuracy for the original benchmarks; official Decision Index raw scores for the four new tasks, including ESCI macro-F1 and BPoMP mean accuracy across variants. Bold compares Qev-9B with Kev-9B; Jev and native bases are references. The cover compares Qev-4B, JevAny-4B Pointer, Kev-4B and Jev.
 
-[Six-model benchmark matrix](assets/evaluation-matrix.svg) · [Full results, ablations and settings](docs/evaluation.md) · [Machine-readable metrics](results/benchmarks.json) · [All 231 predictions](results/qev-9b/jevbench-predictions.jsonl)
+[4B comparison, including both JevAny versions](docs/evaluation.md#4b-model-comparison) · [New benchmark methods](docs/decision-index.md).
+
+[Full benchmark matrix](assets/evaluation-matrix.svg) · [Full results, ablations and settings](docs/evaluation.md) · [Machine-readable metrics](results/benchmarks.json) · [All 231 predictions](results/qev-9b/jevbench-predictions.jsonl)
 
 ## Documentation and contributions
 

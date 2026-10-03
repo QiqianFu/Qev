@@ -75,7 +75,18 @@ Results use BF16 backbone computation, an FP32 head, temperature 1 and full caus
 
 ![Qev benchmark matrix](https://raw.githubusercontent.com/QiqianFu/Qev/main/assets/evaluation-matrix.svg)
 
-These are measurements from one checkpoint and seed. Training data and objectives differ across the 2B, 4B and 9B releases; their scores do not isolate model-size effects. A native 4B language-model baseline was not run. The gameplay recordings in the source repository use 9B models.
+These are measurements from one checkpoint and seed. Training data and objectives differ across the 2B, 4B and 9B releases; their scores do not isolate model-size effects. The native Qwen3.5-4B-Base baseline is now available: 43.50% MMLU-Pro and 155/231 JevBench. See the [4B comparison](https://github.com/QiqianFu/Qev/blob/main/docs/evaluation.md#4b-model-comparison) for all tasks. The gameplay recordings in the source repository use 9B models.
+
+## Additional evaluation — 2026-10-03
+
+| Benchmark | Qwen3.5-4B-Base | Qev-4B |
+|---|---:|---:|
+| GSM8K · multiple choice | 37.00 | 54.59 |
+| ChessBench · 5,000 | 11.78 | 12.42 |
+| Amazon ESCI · macro-F1 | 29.18 | 42.49 |
+| BPoMP · variant mean | 68.95 | 78.19 |
+
+These are Decision Index 0.2.1 raw scores (%); ESCI uses macro-F1 and BPoMP averages over variants. [Scoring definitions and sources](https://github.com/QiqianFu/Qev/blob/main/docs/decision-index.md).
 
 ## Training and availability
 

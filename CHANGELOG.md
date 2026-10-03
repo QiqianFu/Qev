@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added native Qwen3.5-4B-Base, Kev-4B and both JevAny-4B variants to the result tables, plus GSM8K, ChessBench, Amazon ESCI and BPoMP scored with Decision Index 0.2.1.
+- Changed the single cover chart to Qev-4B, JevAny-4B Pointer, Kev-4B and Jev over ten benchmarks, omitting Decision dev from that chart. Existing model weights and benchmark measurements are unchanged.
+
 - Added Qev-4B v0.1.0, initialized directly from Qwen3.5-4B-Base: MMLU-Pro 50.30%, public JevBench 190/231. Includes portable weights, 4B training/fine-tuning recipes, bilingual method documentation, model selection and benchmark charts.
 - Added configurable teacher-logit temperature and label-free pure-teacher training with complete cache-coverage checks. Existing 2B training keeps temperature 1 by default.
 

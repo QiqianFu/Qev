@@ -1,0 +1,86 @@
+{
+  "model": "jevany_4b_pointer",
+  "date": "2026-10-03",
+  "full_suite": {
+    "decision_dev": {
+      "correct": 1281,
+      "total": 1468,
+      "accuracy": 0.8726158038147139,
+      "rejected": 0
+    },
+    "transfer_dev": {
+      "correct": 654,
+      "total": 764,
+      "accuracy": 0.856020942408377,
+      "rejected": 0
+    },
+    "mmlupro": {
+      "correct": 523,
+      "total": 1000,
+      "accuracy": 0.523,
+      "rejected": 0
+    },
+    "semif": {
+      "correct": 233,
+      "total": 252,
+      "accuracy": 0.9246031746031746,
+      "rejected": 0
+    },
+    "scienthoon": {
+      "correct": 605,
+      "total": 873,
+      "accuracy": 0.693012600229095,
+      "rejected": 0
+    },
+    "wanli": {
+      "correct": 182,
+      "total": 256,
+      "accuracy": 0.7109375,
+      "rejected": 0
+    },
+    "public": {
+      "correct": 181,
+      "total": 231,
+      "accuracy": 0.7835497835497836,
+      "rejected": 0
+    }
+  },
+  "matched_subsets": {
+    "decision_dev_all": {
+      "correct": 1281,
+      "total": 1468
+    },
+    "decision_dev_clean": {
+      "correct": 1095,
+      "total": 1264
+    },
+    "transfer_dev_all": {
+      "correct": 654,
+      "total": 764
+    },
+    "transfer_dev_clean": {
+      "correct": 555,
+      "total": 656
+    },
+    "semif_handwritten": {
+      "correct": 130,
+      "total": 144
+    },
+    "mmlupro": {
+      "correct": 523,
+      "total": 1000
+    },
+    "scienthoon": {
+      "correct": 605,
+      "total": 873
+    },
+    "wanli": {
+      "correct": 182,
+      "total": 256
+    },
+    "jevbench_public": {
+      "correct": 181,
+      "total": 231
+    }
+  }
+}

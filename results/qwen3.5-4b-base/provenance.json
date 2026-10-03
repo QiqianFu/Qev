@@ -1,0 +1,9 @@
+{
+  "repo_id": "Qwen/Qwen3.5-4B-Base",
+  "revision": "710fd005d44d55ee27b7ad5147e318e546efdbfe",
+  "dtype": "bf16",
+  "description": "Frozen native LM head; zero-shot candidate code probabilities",
+  "source": "Recorded local evaluation with the native language-model head",
+  "subset_convention": "Clean development questions; 144 authored SemIf questions; complete public JevBench",
+  "unanswered_policy": "count as incorrect"
+}

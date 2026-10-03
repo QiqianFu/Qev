@@ -1,0 +1,87 @@
+{
+  "model": "qwen35_4b_base",
+  "date": "2026-10-02",
+  "full_suite": {
+    "decision_dev": {
+      "correct": 1050,
+      "total": 1468,
+      "accuracy": 0.715258855585831,
+      "rejected": 0
+    },
+    "transfer_dev": {
+      "correct": 537,
+      "total": 764,
+      "accuracy": 0.7028795811518325,
+      "rejected": 0
+    },
+    "mmlupro": {
+      "correct": 435,
+      "total": 1000,
+      "accuracy": 0.435,
+      "rejected": 0
+    },
+    "semif": {
+      "correct": 175,
+      "total": 252,
+      "accuracy": 0.6944444444444444,
+      "rejected": 0
+    },
+    "scienthoon": {
+      "correct": 649,
+      "total": 873,
+      "accuracy": 0.7434135166093929,
+      "rejected": 0
+    },
+    "wanli": {
+      "correct": 155,
+      "total": 256,
+      "accuracy": 0.60546875,
+      "rejected": 0
+    },
+    "public": {
+      "correct": 155,
+      "total": 231,
+      "accuracy": 0.670995670995671,
+      "rejected": 0
+    }
+  },
+  "matched_subsets": {
+    "decision_dev_all": {
+      "correct": 1050,
+      "total": 1468
+    },
+    "decision_dev_clean": {
+      "correct": 932,
+      "total": 1264
+    },
+    "transfer_dev_all": {
+      "correct": 537,
+      "total": 764
+    },
+    "transfer_dev_clean": {
+      "correct": 469,
+      "total": 656
+    },
+    "semif_handwritten": {
+      "correct": 111,
+      "total": 144
+    },
+    "mmlupro": {
+      "correct": 435,
+      "total": 1000
+    },
+    "scienthoon": {
+      "correct": 649,
+      "total": 873
+    },
+    "wanli": {
+      "correct": 155,
+      "total": 256
+    },
+    "jevbench_public": {
+      "correct": 155,
+      "total": 231
+    }
+  },
+  "published_at": "2026-10-03"
+}

@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-02",
+  "date": "2026-10-03",
   "metric": "argmax_accuracy",
   "models": {
     "jev": {
@@ -53,6 +53,34 @@
       "seed": 17,
       "temperature": 1.0,
       "description": "Initialized directly from the Qwen base; teacher-probability cross entropy"
+    },
+    "qwen35_4b_base": {
+      "repo_id": "Qwen/Qwen3.5-4B-Base",
+      "revision": "710fd005d44d55ee27b7ad5147e318e546efdbfe",
+      "dtype": "bf16",
+      "description": "Frozen native LM head; zero-shot candidate code probabilities"
+    },
+    "kev_4b": {
+      "repo_id": "jaredpalmer/kev-4b",
+      "revision": "139fdd9",
+      "code_revision": "5920c5f",
+      "dtype": "fp32",
+      "temperature": 1.0,
+      "description": "Author inference code, unmerged adapter; Qwen3.5-4B-Base"
+    },
+    "jevany_4b_pointer": {
+      "repo_id": "SimpleJev/JevAny-Qwen3.5-4B-LoRA",
+      "code_revision": "33cb677",
+      "dtype": "fp32",
+      "temperature": 1.0,
+      "description": "Pointer head on post-trained Qwen3.5-4B, author exact inference path"
+    },
+    "jevany_4b_direct": {
+      "repo_id": "SimpleJev/JevAny-Qwen3.5-4B-Direct-Token-LoRA",
+      "code_revision": "33cb677",
+      "dtype": "fp32",
+      "temperature": 1.0,
+      "description": "Direct-token readout on post-trained Qwen3.5-4B, author exact inference path"
     }
   },
   "results": {
@@ -86,6 +114,22 @@
         "qev_4b": {
           "correct": 1286,
           "accuracy": 0.8760217983651226
+        },
+        "qwen35_4b_base": {
+          "correct": 1050,
+          "accuracy": 0.715258855585831
+        },
+        "kev_4b": {
+          "correct": 1293,
+          "accuracy": 0.8807901907356949
+        },
+        "jevany_4b_pointer": {
+          "correct": 1281,
+          "accuracy": 0.8726158038147139
+        },
+        "jevany_4b_direct": {
+          "correct": 1278,
+          "accuracy": 0.8705722070844687
         }
       }
     },
@@ -119,6 +163,22 @@
         "qev_4b": {
           "correct": 1099,
           "accuracy": 0.8694620253164557
+        },
+        "qwen35_4b_base": {
+          "correct": 932,
+          "accuracy": 0.7373417721518988
+        },
+        "kev_4b": {
+          "correct": 1103,
+          "accuracy": 0.872626582278481
+        },
+        "jevany_4b_pointer": {
+          "correct": 1095,
+          "accuracy": 0.8662974683544303
+        },
+        "jevany_4b_direct": {
+          "correct": 1090,
+          "accuracy": 0.8623417721518988
         }
       }
     },
@@ -152,6 +212,22 @@
         "qev_4b": {
           "correct": 618,
           "accuracy": 0.8089005235602095
+        },
+        "qwen35_4b_base": {
+          "correct": 537,
+          "accuracy": 0.7028795811518325
+        },
+        "kev_4b": {
+          "correct": 615,
+          "accuracy": 0.8049738219895288
+        },
+        "jevany_4b_pointer": {
+          "correct": 654,
+          "accuracy": 0.856020942408377
+        },
+        "jevany_4b_direct": {
+          "correct": 660,
+          "accuracy": 0.8638743455497382
         }
       }
     },
@@ -185,6 +261,22 @@
         "qev_4b": {
           "correct": 538,
           "accuracy": 0.8201219512195121
+        },
+        "qwen35_4b_base": {
+          "correct": 469,
+          "accuracy": 0.7149390243902439
+        },
+        "kev_4b": {
+          "correct": 536,
+          "accuracy": 0.8170731707317073
+        },
+        "jevany_4b_pointer": {
+          "correct": 555,
+          "accuracy": 0.8460365853658537
+        },
+        "jevany_4b_direct": {
+          "correct": 561,
+          "accuracy": 0.8551829268292683
         }
       }
     },
@@ -218,6 +310,22 @@
         "qev_4b": {
           "correct": 503,
           "accuracy": 0.503
+        },
+        "qwen35_4b_base": {
+          "correct": 435,
+          "accuracy": 0.435
+        },
+        "kev_4b": {
+          "correct": 524,
+          "accuracy": 0.524
+        },
+        "jevany_4b_pointer": {
+          "correct": 523,
+          "accuracy": 0.523
+        },
+        "jevany_4b_direct": {
+          "correct": 511,
+          "accuracy": 0.511
         }
       }
     },
@@ -249,6 +357,22 @@
           "accuracy": 0.6388888888888888
         },
         "qev_4b": {
+          "correct": 130,
+          "accuracy": 0.9027777777777778
+        },
+        "qwen35_4b_base": {
+          "correct": 111,
+          "accuracy": 0.7708333333333334
+        },
+        "kev_4b": {
+          "correct": 128,
+          "accuracy": 0.8888888888888888
+        },
+        "jevany_4b_pointer": {
+          "correct": 130,
+          "accuracy": 0.9027777777777778
+        },
+        "jevany_4b_direct": {
           "correct": 130,
           "accuracy": 0.9027777777777778
         }
@@ -284,6 +408,22 @@
         "qev_4b": {
           "correct": 670,
           "accuracy": 0.7674684994272624
+        },
+        "qwen35_4b_base": {
+          "correct": 649,
+          "accuracy": 0.7434135166093929
+        },
+        "kev_4b": {
+          "correct": 631,
+          "accuracy": 0.722794959908362
+        },
+        "jevany_4b_pointer": {
+          "correct": 605,
+          "accuracy": 0.693012600229095
+        },
+        "jevany_4b_direct": {
+          "correct": 601,
+          "accuracy": 0.6884306987399771
         }
       }
     },
@@ -317,6 +457,22 @@
         "qev_4b": {
           "correct": 188,
           "accuracy": 0.734375
+        },
+        "qwen35_4b_base": {
+          "correct": 155,
+          "accuracy": 0.60546875
+        },
+        "kev_4b": {
+          "correct": 176,
+          "accuracy": 0.6875
+        },
+        "jevany_4b_pointer": {
+          "correct": 182,
+          "accuracy": 0.7109375
+        },
+        "jevany_4b_direct": {
+          "correct": 182,
+          "accuracy": 0.7109375
         }
       }
     },
@@ -350,6 +506,22 @@
         "qev_4b": {
           "correct": 190,
           "accuracy": 0.8225108225108225
+        },
+        "qwen35_4b_base": {
+          "correct": 155,
+          "accuracy": 0.670995670995671
+        },
+        "kev_4b": {
+          "correct": 175,
+          "accuracy": 0.7575757575757576
+        },
+        "jevany_4b_pointer": {
+          "correct": 181,
+          "accuracy": 0.7835497835497836
+        },
+        "jevany_4b_direct": {
+          "correct": 184,
+          "accuracy": 0.7965367965367965
         }
       }
     }
@@ -364,7 +536,11 @@
         "qwen35_9b_base": 59,
         "qev_2b": 64,
         "qwen35_2b_base": 44,
-        "qev_4b": 69
+        "qev_4b": 69,
+        "qwen35_4b_base": 53,
+        "kev_4b": 67,
+        "jevany_4b_pointer": 69,
+        "jevany_4b_direct": 71
       }
     },
     "easy": {
@@ -376,7 +552,11 @@
         "qwen35_9b_base": 48,
         "qev_2b": 48,
         "qwen35_2b_base": 48,
-        "qev_4b": 48
+        "qev_4b": 48,
+        "qwen35_4b_base": 48,
+        "kev_4b": 48,
+        "jevany_4b_pointer": 48,
+        "jevany_4b_direct": 48
       }
     },
     "hard": {
@@ -388,7 +568,11 @@
         "qwen35_9b_base": 68,
         "qev_2b": 60,
         "qwen35_2b_base": 54,
-        "qev_4b": 73
+        "qev_4b": 73,
+        "qwen35_4b_base": 54,
+        "kev_4b": 60,
+        "jevany_4b_pointer": 64,
+        "jevany_4b_direct": 65
       }
     }
   },
