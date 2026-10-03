@@ -8,7 +8,7 @@
   <a href="LICENSE"><img src="assets/badges/license.svg" alt="Apache-2.0"></a>
 </p>
 
-<p align="center"><a href="README.md">English</a> | <strong>简体中文</strong> | <a href="https://huggingface.co/AustinFu/Qev-2B">🤗 Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a> | <a href="https://huggingface.co/datasets/AustinFu/Qev-train">🤗 训练数据</a></p>
+<p align="center"><a href="README.md">English</a> | <strong>简体中文</strong> | <a href="https://huggingface.co/AustinFu/Qev-2B">🤗 Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-4B">🤗 Qev-4B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a> | <a href="https://huggingface.co/datasets/AustinFu/Qev-train">🤗 训练数据</a></p>
 
 **Qev 是从 Qwen 微调而来的决策模型。** 给定上下文、问题和候选答案，模型直接返回选择及各选项的概率。同一套模型支持 **Choice 选择、Noul 是非判断、Score 序数评分**。
 
@@ -16,29 +16,32 @@
 
 | 从这里开始 | 可以做什么 |
 |---|---|
-| **[获取模型权重](#模型与检查点)** | 比较 Qev-2B 与 Qev-9B，查看检查点与下载说明 |
+| **[获取模型权重](#模型与检查点)** | 比较 Qev-2B、Qev-4B 与 Qev-9B，查看检查点与下载说明 |
 | **[运行模型](#推理)** | 通过 Python 或 JSONL 接口，获取选项概率和决策 |
 | **[训练模型](#训练)** | 准备标注数据，从 Qwen 底座训练，或在 Qev 检查点上继续微调 |
 
 <p align="center">
-  <img src="assets/evaluation.svg" alt="七组相同评测上，分别比较Qev-9B、Qev-2B与对应规模的Qwen3.5底座。" width="100%">
+  <img src="assets/evaluation.svg" alt="Qev-9B、Qev-2B与对应Qwen底座的比较，以及Qev-4B在相同七组评测上的成绩。" width="100%">
 </p>
 
-| 选择模型 | Qev-2B | Qev-9B |
-|---|---|---|
-| 定位 | 从 9B 蒸馏的轻量学生模型 | 决策模型与蒸馏教师 |
-| 使用 | [2B 模型权重](https://huggingface.co/AustinFu/Qev-2B) | [9B 模型权重](https://huggingface.co/AustinFu/Qev-9B) |
+| 选择模型 | Qev-2B | Qev-4B | Qev-9B |
+|---|---|---|---|
+| 定位 | 经过响应蒸馏的轻量模型 | 从 Qwen 底座直接训练的中等规模模型 | 最大规模的决策模型 |
+| 使用 | [2B 模型权重](https://huggingface.co/AustinFu/Qev-2B) | [4B 模型权重](https://huggingface.co/AustinFu/Qev-4B) | [9B 模型权重](https://huggingface.co/AustinFu/Qev-9B) |
 
 ## 模型与检查点
 
 | 模型 | 底座与结构 | 当前入口 |
 |---|---|---|
 | **Qev-2B** | Qwen3.5-2B-Base，rank-64 LoRA，256 维两层决策头 | [Hugging Face · 下载](https://huggingface.co/AustinFu/Qev-2B) |
+| **Qev-4B** | Qwen3.5-4B-Base，rank-64 LoRA，256 维两层决策头 | [Hugging Face · 下载](https://huggingface.co/AustinFu/Qev-4B) |
 | **Qev-9B** | Qwen3.5-9B-Base，rank-64 LoRA，256 维两层集合决策头 | [Hugging Face · 下载](https://huggingface.co/AustinFu/Qev-9B) |
 
 Qev-9B v0.2.0 在通用决策主集中加入 HelpSteer3 Principle 和 600 道合成边界题，并在训练后半程混入对齐题与文档规则判断题，重复学习三次。下载包包含 LoRA、决策头、候选交互参数、tokenizer 和模型配置。
 
-Qev-2B 通过教师概率蒸馏、程序化的随机文本编辑，以及内部表示变化的蒸馏，从 Qev-9B 学习。适配权重包会自动下载：**2B 约 284 MiB，9B 约 690 MiB**，加载器另行获取对应的 Qwen 底座。本地下载与导出见[检查点指南](docs/checkpoints.md)，完整模型信息见 [2B 模型卡](docs/model-card-2b.md)和 [9B 模型卡](docs/model-card.md)。
+Qev-4B 从 Qwen3.5-4B-Base 直接开始，在 44,576 道输入上学习 9B 教师的选项概率。它采用单阶段、两轮训练，支持 4,096 token 的完整路径。[4B 训练方法](docs/training-4b.zh-CN.md)。
+
+Qev-2B 通过教师概率蒸馏、程序化的随机文本编辑，以及内部表示变化的蒸馏，从 Qev-9B 学习。适配权重包会自动下载：**2B 约 284 MiB，4B 约 524 MiB，9B 约 690 MiB**，加载器另行获取对应的 Qwen 底座。本地下载与导出见[检查点指南](docs/checkpoints.md)，完整模型信息见 [2B 模型卡](docs/model-card-2b.md)、[4B 模型卡](docs/model-card-4b.md)和 [9B 模型卡](docs/model-card.md)。
 
 ## 安装
 
@@ -68,7 +71,7 @@ python scripts/smoke.py --out runs/smoke
 ```python
 from qev import Qev
 
-# 可选择 "AustinFu/Qev-2B" 或 "AustinFu/Qev-9B"。
+# 可选择 "AustinFu/Qev-2B"、"AustinFu/Qev-4B" 或 "AustinFu/Qev-9B"。
 model = Qev.from_pretrained(
     "AustinFu/Qev-9B", device="cuda"
 )
@@ -110,7 +113,7 @@ python -m qev.predict \
 | 随包示例 | 6 条训练请求、2 条验证请求，覆盖三种任务 | [examples/](examples/README.md) |
 | **Qev-train** | **2,442 条合成训练题**：对齐题、文档规则、世界知识与受控边界题 | [数据集与合成方法](https://huggingface.co/datasets/AustinFu/Qev-train/blob/main/README.zh-CN.md) |
 | 自己的数据 | 带标签或软目标的 JSONL 请求 | [数据格式](docs/data.md) |
-| 正式研究配方 | 主分区 39,605 条，收尾分区 1,783 条；完整数据尚未随代码分发 | [数据构成](docs/data.md#research-recipe-and-availability) |
+| 9B 正式研究配方 | 主分区 39,605 条，收尾分区 1,783 条；完整数据尚未随代码分发 | [数据构成](docs/data.md#research-recipe-and-availability) |
 
 ```bash
 python -m qev.prepare \
@@ -134,6 +137,10 @@ python -m qev.train \
 `--init-checkpoint` 加载模型参数，重新建立优化器与学习率计划；`--resume` 恢复同一次训练及其原数据校验。省略初始化参数则从配置中的 Qwen 底座开始。
 
 [正式四卡配置](configs/qev-9b.json)使用 rank 64、全局 batch 32、两轮训练和收尾分区混入。单卡、多卡、断点恢复与全参训练见[训练指南](docs/training.md)。
+
+### 训练 4B 模型
+
+[configs/qev-4b.json](configs/qev-4b.json)从 Qwen 底座出发，用教师选项概率做交叉熵训练；[configs/qev-4b-finetune.json](configs/qev-4b-finetune.json)用于在自己的标注数据上微调 `AustinFu/Qev-4B`。[训练方法与完整命令](docs/training-4b.zh-CN.md)。
 
 ### 蒸馏 2B 模型
 
@@ -170,17 +177,17 @@ Qev 按 **state → question → candidate** 组织输入。候选分支读取�
 
 ## 评测
 
-**精度对比：Qev-9B 与 Qev-2B 的主干计算使用 BF16，Kev-9B 使用 FP32。** Qev 的决策头保持 FP32。
+**精度对比：Qev-9B、Qev-4B 与 Qev-2B 的主干计算使用 BF16，Kev-9B 使用 FP32。** Qev 的决策头保持 FP32。
 
-| 评测 | Jev（参考） | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-2B | Qwen3.5-2B-Base |
-|---|---:|---:|---:|---:|---:|---:|
-| decision_dev · clean | 84.49 | **87.42** | 87.18 | 77.69 | 85.36 | 65.43 |
-| transfer_dev · clean | 85.67 | **83.99** | 82.16 | 74.39 | 77.29 | 65.09 |
-| MMLU-Pro · 1000题 | 83.50 | **57.40** | 51.10 | 50.40 | 38.70 | 31.20 |
-| SemIf · 144道手写题 | 96.53 | **93.06** | 90.97 | 90.28 | 82.64 | 63.89 |
-| scienthoon · 873题 | 75.26 | 71.02 | **75.49** | 68.84 | 71.94 | 53.84 |
-| WANLI · 256题 | 75.78 | **71.09** | 70.31 | 67.97 | 67.58 | 50.39 |
-| JevBench公开题 · 231题 | 85.71 | **83.12** | 75.76 | 75.76 | 74.46 | 63.20 |
+| 评测 | Jev（参考） | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qev-2B | Qwen3.5-2B-Base |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| decision_dev · clean | 84.49 | **87.42** | 87.18 | 77.69 | 86.95 | 85.36 | 65.43 |
+| transfer_dev · clean | 85.67 | **83.99** | 82.16 | 74.39 | 82.01 | 77.29 | 65.09 |
+| MMLU-Pro · 1000题 | 83.50 | **57.40** | 51.10 | 50.40 | 50.30 | 38.70 | 31.20 |
+| SemIf · 144道手写题 | 96.53 | **93.06** | 90.97 | 90.28 | 90.28 | 82.64 | 63.89 |
+| scienthoon · 873题 | 75.26 | 71.02 | **75.49** | 68.84 | 76.75 | 71.94 | 53.84 |
+| WANLI · 256题 | 75.78 | **71.09** | 70.31 | 67.97 | 73.44 | 67.58 | 50.39 |
+| JevBench公开题 · 231题 | 85.71 | **83.12** | 75.76 | 75.76 | 82.25 | 74.46 | 63.20 |
 
 表中为准确率（%），加粗标出 Qev-9B 与 Kev-9B 中的较高成绩；Jev 与 Qwen 底座作为参考。
 

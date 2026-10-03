@@ -102,3 +102,27 @@ def test_invalid_teacher_logits_rejected(values):
 
 def test_softmax_handles_large_offset():
     assert probabilities([10000.,10000.]) == (.5,.5)
+
+
+def test_teacher_temperature_changes_only_targets_and_preserves_raw_cache(tmp_path):
+    v = example(); cfg = config()
+    cache_files(tmp_path, [v], cfg, [0., math.log(9)])
+    original = (tmp_path / 'logits-00.jsonl').read_bytes()
+    cold = TeacherCache(tmp_path, protocol=view_protocol(cfg))
+    warm = TeacherCache(tmp_path, protocol=view_protocol(cfg), temperature=2.)
+    assert cold.targets(v)[0] == pytest.approx((.1, .9))
+    assert warm.targets(v)[0] == pytest.approx((.25, .75))
+    assert warm.verify_coverage([v])['temperature'] == 2.
+    assert (tmp_path / 'logits-00.jsonl').read_bytes() == original
+    q = replace(v.questions[0].question, label=None, target=None)
+    blind = replace(v, questions=(replace(v.questions[0], question=q),))
+    assert warm.apply(blind).questions[0].question.target == pytest.approx((.25, .75))
+    mixed = TeacherCache(tmp_path, protocol=view_protocol(cfg), weight=.5, temperature=2.)
+    with pytest.raises(ValueError, match='original targets'):
+        mixed.apply(blind)
+
+
+@pytest.mark.parametrize('temperature', [0, -1, float('nan'), float('inf')])
+def test_invalid_teacher_temperature_rejected(tmp_path, temperature):
+    with pytest.raises(ValueError, match='temperature'):
+        TeacherCache(tmp_path, protocol=view_protocol(config()), temperature=temperature)

@@ -1,0 +1,86 @@
+{
+  "model": "Qev-4B",
+  "revision": "v0.1.0",
+  "full_suite": {
+    "decision_dev": {
+      "correct": 1286,
+      "total": 1468,
+      "accuracy": 0.8760217983651226,
+      "rejected": 0
+    },
+    "transfer_dev": {
+      "correct": 618,
+      "total": 764,
+      "accuracy": 0.8089005235602095,
+      "rejected": 0
+    },
+    "mmlupro": {
+      "correct": 503,
+      "total": 1000,
+      "accuracy": 0.503,
+      "rejected": 0
+    },
+    "semif": {
+      "correct": 228,
+      "total": 252,
+      "accuracy": 0.9047619047619048,
+      "rejected": 0
+    },
+    "scienthoon": {
+      "correct": 670,
+      "total": 873,
+      "accuracy": 0.7674684994272624,
+      "rejected": 0
+    },
+    "wanli": {
+      "correct": 188,
+      "total": 256,
+      "accuracy": 0.734375,
+      "rejected": 0
+    },
+    "public": {
+      "correct": 190,
+      "total": 231,
+      "accuracy": 0.8225108225108225,
+      "rejected": 0
+    }
+  },
+  "matched_subsets": {
+    "decision_dev_all": {
+      "correct": 1286,
+      "total": 1468
+    },
+    "decision_dev_clean": {
+      "correct": 1099,
+      "total": 1264
+    },
+    "transfer_dev_all": {
+      "correct": 618,
+      "total": 764
+    },
+    "transfer_dev_clean": {
+      "correct": 538,
+      "total": 656
+    },
+    "mmlupro": {
+      "correct": 503,
+      "total": 1000
+    },
+    "scienthoon": {
+      "correct": 670,
+      "total": 873
+    },
+    "wanli": {
+      "correct": 188,
+      "total": 256
+    },
+    "semif_handwritten": {
+      "correct": 130,
+      "total": 144
+    },
+    "jevbench_public": {
+      "correct": 190,
+      "total": 231
+    }
+  }
+}

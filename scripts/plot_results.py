@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Plot matched 9B and 2B comparisons and a six-model accuracy matrix."""
+"""Plot Qev-9B, Qev-4B and Qev-2B results and the matched accuracy matrix."""
 import json
 from io import StringIO
 from pathlib import Path
@@ -21,10 +21,12 @@ PANELS = [
 ]
 GROUPS = [
     ('9B models', [('qev_9b', 'Qev-9B · BF16', '#7652bb'), ('qwen35_9b_base', 'Qwen3.5-9B-Base · BF16', '#94a5b9')]),
+    ('4B model', [('qev_4b', 'Qev-4B · BF16', '#9468c4')]),
     ('2B models', [('qev_2b', 'Qev-2B · BF16', '#ae7ed6'), ('qwen35_2b_base', 'Qwen3.5-2B-Base · BF16', '#94a5b9')]),
 ]
 MATRIX = [('jev', 'Jev · reference'), ('qev_9b', 'Qev-9B'),
           ('kev_9b', 'Kev-9B'), ('qwen35_9b_base', 'Qwen3.5-9B-Base'),
+          ('qev_4b', 'Qev-4B'),
           ('qev_2b', 'Qev-2B'), ('qwen35_2b_base', 'Qwen3.5-2B-Base')]
 
 
@@ -41,10 +43,10 @@ def save(fig, name):
 def main():
     results = json.loads((ROOT/'results/benchmarks.json').read_text())['results']
     plt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 11, 'svg.fonttype': 'none'})
-    fig, axes = plt.subplots(2, 1, figsize=(12.8, 8.5), sharex=True)
-    fig.subplots_adjust(left=.072, right=.992, bottom=.15, top=.87, hspace=.39)
-    fig.text(.072, .963, 'Qev · 9B and 2B', fontsize=18, fontweight='semibold', color='#35445e')
-    fig.text(.072, .926, 'Decision accuracy on the same seven benchmark subsets', fontsize=11, color='#7c89a0')
+    fig, axes = plt.subplots(3, 1, figsize=(12.8, 11.8), sharex=True)
+    fig.subplots_adjust(left=.072, right=.992, bottom=.11, top=.9, hspace=.45)
+    fig.text(.072, .971, 'Qev · 9B, 4B and 2B', fontsize=18, fontweight='semibold', color='#35445e')
+    fig.text(.072, .944, 'Decision accuracy on the same seven benchmark subsets', fontsize=11, color='#7c89a0')
     for group_index, (ax, (title, models)) in enumerate(zip(axes, GROUPS)):
         ax.text(0, 1.07, title, transform=ax.transAxes, fontsize=12, fontweight='semibold', color='#35445e')
         ax.legend(handles=[Patch(facecolor=c, label=n) for _,n,c in models], loc='lower right',
@@ -53,8 +55,8 @@ def main():
             row = results[key]
             values = [100*row['models'][model]['correct']/row['total'] for model,_,_ in models]
             for j, (_,_,color) in enumerate(models):
-                x = i + (-.185 if j == 0 else .185)
-                ax.bar(x, values[j], width=.315, color=color, linewidth=0, zorder=3)
+                x = i + (j - (len(models)-1)/2) * .37
+                ax.bar(x, values[j], width=.44 if len(models)==1 else .315, color=color, linewidth=0, zorder=3)
                 ax.text(x, values[j]+2, f'{values[j]:.2f}', ha='center', va='bottom', fontsize=10.4,
                         color='#40516a', fontweight='bold' if group_index==0 and values[j]>values[1-j] else 'normal')
         ax.set_ylim(0, 108); ax.set_xlim(-.65, len(PANELS)-.35); ax.set_xticks([])
@@ -70,10 +72,10 @@ def main():
     save(fig, 'evaluation')
 
     values = np.array([[100*results[key]['models'][model]['accuracy'] for key,_,_ in PANELS] for model,_ in MATRIX])
-    fig, ax = plt.subplots(figsize=(12.8, 4.9))
+    fig, ax = plt.subplots(figsize=(12.8, 5.45))
     fig.subplots_adjust(left=.195, right=.983, top=.81, bottom=.145)
     fig.text(.038, .95, 'Qev · benchmark matrix', fontsize=17, fontweight='semibold', color='#35445e')
-    fig.text(.038, .902, 'Accuracy (%) · identical question subsets across all six models', fontsize=10.5, color='#7c89a0')
+    fig.text(.038, .902, 'Accuracy (%) · identical question subsets across all seven models', fontsize=10.5, color='#7c89a0')
     ax.imshow(values, cmap='Purples', vmin=0, vmax=100, aspect='auto')
     ax.set_xticks(range(len(PANELS)), [title for _,title,_ in PANELS], fontsize=9.5, color='#35445e')
     ax.set_yticks(range(len(MATRIX)), [name for _,name in MATRIX], fontsize=10.5, color='#35445e')

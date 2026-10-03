@@ -1,0 +1,70 @@
+{
+  "model": "Qev-4B",
+  "repo_id": "AustinFu/Qev-4B",
+  "revision": "v0.1.0",
+  "base": "Qwen/Qwen3.5-4B-Base",
+  "base_revision": "710fd005d44d55ee27b7ad5147e318e546efdbfe",
+  "step": 2786,
+  "initialization": "Qwen base with fresh LoRA and decision head",
+  "training": {
+    "questions": 44576,
+    "epochs": 2,
+    "global_batch": 32,
+    "world_size": 4,
+    "seed": 17,
+    "objective": "teacher-probability cross entropy",
+    "teacher_temperature": 1.563437713227029,
+    "student_temperature": 1.0,
+    "teacher": "Separate 9B research checkpoint with additional web and rule training, step 2658; not the public Qev-9B v0.2.0",
+    "late_split": null,
+    "online_option_augmentation": false
+  },
+  "evaluation": {
+    "execution": "reference",
+    "backbone_dtype": "bf16",
+    "head_dtype": "fp32",
+    "temperature": 1.0,
+    "max_state": 4096,
+    "max_path": 4096,
+    "recorded_at": "2026-10-02",
+    "rejected_questions": 0
+  },
+  "matched_subsets": {
+    "decision_dev_all": {
+      "correct": 1286,
+      "total": 1468
+    },
+    "decision_dev_clean": {
+      "correct": 1099,
+      "total": 1264
+    },
+    "transfer_dev_all": {
+      "correct": 618,
+      "total": 764
+    },
+    "transfer_dev_clean": {
+      "correct": 538,
+      "total": 656
+    },
+    "mmlupro": {
+      "correct": 503,
+      "total": 1000
+    },
+    "scienthoon": {
+      "correct": 670,
+      "total": 873
+    },
+    "wanli": {
+      "correct": 188,
+      "total": 256
+    },
+    "semif_handwritten": {
+      "correct": 130,
+      "total": 144
+    },
+    "jevbench_public": {
+      "correct": 190,
+      "total": 231
+    }
+  }
+}

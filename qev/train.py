@@ -209,6 +209,9 @@ def main():
         # Full fine-tuning loads on the host; FSDP moves only shards and gathered layers to the GPU.
         model = QevModel(load_backbone(spec, torch.device("cpu") if full_ft else device),
                                     spec, tokenizer.pad_token_id)
+    if settings.get("reset_training_rng", False):
+        random.seed(seed)
+        torch.manual_seed(seed)
     if device.type == "cpu" and spec.weights_dtype == "bf16":
         raise ValueError("use an fp32 config for CPU training")
     model.prefix_execution = settings.get("prefix_execution", "leaf-rows")
@@ -247,7 +250,9 @@ def main():
     n_late = admit(late_records) - n_main
     if not n_main or (late_records and not n_late):
         raise ValueError("no records fit the declared token limits")
-    if any(q.question.target is None for r in encoded for q in r.questions):
+    kd_settings = settings.get("distillation") or {}
+    pure_teacher = bool(kd_settings) and float(kd_settings.get("weight", 1.0)) == 1.0
+    if not pure_teacher and any(q.question.target is None for r in encoded for q in r.questions):
         raise ValueError("training data contain unlabelled questions")
     admission_hash = __import__("hashlib").sha256("\n".join(r.record.id for r in encoded).encode()).hexdigest()
     if rank == 0:
@@ -328,8 +333,11 @@ def main():
         if ord_w or score_hl_sigma:
             raise ValueError("distillation requires unmodified soft-target cross entropy")
         from .distillation import TeacherCache, training_views, view_protocol
-        teacher_cache = TeacherCache(kd["cache"], protocol=view_protocol(config), weight=kd.get("weight", 1.0))
-        teacher_cache.verify_coverage(training_views(encoded, n_main, encoder, config))
+        teacher_cache = TeacherCache(kd["cache"], protocol=view_protocol(config), weight=kd.get("weight", 1.0),
+                                     temperature=kd.get("temperature", 1.0))
+        coverage = teacher_cache.verify_coverage(training_views(encoded, n_main, encoder, config))
+        if rank == 0:
+            write_json(out / "distillation.json", coverage)
         data_files["teacher_manifest"] = file_hash(teacher_cache.path / "manifest.json")
         for entry in teacher_cache.manifest["shards"]:
             data_files["teacher/" + entry["file"]] = file_hash(teacher_cache.path / entry["file"])

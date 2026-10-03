@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-30",
+  "date": "2026-10-02",
   "metric": "argmax_accuracy",
   "models": {
     "jev": {
@@ -41,6 +41,18 @@
       "dtype": "bf16",
       "base": "Qwen/Qwen3.5-2B-Base",
       "base_revision": "b1485b2fa6dfa1287294f269f5fb618e03d52d7c"
+    },
+    "qev_4b": {
+      "repo_id": "AustinFu/Qev-4B",
+      "revision": "v0.1.0",
+      "base": "Qwen/Qwen3.5-4B-Base",
+      "base_revision": "710fd005d44d55ee27b7ad5147e318e546efdbfe",
+      "step": 2786,
+      "dtype": "bf16",
+      "execution": "reference",
+      "seed": 17,
+      "temperature": 1.0,
+      "description": "Initialized directly from the Qwen base; teacher-probability cross entropy"
     }
   },
   "results": {
@@ -70,6 +82,10 @@
         "qwen35_2b_base": {
           "correct": 927,
           "accuracy": 0.6314713896457765
+        },
+        "qev_4b": {
+          "correct": 1286,
+          "accuracy": 0.8760217983651226
         }
       }
     },
@@ -99,6 +115,10 @@
         "qwen35_2b_base": {
           "correct": 827,
           "accuracy": 0.6542721518987342
+        },
+        "qev_4b": {
+          "correct": 1099,
+          "accuracy": 0.8694620253164557
         }
       }
     },
@@ -128,6 +148,10 @@
         "qwen35_2b_base": {
           "correct": 493,
           "accuracy": 0.6452879581151832
+        },
+        "qev_4b": {
+          "correct": 618,
+          "accuracy": 0.8089005235602095
         }
       }
     },
@@ -157,6 +181,10 @@
         "qwen35_2b_base": {
           "correct": 427,
           "accuracy": 0.6509146341463414
+        },
+        "qev_4b": {
+          "correct": 538,
+          "accuracy": 0.8201219512195121
         }
       }
     },
@@ -186,6 +214,10 @@
         "qwen35_2b_base": {
           "correct": 312,
           "accuracy": 0.312
+        },
+        "qev_4b": {
+          "correct": 503,
+          "accuracy": 0.503
         }
       }
     },
@@ -215,6 +247,10 @@
         "qwen35_2b_base": {
           "correct": 92,
           "accuracy": 0.6388888888888888
+        },
+        "qev_4b": {
+          "correct": 130,
+          "accuracy": 0.9027777777777778
         }
       }
     },
@@ -244,6 +280,10 @@
         "qwen35_2b_base": {
           "correct": 470,
           "accuracy": 0.5383734249713631
+        },
+        "qev_4b": {
+          "correct": 670,
+          "accuracy": 0.7674684994272624
         }
       }
     },
@@ -273,6 +313,10 @@
         "qwen35_2b_base": {
           "correct": 129,
           "accuracy": 0.50390625
+        },
+        "qev_4b": {
+          "correct": 188,
+          "accuracy": 0.734375
         }
       }
     },
@@ -302,6 +346,10 @@
         "qwen35_2b_base": {
           "correct": 146,
           "accuracy": 0.6320346320346321
+        },
+        "qev_4b": {
+          "correct": 190,
+          "accuracy": 0.8225108225108225
         }
       }
     }
@@ -315,7 +363,8 @@
         "qev_9b": 68,
         "qwen35_9b_base": 59,
         "qev_2b": 64,
-        "qwen35_2b_base": 44
+        "qwen35_2b_base": 44,
+        "qev_4b": 69
       }
     },
     "easy": {
@@ -326,7 +375,8 @@
         "qev_9b": 48,
         "qwen35_9b_base": 48,
         "qev_2b": 48,
-        "qwen35_2b_base": 48
+        "qwen35_2b_base": 48,
+        "qev_4b": 48
       }
     },
     "hard": {
@@ -337,7 +387,8 @@
         "qev_9b": 76,
         "qwen35_9b_base": 68,
         "qev_2b": 60,
-        "qwen35_2b_base": 54
+        "qwen35_2b_base": 54,
+        "qev_4b": 73
       }
     }
   },

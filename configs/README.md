@@ -8,6 +8,13 @@
 
 [Training guide](../docs/training.md) · [Architecture](../docs/architecture.md)
 
+## 4B model
+
+- `qev-4b.json`: the released model's two-epoch, four-GPU teacher-probability recipe, initialized directly from Qwen3.5-4B-Base. It uses 44,576 single-question inputs, global batch 32, 2,786 steps, teacher temperature 1.563437713227029 and no late split.
+- `qev-4b-finetune.json`: supervised adaptation from Qev-4B on your own labelled data, batch 1 / accumulation 32, without a teacher cache.
+
+[4B training method](../docs/training-4b.md) · [中文](../docs/training-4b.zh-CN.md).
+
 ## 2B models
 
 - `qev-2b.json`: the 2B architecture and two-epoch supervised-training recipe.

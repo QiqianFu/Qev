@@ -104,12 +104,24 @@ def test_response_training_cpu_resume_and_model_reload(tmp_path,tokenizer,record
         train(student,data,changed,tmp_path/'changed',device='cpu',resume=first)
 
 
-def test_probability_distillation_uses_standard_trainer_and_detects_target_changes(tmp_path,tokenizer,record):
+@pytest.mark.parametrize('unlabelled,temperature', [(False, 1.), (True, 1.563437713227029)])
+def test_probability_distillation_uses_standard_trainer_and_detects_target_changes(tmp_path,tokenizer,record,unlabelled,temperature):
     from test_training import training_assets, run_training
     data,config_path=training_assets(tmp_path,tokenizer,record)
     config=json.loads(config_path.read_text())
     cache=tmp_path/'teacher';cache.mkdir()
-    config['training']['distillation']={'cache':str(cache),'weight':1.0}
+    config['training']['distillation']={'cache':str(cache),'weight':1.0,'temperature':temperature}
+    config['training']['reset_training_rng']=True
+    if unlabelled:
+        rows=[json.loads(line) for line in (data/'train.jsonl').read_text().splitlines()]
+        for row in rows:
+            for question in row['questions']:
+                question.pop('target', None)
+                question.pop('label', None)
+        (data/'train.jsonl').write_text(''.join(json.dumps(row)+'\n' for row in rows))
+        manifest=json.loads((data/'manifest.json').read_text())
+        manifest['files']['train'].pop('sha256')
+        (data/'manifest.json').write_text(json.dumps(manifest))
     config_path.write_text(json.dumps(config))
     spec=ModelSpec(**config['model'])
     teacher=QevModel(load_backbone(spec,'cpu'),spec,tokenizer.pad_token_id).eval()
@@ -117,6 +129,7 @@ def test_probability_distillation_uses_standard_trainer_and_detects_target_chang
     cache_logits(data,cache,config,encoder,teacher,encoder)
     out=tmp_path/'training'
     run_training(data,config_path,out,'--max-steps','1')
+    assert json.loads((out/'distillation.json').read_text())['temperature']==temperature
     run_training(data,config_path,out,'--resume',str(out/'step-000001'),'--max-steps','2')
     rows=[json.loads(line) for line in (cache/'logits.jsonl').read_text().splitlines()]
     rows[0]['logits'][0]+=.5

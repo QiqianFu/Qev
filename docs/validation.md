@@ -94,3 +94,16 @@ The current [9B weights](https://huggingface.co/AustinFu/Qev-9B/tree/v0.2.0) are
 - Passed eight focused CPU tests covering data validation, versioned checkpoint resolution and source-prefix exemptions for None-option augmentation.
 
 These checks verify the selected artifacts and their publication. Full-size GPU inference and benchmark measurements were not rerun during packaging.
+
+## Qev-4B v0.1.0 — 2026-10-02
+
+The [4B release](https://huggingface.co/AustinFu/Qev-4B/tree/v0.1.0) is the 2,786-step checkpoint initialized directly from Qwen3.5-4B-Base.
+
+- Recomputed all seven suites from 4,844 saved predictions, checked probabilities and zero rejections, and matched question IDs, candidate order and labels against the existing 9B evaluation. MMLU-Pro is 503/1,000; JevBench is 190/231.
+- Verified the matched README subsets, all 49 matrix cells and 35 bar labels. Previously published models' scores are unchanged.
+- Compared the exported adapter, head and gate files byte-for-byte with the selected checkpoint, read their tensor headers and loaded the real 4B tokenizer.
+- Encoded all 44,576 label-free training inputs through the public implementation and verified teacher coverage over both epochs: 89,152 views, with the recorded teacher temperature.
+- Passed 17 focused CPU tests for teacher temperature, missing/invalid targets, training and resume on labelled and unlabelled data, cache changes, export/loading and versioned Hub resolution.
+- Downloaded all 25 published files anonymously in a fresh cache and compared them with the prepared package. Verified the `v0.1.0` tag through Qev's checkpoint resolver.
+
+These checks cover packaging and the training-code changes. The reported model scores come from the original saved evaluation; full-size 4B GPU inference and benchmarks were not rerun for this release.

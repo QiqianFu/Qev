@@ -2,8 +2,8 @@
 # Adapted for Qev; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Frozen teacher logits for the exact, possibly augmented, student input.
 
-Probability distillation uses T=1. Replacing the target by a mixture of the original
-target and softmax(teacher logits) is equivalent (up to teacher entropy) to
+Cached logits are unscaled; teacher temperature is applied when reading them.
+Replacing the target by a mixture of the original target and teacher probabilities is equivalent (up to teacher entropy) to
 supervised CE plus forward KL. Labels never enter the cache key or teacher input.
 """
 from dataclasses import replace
@@ -63,8 +63,11 @@ def probabilities(logits):
 
 
 class TeacherCache:
-    def __init__(self, path, *, protocol, weight=1.0):
+    def __init__(self, path, *, protocol, weight=1.0, temperature=1.0):
         self.path, self.weight = Path(path), float(weight)
+        self.temperature = float(temperature)
+        if not math.isfinite(self.temperature) or self.temperature <= 0:
+            raise ValueError("teacher temperature must be finite and positive")
         if not 0 < self.weight <= 1:
             raise ValueError("teacher weight must be in (0, 1]")
         self.manifest = json.loads((self.path / "manifest.json").read_text())
@@ -84,7 +87,7 @@ class TeacherCache:
                 for line in f:
                     row = json.loads(line)
                     ids = tuple(row["candidate_ids"])
-                    ps = probabilities(row["logits"])
+                    ps = probabilities([z / self.temperature for z in row["logits"]])
                     if len(ids) != len(ps) or len(set(ids)) != len(ids):
                         raise ValueError("teacher candidate/logit mismatch")
                     if row["key"] in self.rows:
@@ -128,5 +131,5 @@ class TeacherCache:
             count += len(view.questions)
             seen.update(question_key(view.record.state, q.question) for q in view.questions)
         return {"visited_questions": count, "unique_inputs": len(seen),
-                "cache_inputs": len(self.rows), "weight": self.weight, "temperature": 1,
+                "cache_inputs": len(self.rows), "weight": self.weight, "temperature": self.temperature,
                 "complete_coverage": True}

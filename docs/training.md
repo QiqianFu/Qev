@@ -2,6 +2,8 @@
 
 All commands run from the repository root. Python 3.12 and the pinned dependencies in `pyproject.toml` match the tested CPU environment and the research training stack. Install a hardware-compatible PyTorch 2.8.0 wheel first. CUDA acceleration packages such as compatible flash-linear-attention kernels are optional; identify the actual execution path when reporting speed.
 
+For Qev-4B, use `configs/qev-4b-finetune.json` with `--init-checkpoint AustinFu/Qev-4B`. The released model starts directly from the Qwen base and learns teacher probabilities; see the [4B method and recipe](training-4b.md) or [中文](training-4b.zh-CN.md).
+
 For Qev-2B, use `configs/qev-2b-finetune.json` and the 2B checkpoint. To reproduce its teacher-training method, see the [distillation guide](distillation.md).
 
 ## Prepare user data
@@ -13,7 +15,7 @@ python -m qev.prepare --input examples/train.jsonl \
 
 Without `--validation`, the preparer makes a deterministic group split (`--validation-fraction 0.1 --seed 17`). It refuses duplicate IDs, overlapping groups, and exactly repeated record inputs across train/dev. This is an exact guard, not semantic deduplication. Put related examples in the same `group_id` before splitting. Existing output directories are never overwritten.
 
-The trainer consumes `manifest.json` and a `train` partition, checks split roles and record counts, and records all over-length rejections. Records are not silently truncated. All training questions need targets.
+The trainer consumes `manifest.json` and a `train` partition, checks split roles and record counts, and records all over-length rejections. Records are not silently truncated. Supervised and mixed-target training require targets. Pure teacher training (`distillation.weight: 1.0`) also accepts unlabelled canonical records, provided the teacher cache covers every input and candidate order.
 
 ## Fine-tune from Qev-9B
 

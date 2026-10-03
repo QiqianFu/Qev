@@ -28,6 +28,20 @@ model = Qev.from_pretrained(
 
 CLI commands accept either a local directory or `AustinFu/Qev-9B`. Append `@v0.2.0` to select the current 9B release explicitly. Qev does not need `trust_remote_code`.
 
+## Load Qev-4B
+
+```python
+model = Qev.from_pretrained("AustinFu/Qev-4B", device="cuda", revision="v0.1.0")
+```
+
+The approximately 524 MiB adaptation package contains the model trained directly from Qwen3.5-4B-Base for 2,786 steps. The loader fetches the pinned base separately. Its default state and complete-path limits are both 4,096 tokens.
+
+```bash
+hf download AustinFu/Qev-4B --revision v0.1.0 --local-dir checkpoints/qev-4b
+```
+
+CLI commands accept `AustinFu/Qev-4B@v0.1.0` with the same request format as 2B and 9B. See the [4B model card](model-card-4b.md) and [training method](training-4b.md).
+
 ## Load Qev-2B
 
 Qev-2B uses the same loader and request format:
@@ -59,7 +73,7 @@ A Qev checkpoint uses `model.json`, `adapter/`, `tokenizer/`, `head.safetensors`
 
 ## Precision and execution
 
-`weights_dtype="checkpoint"` uses the configured precision. `weights_dtype="fp32"` loads the backbone and adapter in FP32. Qev-2B and Qev-9B use BF16 backbone computation and an FP32 decision head.
+`weights_dtype="checkpoint"` uses the configured precision. `weights_dtype="fp32"` loads the backbone and adapter in FP32. Qev-2B, Qev-4B and Qev-9B use BF16 backbone computation and an FP32 decision head.
 
 The Python API and prediction CLI use shared-prefix caching by default. Set `execution="reference"` in Python or `--reference` in the CLI for the execution used in the benchmark reports. Optional `max_state` and `max_path` settings control accepted input sizes.
 

@@ -66,9 +66,11 @@ def main():
             errors.append(f"invalid probabilities: {row['record_id']}")
         if probs[row['prediction']]!=max(values) or row['correct']!=(row['prediction']==row['label']):
             errors.append(f"prediction/label mismatch: {row['record_id']}")
-    for folder, model, correct in [('qev-2b', 'qev_2b', 172), ('qwen3.5-2b-base', 'qwen35_2b_base', 146)]:
+    prediction_count=len(rows)
+    for folder, model in [('qev-4b', 'qev_4b'), ('qev-2b', 'qev_2b'), ('qwen3.5-2b-base', 'qwen35_2b_base')]:
         records=[json.loads(line) for line in (ROOT/'results'/folder/'jevbench-predictions.jsonl').read_text().splitlines()]
-        if len(records)!=231 or sum(row['correct'] for row in records)!=correct:
+        prediction_count+=len(records)
+        if len(records)!=benchmark['total'] or sum(row['correct'] for row in records)!=benchmark['models'][model]['correct']:
             errors.append(f'{folder}: inconsistent JevBench results')
         for row in records:
             ps=row['probabilities']
@@ -76,14 +78,21 @@ def main():
                 errors.append(f'{folder}: invalid probabilities')
             if ps[row['prediction']]!=max(ps.values()) or row['correct']!=(row['prediction']==row['label']):
                 errors.append(f'{folder}: inconsistent prediction')
+    for folder,model in [('qev-4b','qev_4b'),('qev-9b','qev_9b')]:
+        evaluation=json.loads((ROOT/'results'/folder/'evaluation.json').read_text())
+        for scope,row in evaluation['matched_subsets'].items():
+            expected=results['results'][scope]
+            if row['total']!=expected['total'] or row['correct']!=expected['models'][model]['correct']:
+                errors.append(f'{folder}/{scope}: full report and benchmark table differ')
     archived=ROOT/'results/history/qev-9b-v0.1.0'
     old_predictions=archived/'jevbench-predictions.jsonl'
     old_provenance=json.loads((archived/'provenance.json').read_text())
     if hashlib.sha256(old_predictions.read_bytes()).hexdigest()!=old_provenance['predictions_sha256']:
         errors.append('archived Qev-9B v0.1.0 predictions changed')
+    prediction_count+=len(old_predictions.read_text().splitlines())
     for error in errors:print(error)
     print(f'{len(docs)} documents, {checked_links} local links, {len(pyfiles)} Python files, '
-          f'924 current and archived predictions; {len(errors)} errors')
+          f'{prediction_count} current and archived predictions; {len(errors)} errors')
     return bool(errors)
 
 

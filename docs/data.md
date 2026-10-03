@@ -51,6 +51,12 @@ The selected 9B recipe places all 600 boundary questions in the **main** set; th
 
 Data licensing and attribution are described in [third-party notices](../THIRD_PARTY_NOTICES.md) and the [dataset license](https://huggingface.co/datasets/AustinFu/Qev-train/blob/main/LICENSE.md). The 1,534 original alignment/rule examples use Apache-2.0 where copyright applies; the 308 Wikipedia-grounded examples retain CC BY-SA 4.0; the 600 HelpSteer3-derived boundary examples retain CC BY 4.0. Both derived components carry per-example attribution.
 
+## Qev-4B training inputs
+
+Qev-4B uses a separate 44,576-question training pool, with one question per record and hard labels removed. It combines general decisions, Principle judgments, controlled boundaries, web actions and additional reasoning/rule tasks. World-knowledge records and held-out response-probe parent questions were excluded; there is no separate late split or online option augmentation.
+
+The teacher supplies the entire target distribution. The [4B training guide](training-4b.md) describes the preparation and objective. This input pool, its research teacher and its cached outputs are not part of Qev-train v1.1.0. Qev-train remains the separately released 2,442-example synthetic subset with its original hard labels.
+
 ## JevBench
 
 [prepare_jevbench.py](../scripts/prepare_jevbench.py) downloads JevBench v1.4.2. It retains every public task and its gold probabilities, performs explicit Noul label mapping, and exports evaluation-only views. Token-length checks record overflows without dropping tasks. See [evaluation.md](evaluation.md) for commands and the distinction between local accuracy and the official score.

@@ -8,7 +8,7 @@
   <a href="LICENSE"><img src="assets/badges/license.svg" alt="Apache-2.0"></a>
 </p>
 
-<p align="center"><strong>English</strong> | <a href="README.zh-CN.md">简体中文</a> | <a href="https://huggingface.co/AustinFu/Qev-2B">🤗 Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a> | <a href="https://huggingface.co/datasets/AustinFu/Qev-train">🤗 Training data</a></p>
+<p align="center"><strong>English</strong> | <a href="README.zh-CN.md">简体中文</a> | <a href="https://huggingface.co/AustinFu/Qev-2B">🤗 Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-4B">🤗 Qev-4B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a> | <a href="https://huggingface.co/datasets/AustinFu/Qev-train">🤗 Training data</a></p>
 
 **Qev fine-tunes Qwen into a decision model.** Give it context, a question, and candidate answers; get a choice and a probability for every option. One model handles **Choice**, **Noul** (yes/no), and **Score** (ordered ratings).
 
@@ -16,29 +16,32 @@ This repository provides the model architecture, training and evaluation code, P
 
 | Start here | What you can do |
 |---|---|
-| **[Get model weights](#model-and-checkpoints)** | Compare Qev-2B and Qev-9B and find their checkpoint details |
+| **[Get model weights](#model-and-checkpoints)** | Compare Qev-2B, Qev-4B and Qev-9B and find their checkpoint details |
 | **[Run a model](#inference)** | Get decisions and option probabilities through Python or JSONL |
 | **[Train a model](#training)** | Prepare labelled data, train from Qwen, or fine-tune an existing Qev checkpoint |
 
 <p align="center">
-  <img src="assets/evaluation.svg" alt="Matched benchmark bars: Qev-9B versus Qwen3.5-9B-Base, and Qev-2B versus Qwen3.5-2B-Base." width="100%">
+  <img src="assets/evaluation.svg" alt="Qev-9B and Qev-2B versus their Qwen bases, plus Qev-4B on the same seven benchmarks." width="100%">
 </p>
 
-| Choose a model | Qev-2B | Qev-9B |
-|---|---|---|
-| Role | Compact student distilled from Qev-9B | Decision model and distillation teacher |
-| Get started | [2B model weights](https://huggingface.co/AustinFu/Qev-2B) | [9B model weights](https://huggingface.co/AustinFu/Qev-9B) |
+| Choose a model | Qev-2B | Qev-4B | Qev-9B |
+|---|---|---|---|
+| Role | Compact model with response distillation | Mid-sized model trained directly from the Qwen base | Largest decision model |
+| Get started | [2B model weights](https://huggingface.co/AustinFu/Qev-2B) | [4B model weights](https://huggingface.co/AustinFu/Qev-4B) | [9B model weights](https://huggingface.co/AustinFu/Qev-9B) |
 
 ## Model and checkpoints
 
 | Model | Base and architecture | Availability |
 |---|---|---|
 | **Qev-2B** | Qwen3.5-2B-Base, rank-64 LoRA, two-layer 256-dimensional head | [Hugging Face · Download](https://huggingface.co/AustinFu/Qev-2B) |
+| **Qev-4B** | Qwen3.5-4B-Base, rank-64 LoRA, two-layer 256-dimensional head | [Hugging Face · Download](https://huggingface.co/AustinFu/Qev-4B) |
 | **Qev-9B** | Qwen3.5-9B-Base, rank-64 LoRA, two-layer 256-dimensional set head | [Hugging Face · Download](https://huggingface.co/AustinFu/Qev-9B) |
 
 Qev-9B v0.2.0 combines general decision data with HelpSteer3 Principle and 600 synthetic boundary questions in the main training set. Additional alignment and document-rule examples are mixed into the second half of training and repeated three times. The download includes the LoRA adapter, decision head, interaction gate, tokenizer and configuration.
 
-Qev-2B learns from Qev-9B through probability distillation and programmatic context edits, with an additional loss on representation changes. The adaptation packages download automatically: approximately **284 MiB for 2B** and **690 MiB for 9B**; the loader fetches the corresponding Qwen base separately. See [checkpoint export and loading](docs/checkpoints.md) and the model cards for [2B](docs/model-card-2b.md) and [9B](docs/model-card.md).
+Qev-4B starts directly from Qwen3.5-4B-Base and learns a 9B teacher's option probabilities over 44,576 inputs. It uses a single two-epoch training stage and supports 4,096-token paths. [4B training method](docs/training-4b.md).
+
+Qev-2B learns from Qev-9B through probability distillation and programmatic context edits, with an additional loss on representation changes. The adaptation packages download automatically: approximately **284 MiB for 2B**, **524 MiB for 4B** and **690 MiB for 9B**; the loader fetches the corresponding Qwen base separately. See [checkpoint export and loading](docs/checkpoints.md) and the model cards for [2B](docs/model-card-2b.md), [4B](docs/model-card-4b.md) and [9B](docs/model-card.md).
 
 ## Installation
 
@@ -68,7 +71,7 @@ Load the model once in your process, then submit requests:
 ```python
 from qev import Qev
 
-# Choose "AustinFu/Qev-2B" or "AustinFu/Qev-9B".
+# Choose "AustinFu/Qev-2B", "AustinFu/Qev-4B" or "AustinFu/Qev-9B".
 model = Qev.from_pretrained(
     "AustinFu/Qev-9B", device="cuda"
 )
@@ -110,7 +113,7 @@ Training examples use the same `state` and `questions` as inference, with a `lab
 | Included examples | Six training and two validation requests, covering all three tasks | [examples/](examples/README.md) |
 | **Qev-train** | **2,442 synthetic training examples**: alignment, document rules, world knowledge and controlled boundary questions | [Dataset and synthesis methods](https://huggingface.co/datasets/AustinFu/Qev-train) |
 | Your data | Labelled or soft-target JSONL requests | [Data format](docs/data.md) |
-| Research recipe | 39,605 main and 1,783 late records; the full corpus is not bundled | [Composition and availability](docs/data.md#research-recipe-and-availability) |
+| 9B research recipe | 39,605 main and 1,783 late records; the full corpus is not bundled | [Composition and availability](docs/data.md#research-recipe-and-availability) |
 
 ```bash
 python -m qev.prepare \
@@ -134,6 +137,10 @@ python -m qev.train \
 `--init-checkpoint` loads model parameters and starts a fresh optimizer and schedule. `--resume` continues the same run with its original data checks. Omit initialization to start from the Qwen base in the configuration.
 
 The [formal four-GPU recipe](configs/qev-9b.json) uses rank 64, global batch 32, two epochs, and a late-training partition. Single-GPU use, distributed training, resume and full fine-tuning are documented in the [training guide](docs/training.md).
+
+### Train the 4B model
+
+Use [configs/qev-4b.json](configs/qev-4b.json) to train from the Qwen base with teacher-probability cross entropy, or [configs/qev-4b-finetune.json](configs/qev-4b-finetune.json) to adapt `AustinFu/Qev-4B` on labelled data. [Training method and commands](docs/training-4b.md).
 
 ### Distill a 2B model
 
@@ -170,17 +177,17 @@ Qev organizes inputs as **state → question → candidate**. Candidate branches
 
 ## Evaluation
 
-**Precision: Qev-9B and Qev-2B use BF16 backbone computation; Kev-9B uses FP32.** Qev's decision head remains in FP32.
+**Precision: Qev-9B, Qev-4B and Qev-2B use BF16 backbone computation; Kev-9B uses FP32.** Qev's decision head remains in FP32.
 
-| Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-2B | Qwen3.5-2B-Base |
-|---|---:|---:|---:|---:|---:|---:|
-| Decision development · clean | 84.49 | **87.42** | 87.18 | 77.69 | 85.36 | 65.43 |
-| Transfer development · clean | 85.67 | **83.99** | 82.16 | 74.39 | 77.29 | 65.09 |
-| MMLU-Pro · 1,000 | 83.50 | **57.40** | 51.10 | 50.40 | 38.70 | 31.20 |
-| SemIf · 144 handwritten | 96.53 | **93.06** | 90.97 | 90.28 | 82.64 | 63.89 |
-| scienthoon · 873 | 75.26 | 71.02 | **75.49** | 68.84 | 71.94 | 53.84 |
-| WANLI · 256 | 75.78 | **71.09** | 70.31 | 67.97 | 67.58 | 50.39 |
-| JevBench public · 231 | 85.71 | **83.12** | 75.76 | 75.76 | 74.46 | 63.20 |
+| Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qev-2B | Qwen3.5-2B-Base |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Decision development · clean | 84.49 | **87.42** | 87.18 | 77.69 | 86.95 | 85.36 | 65.43 |
+| Transfer development · clean | 85.67 | **83.99** | 82.16 | 74.39 | 82.01 | 77.29 | 65.09 |
+| MMLU-Pro · 1,000 | 83.50 | **57.40** | 51.10 | 50.40 | 50.30 | 38.70 | 31.20 |
+| SemIf · 144 handwritten | 96.53 | **93.06** | 90.97 | 90.28 | 90.28 | 82.64 | 63.89 |
+| scienthoon · 873 | 75.26 | 71.02 | **75.49** | 68.84 | 76.75 | 71.94 | 53.84 |
+| WANLI · 256 | 75.78 | **71.09** | 70.31 | 67.97 | 73.44 | 67.58 | 50.39 |
+| JevBench public · 231 | 85.71 | **83.12** | 75.76 | 75.76 | 82.25 | 74.46 | 63.20 |
 
 Accuracy (%). Bold marks the higher score between Qev-9B and Kev-9B; Jev and the Qwen base are references.
 

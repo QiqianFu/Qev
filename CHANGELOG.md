@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added Qev-4B v0.1.0, initialized directly from Qwen3.5-4B-Base: MMLU-Pro 50.30%, public JevBench 190/231. Includes portable weights, 4B training/fine-tuning recipes, bilingual method documentation, model selection and benchmark charts.
+- Added configurable teacher-logit temperature and label-free pure-teacher training with complete cache-coverage checks. Existing 2B training keeps temperature 1 by default.
+
 - Updated Qev-9B to v0.2.0: HelpSteer3 Principle and 600 synthetic boundary questions in the main set, MMLU-Pro 57.40%, public JevBench 192/231. The original v0.1.0 weights and results remain available.
 - Expanded Qev-train to v1.1.0 with 2,442 examples, adding 600 controlled boundary tasks and their CC BY 4.0 attribution. The original v1.0.0 dataset is preserved.
 - Pinned the released 2B recipe to its original Qev-9B v0.1.0 teacher and protected boundary-task candidate sets during further training.
@@ -25,4 +28,4 @@
 - Included fixed-version benchmark summaries and the selected model's original 231 JevBench prediction rows.
 - Added an offline tiny-model smoke workflow and release validation.
 
-Qev is the public name of the selected research models; packaging preserves their original trained checkpoints and benchmark results. The weights are available at [AustinFu/Qev-2B](https://huggingface.co/AustinFu/Qev-2B) and [AustinFu/Qev-9B](https://huggingface.co/AustinFu/Qev-9B). The complete training corpus is not bundled.
+Qev is the public name of the selected research models; packaging preserves their original trained checkpoints and benchmark results. The weights are available at [AustinFu/Qev-2B](https://huggingface.co/AustinFu/Qev-2B), [AustinFu/Qev-4B](https://huggingface.co/AustinFu/Qev-4B) and [AustinFu/Qev-9B](https://huggingface.co/AustinFu/Qev-9B). The complete training corpus is not bundled.
