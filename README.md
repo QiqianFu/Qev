@@ -19,6 +19,7 @@ This repository provides the model architecture, training and evaluation code, P
 | **[Get model weights](#models)** | Compare Qev-2B, Qev-4B and Qev-9B and find their checkpoint details |
 | **[Run a model](#inference)** | Get decisions and option probabilities through Python or JSONL |
 | **[Train a model](#training)** | Prepare labelled data, train from Qwen, or fine-tune an existing Qev checkpoint |
+| **[View evaluation](#evaluation)** | Compare benchmark results across Qev and reference models |
 
 <p align="center">
   <img src="assets/evaluation.svg" alt="Qev-4B, JevAny-4B Pointer, Kev-4B and Jev compared on seven benchmarks." width="100%">
@@ -207,6 +208,7 @@ Qev builds on Qwen and adapts delimiter, rendering, LoRA-target and cache-fork c
 
 We thank the following projects and author for their work and inspiration:
 
+- **[Jared Palmer's Kev](https://github.com/jaredpalmer/kev)**: thank you for open-sourcing the training data. Qev's training data is primarily sourced from or developed with reference to Kev's released data.
 - **BranchKev**: the research work on candidate-branch encoding, decision heads and training workflows provided the foundation for Qev's standalone release. See [NOTICE](NOTICE) and [code lineage](results/history/source-extraction.json) for the code lineage.
 - **[Jev / the TypeSafe team](https://typesafe.ai/)**: thank you for advancing decision models and providing [public API documentation](https://docs.typesafe.ai/introduction) for typed decisions and probability outputs.
 - **[Archer Hume — Jev’s Architecture Unmasked](https://archerhume.com/posts/jevs-architecture-unmasked/)**: thank you for the independent API experiments and architectural analysis, offering useful perspectives on shared-state computation, question isolation and interactions between candidate answers.
