@@ -145,3 +145,9 @@ These checks validate packaging, recorded scores and publication. Full-size GPU 
 Added the standard JevAny-4B Pointer results to both README tables and the full evaluation tables. The cover now shows seven benchmarks in this order: MMLU-Pro, SemIf, JevBench, scienthoon, WANLI, ChessBench and BPoMP. Transfer development and GSM8K remain in the tables and matrix. Narrower side margins, a smaller canvas width and larger fonts make labels more legible at README width.
 
 Checked all 28 bar values and 32 added table values against the recorded results, preserved existing table cells and the full matrix, and inspected the chart at 940 pixels wide. Ran the plotting script, release checker and whitespace checks; model code and benchmark measurements are unchanged.
+
+## Highlighted README tables — 2026-10-04
+
+The English and Chinese READMEs now display SVG tables with light blue backgrounds for Qev-9B, Qev-4B and Qev-2B. The original Markdown tables remain available in expandable sections for copying. `python scripts/render_results_table.py` regenerates the images from those tables; rendering Chinese requires a Noto Sans CJK font.
+
+Verified all 180 displayed scores against the source tables and recorded metrics, checked the three highlighted columns, and inspected both rendered tables. The cover remains the seven-benchmark version with JevBench third; its public GitHub image contains neither Transfer development nor GSM8K. No benchmark scores or model code changed.

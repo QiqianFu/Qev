@@ -123,6 +123,13 @@ Qev 按 **state → question → candidate** 组织输入。候选分支读取�
 
 **精度对比：Qev-9B、Qev-4B 与 Qev-2B 的主干计算使用 BF16，Kev 和 JevAny 使用 FP32。** Qev 的决策头保持 FP32。
 
+<p align="center">
+  <a href="assets/evaluation-table.zh-CN.svg"><img src="assets/evaluation-table.zh-CN.svg" alt="评测结果：Qev-9B、Qev-4B、Qev-2B 三列以淡蓝色突出显示。" width="100%"></a>
+</p>
+
+<details>
+<summary>展开可复制的成绩表</summary>
+
 | 评测 | Jev（参考） | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | JevAny-4B Pointer | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | JevBench公开题 · 231题 | 85.71 | **80.95** | 75.76 | 75.76 | 82.25 | 78.35 | 67.10 | 74.46 | 63.20 |
@@ -135,6 +142,8 @@ Qev 按 **state → question → candidate** 组织输入。候选分支读取�
 | GSM8K · 选择题改编 | 79.87 | **61.75** | 46.36 | 55.53 | 54.59 | 47.61 | 37.00 | 37.76 | 30.40 |
 | ChessBench · 5000题 | 17.22 | 10.34 | **11.76** | 13.22 | 12.42 | 11.32 | 11.78 | 10.98 | 8.84 |
 | BPoMP · 变体平均 | 90.92 | **81.03** | 66.93 | 59.39 | 78.19 | 73.87 | 68.95 | 73.81 | 50.50 |
+
+</details>
 
 表中均为百分制：原有评测为准确率，GSM8K、ChessBench 和 BPoMP 采用 Decision Index 官方原始分，其中 BPoMP 为不同变体的平均准确率。加粗比较 Qev-9B 与 Kev-9B；Jev 和原生底座作为参考。表格和封面中的 JevAny 均采用标准 4B Pointer 版。封面图比较 Qev-4B、JevAny-4B Pointer、Kev-4B 与 Jev。
 

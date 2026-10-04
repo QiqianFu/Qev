@@ -123,6 +123,13 @@ Qev organizes inputs as **state → question → candidate**. Candidate branches
 
 **Precision: Qev-9B, Qev-4B and Qev-2B use BF16 backbone computation; Kev and JevAny use FP32.** Qev's decision head remains in FP32.
 
+<p align="center">
+  <a href="assets/evaluation-table.svg"><img src="assets/evaluation-table.svg" alt="Benchmark results with Qev-9B, Qev-4B and Qev-2B highlighted in light blue." width="100%"></a>
+</p>
+
+<details>
+<summary>Copyable results table</summary>
+
 | Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | JevAny-4B Pointer | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | JevBench public · 231 | 85.71 | **80.95** | 75.76 | 75.76 | 82.25 | 78.35 | 67.10 | 74.46 | 63.20 |
@@ -135,6 +142,8 @@ Qev organizes inputs as **state → question → candidate**. Candidate branches
 | GSM8K · multiple choice | 79.87 | **61.75** | 46.36 | 55.53 | 54.59 | 47.61 | 37.00 | 37.76 | 30.40 |
 | ChessBench · 5,000 | 17.22 | 10.34 | **11.76** | 13.22 | 12.42 | 11.32 | 11.78 | 10.98 | 8.84 |
 | BPoMP · variant mean | 90.92 | **81.03** | 66.93 | 59.39 | 78.19 | 73.87 | 68.95 | 73.81 | 50.50 |
+
+</details>
 
 Scores (%): accuracy for the original benchmarks; official Decision Index raw scores for GSM8K, ChessBench and BPoMP, with BPoMP averaged across poem variants. Bold compares Qev-9B with Kev-9B; Jev and native bases are references. JevAny uses the standard 4B Pointer release in both this table and the cover. The cover compares Qev-4B, JevAny-4B Pointer, Kev-4B and Jev.
 
