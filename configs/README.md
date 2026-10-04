@@ -1,6 +1,6 @@
 # Configurations
 
-`qev-9b.json` is the Qev-9B v0.2.0 rank-64, seed-17, two-epoch recipe: 39,605 main records (including Principle judgments and 600 boundary examples), 1,783 late records, and 2,643 optimizer steps. It expects four GPU ranks and main/late training partitions. It includes the model architecture, optimizer settings and schedule used for the published results.
+`qev-9b.json` is the Qev-9B v0.3.0 rank-64, seed-17, two-epoch recipe: 38,198 main records (including 2,230 Principle judgments and 1,422 web-action records), 2,883 late records, and 2,658 optimizer steps. State and complete-path limits are 4,096 tokens. The late set includes 600 boundary questions and 500 additional rule/reasoning examples. It expects four GPU ranks and main/late training partitions. It includes the model architecture, optimizer settings and schedule used for the published results.
 
 `qev-9b-finetune.json` keeps the same model structure, uses batch 1 / accumulation 32, removes the late-partition requirement and sets a lower backbone LR for user-data initialization. It is a starting recipe, not a measured domain-specific improvement.
 

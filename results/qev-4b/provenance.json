@@ -15,7 +15,7 @@
     "objective": "teacher-probability cross entropy",
     "teacher_temperature": 1.563437713227029,
     "student_temperature": 1.0,
-    "teacher": "Separate 9B research checkpoint with additional web and rule training, step 2658; not the public Qev-9B v0.2.0",
+    "teacher": "AustinFu/Qev-9B@v0.3.0",
     "late_split": null,
     "online_option_augmentation": false
   },

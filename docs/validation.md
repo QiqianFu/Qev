@@ -126,3 +126,16 @@ Removed Amazon ESCI from the displayed charts and tables and moved JevBench to t
 ## README layout and method figure — 2026-10-03
 
 Removed the separate model/checkpoint chapter from both READMEs and placed Demos, How decisions are made and Evaluation immediately after Inference, followed by Training. Model-download navigation now targets the existing model selector. The supplied method PDF is included as `assets/method.pdf`, with a self-contained SVG conversion for inline display and a link to the original PDF. Checked section order, navigation targets, SVG references and exact preservation of the supplied PDF.
+
+## Qev-9B v0.3.0 — 2026-10-03
+
+The [9B release](https://huggingface.co/AustinFu/Qev-9B/tree/v0.3.0) contains the 2,658-step checkpoint with web-action and additional rule/reasoning training. Earlier model tags and the [v0.2.0 result snapshot](../results/history/qev-9b-v0.2.0/README.md) preserve the previous release.
+
+- Recomputed the seven original suites from 4,844 saved predictions and checked question IDs, candidate order and labels against the previous evaluation. MMLU-Pro is 565/1,000; JevBench is 187/231. Re-scored all four additional benchmarks with the pinned official Decision Index scorer.
+- Checked all 110 matrix cells and 30 bilingual README/model-card values against the recorded results. The 4B cover chart and other models' scores are unchanged.
+- Verified the three exported tensor files against the selected checkpoint and the original 4B teacher. Encoded all 41,081 main/late training records, containing 48,386 questions, with the public encoder and real tokenizer. All 2,442 released Qev-train inputs and labels remain in the training mixture.
+- Passed three focused CPU tests covering portable export and loading, versioned Hub resolution, and source-prefix exemptions for option augmentation.
+- Downloaded and compared all 28 release files anonymously in a fresh cache; resolved the tag through Qev's public loader, loaded the tokenizer and read the three tensor headers.
+- Updated the 4B model card to identify its now-published teacher, downloaded and compared all five changed metadata files, and verified that 4B weights and tags are unchanged. Qev-2B retains its original v0.1.0 teacher.
+
+These checks validate packaging, recorded scores and publication. Full-size GPU inference, training and benchmark measurements were not rerun during this release.

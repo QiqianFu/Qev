@@ -33,7 +33,7 @@ The student temperature is 1. There is no hard-label mixture, response loss or e
 
 The input pool combines general decisions, science and reasoning questions, 2,230 Principle judgments, controlled boundaries, web actions and additional rule/reasoning tasks. Records are expanded to one question each and deduplicated by their exact input and candidate order. The 308 world-knowledge questions and 3,253 questions belonging to held-out response-probe parents were excluded before training. All 44,576 remaining inputs were admitted.
 
-The recorded teacher is a separate 9B research checkpoint trained with additional web and rule tasks, at step 2,658. It is different from the published Qev-9B v0.2.0. That teacher, its full input pool and cached logits are not distributed. The released 4B weights preserve the trained model; rerunning the method with another teacher or dataset does not reproduce its benchmark numbers.
+The recorded teacher is now available as [Qev-9B v0.3.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.3.0), trained with additional web and rule tasks at step 2,658. Its trained tensors match the teacher used for this 4B release. The full 4B input pool and cached logits are not distributed. The released 4B weights preserve the trained model; rerunning the method with another teacher or dataset does not reproduce its benchmark numbers.
 
 ## Run the method on your data
 
@@ -44,7 +44,7 @@ python -m qev.prepare --input examples/train.jsonl \
   --validation examples/dev.jsonl --out data/support-4b
 
 python -m qev.teacher logits \
-  --teacher AustinFu/Qev-9B@v0.2.0 \
+  --teacher AustinFu/Qev-9B@v0.3.0 \
   --data data/support-4b --config configs/qev-4b.json \
   --out data/teacher-logits-4b --device cuda
 
@@ -53,7 +53,7 @@ torchrun --standalone --nproc_per_node=4 -m qev.train \
   --out runs/qev-4b
 ```
 
-This runnable example uses the public 9B teacher and the small example dataset. Use an appropriate teacher and more training data for your task. The teacher's own input limits still apply when collecting logits. Omit `--init-checkpoint` to start from the Qwen base. The cache stays at temperature 1; `training.distillation.temperature` applies the teacher temperature during training. For one GPU, set `batch_size: 1` and `accum: 32` to preserve the global batch.
+This runnable example uses the original 9B teacher and the small example dataset. Use an appropriate teacher and more training data for your task. The teacher's own input limits still apply when collecting logits. Omit `--init-checkpoint` to start from the Qwen base. The cache stays at temperature 1; `training.distillation.temperature` applies the teacher temperature during training. For one GPU, set `batch_size: 1` and `accum: 32` to preserve the global batch.
 
 Prebuilt canonical JSONL data may omit `label` and `target` when `training.distillation.weight` is 1. Its manifest must designate the training split with `role: train`. Mixed teacher/hard-label training still requires original targets. `qev.prepare` remains a labelled-data preparer.
 

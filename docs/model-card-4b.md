@@ -91,7 +91,7 @@ These are Decision Index 0.2.1 raw scores (%); BPoMP averages over variants. [Sc
 
 The input pool combines general decisions, science and reasoning, Principle judgments, controlled boundaries, web actions and additional rule/reasoning tasks. Each record contains one question with its hard label removed. Training uses a single pool without late-stage repetition or online option changes.
 
-The recorded teacher is a separate 9B research checkpoint trained with additional web and rule tasks, at step 2,658; it is different from the public Qev-9B v0.2.0. The teacher, full 44,576-input pool and cached teacher outputs are not distributed. [Qev-train](https://huggingface.co/datasets/AustinFu/Qev-train) remains a separate release of 2,442 synthetic examples with hard labels and synthesis documentation. The source repository provides the 4B method and a runnable example using a public teacher and user data.
+The recorded teacher is now published as [Qev-9B v0.3.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.3.0): the 2,658-step checkpoint trained with additional web and rule tasks. The full 44,576-input pool and cached teacher outputs are not distributed. [Qev-train](https://huggingface.co/datasets/AustinFu/Qev-train) remains a separate release of 2,442 synthetic examples with hard labels and synthesis documentation. The source repository provides the 4B method and a runnable example using its original teacher and user data.
 
 Use `configs/qev-4b-finetune.json` with `python -m qev.train --init-checkpoint AustinFu/Qev-4B@v0.1.0` for supervised adaptation. Validate performance and probabilities on your own task; calibration and production reliability have not been established.
 

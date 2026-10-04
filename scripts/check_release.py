@@ -102,12 +102,16 @@ def main():
             expected=results['results'][scope]
             if row['total']!=expected['total'] or row['correct']!=expected['models'][model]['correct']:
                 errors.append(f'{folder}/{scope}: full report and benchmark table differ')
-    archived=ROOT/'results/history/qev-9b-v0.1.0'
-    old_predictions=archived/'jevbench-predictions.jsonl'
-    old_provenance=json.loads((archived/'provenance.json').read_text())
-    if hashlib.sha256(old_predictions.read_bytes()).hexdigest()!=old_provenance['predictions_sha256']:
-        errors.append('archived Qev-9B v0.1.0 predictions changed')
-    prediction_count+=len(old_predictions.read_text().splitlines())
+    for archived in sorted((ROOT/'results/history').glob('qev-9b-v*')):
+        old_predictions=archived/'jevbench-predictions.jsonl'
+        old_provenance=json.loads((archived/'provenance.json').read_text())
+        if old_provenance.get('predictions_sha256') and hashlib.sha256(old_predictions.read_bytes()).hexdigest()!=old_provenance['predictions_sha256']:
+            errors.append(f'{archived.name}: archived predictions changed')
+        old_rows=[json.loads(line) for line in old_predictions.read_text().splitlines()]
+        old_metric=json.loads((archived/'benchmarks.json').read_text())['results']['jevbench_public']
+        if len(old_rows)!=old_metric['total'] or sum(r['correct'] for r in old_rows)!=old_metric['models']['qev_9b']['correct']:
+            errors.append(f'{archived.name}: archived result mismatch')
+        prediction_count+=len(old_rows)
     for error in errors:print(error)
     print(f'{len(docs)} documents, {checked_links} local links, {len(pyfiles)} Python files, '
           f'{prediction_count} current and archived predictions; {len(errors)} errors')

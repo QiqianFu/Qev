@@ -133,29 +133,28 @@
           "source": "local_evaluation"
         },
         "qev_9b": {
-          "raw": 0.6175,
-          "skill": 0.5442,
+          "raw": 0.6137,
+          "skill": 0.539,
           "coverage": 1.0,
           "answered": 2638,
-          "native_score": 0.6175132676269901,
+          "native_score": 0.6137225170583775,
           "tracks": [
             {
               "track": "GSM8K-4choice",
-              "raw": 0.7225170583775588,
-              "skill": 0.6300227445034117,
+              "raw": 0.714177407126611,
+              "skill": 0.618903209502148,
               "random": 0.25,
               "coverage": 1
             },
             {
               "track": "GSM8K-10choice",
-              "raw": 0.5125094768764216,
-              "skill": 0.458343863196024,
+              "raw": 0.513267626990144,
+              "skill": 0.4591862522112712,
               "random": 0.1,
               "coverage": 1
             }
           ],
-          "source": "local_evaluation",
-          "model_revision": "v0.3.0"
+          "source": "local_evaluation"
         },
         "kev_9b": {
           "raw": 0.4636,
@@ -354,22 +353,21 @@
           "source": "local_evaluation"
         },
         "qev_9b": {
-          "raw": 0.1034,
-          "skill": 0.0235,
+          "raw": 0.0976,
+          "skill": 0.0171,
           "coverage": 1.0,
           "answered": 5000,
-          "native_score": 0.1034,
+          "native_score": 0.0976,
           "tracks": [
             {
               "track": "all",
-              "raw": 0.1034,
-              "skill": 0.023465142517098744,
+              "raw": 0.0976,
+              "skill": 0.0171480533208007,
               "random": 0.0818556110623024,
               "coverage": 1
             }
           ],
-          "source": "local_evaluation",
-          "model_revision": "v0.3.0"
+          "source": "local_evaluation"
         },
         "kev_9b": {
           "raw": 0.1176,
@@ -540,22 +538,21 @@
           "source": "local_evaluation"
         },
         "qev_9b": {
-          "raw": 0.4708,
-          "skill": 0.3363,
+          "raw": 0.4757,
+          "skill": 0.3424,
           "coverage": 1.0,
           "answered": 5000,
-          "native_score": 0.4708360372719961,
+          "native_score": 0.4757105323998302,
           "tracks": [
             {
               "track": "all",
-              "raw": 0.4708360372719961,
-              "skill": 0.336273588870691,
+              "raw": 0.4757105323998302,
+              "skill": 0.34238763174803566,
               "random": 0.20273782411694521,
               "coverage": 1
             }
           ],
-          "source": "local_evaluation",
-          "model_revision": "v0.3.0"
+          "source": "local_evaluation"
         },
         "kev_9b": {
           "raw": 0.4809,
@@ -726,22 +723,21 @@
           "source": "local_evaluation"
         },
         "qev_9b": {
-          "raw": 0.8103,
-          "skill": 0.6205,
+          "raw": 0.7752,
+          "skill": 0.5504,
           "coverage": 1.0,
           "answered": 5000,
-          "native_score": 0.8068,
+          "native_score": 0.7698,
           "tracks": [
             {
               "track": "all",
-              "raw": 0.8102618917009247,
-              "skill": 0.6205237834018493,
+              "raw": 0.7751900982099691,
+              "skill": 0.5503801964199382,
               "random": 0.5,
               "coverage": 1
             }
           ],
-          "source": "local_evaluation",
-          "model_revision": "v0.3.0"
+          "source": "local_evaluation"
         },
         "kev_9b": {
           "raw": 0.6693,

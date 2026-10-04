@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Published Qev-9B v0.3.0 with 4K context, web-action training and additional rule/reasoning examples. Updated all 9B metrics and preserved v0.2.0 weights and results. The newly published checkpoint is the original Qev-4B teacher.
+
 - Added native Qwen3.5-4B-Base, Kev-4B and both JevAny-4B variants to the result tables, plus GSM8K, ChessBench, Amazon ESCI and BPoMP scored with Decision Index 0.2.1.
 - Changed the single cover chart to Qev-4B, JevAny-4B Pointer, Kev-4B and Jev over ten benchmarks, omitting Decision dev from that chart. Existing model weights and benchmark measurements are unchanged.
 

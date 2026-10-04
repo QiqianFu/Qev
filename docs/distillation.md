@@ -6,7 +6,7 @@ The selected model has no candidate preview. It reaches 38.70% on MMLU-Pro and 1
 
 ## 1 Learn teacher probabilities
 
-The first stage starts from Qwen3.5-2B-Base and trains a rank-64 LoRA adapter, the two-layer 256-dimensional decision head and the candidate-interaction gate. The released 2B model used Qev-9B v0.1.0 as its teacher. The commands below pin that version; the newer 9B v0.2.0 was not used to produce these 2B weights.
+The first stage starts from Qwen3.5-2B-Base and trains a rank-64 LoRA adapter, the two-layer 256-dimensional decision head and the candidate-interaction gate. The released 2B model used Qev-9B v0.1.0 as its teacher. The commands below pin that version; later 9B releases were not used to produce these 2B weights.
 
 For each input and candidate set, cache the teacher's full distribution. The student minimizes cross entropy against that distribution. The published student uses teacher weight 1: original labels are not an additional loss term. The general trainer also supports mixing original targets with teacher probabilities by reducing `training.distillation.weight`.
 

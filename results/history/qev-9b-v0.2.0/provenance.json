@@ -1,10 +1,10 @@
 {
   "checkpoint": {
     "repo_id": "AustinFu/Qev-9B",
-    "revision": "v0.3.0",
+    "revision": "v0.2.0",
     "base": "Qwen/Qwen3.5-9B-Base",
     "base_revision": "68c46c4b3498877f3ef123c856ecfde50c39f404",
-    "step": 2658,
+    "step": 2643,
     "dtype": "bf16",
     "execution": "reference",
     "seed": 17,
@@ -12,16 +12,12 @@
   },
   "config": "configs/qev-9b.json",
   "training_recipe": {
-    "main_records": 38198,
-    "main_questions": 45503,
-    "principle_records": 2230,
-    "web_records": 1422,
-    "web_questions": 2445,
-    "late_records": 2883,
+    "main_records": 39605,
+    "main_questions": 45887,
+    "principle_records": 4459,
     "boundary_records": 600,
-    "boundary_partition": "late",
-    "additional_rule_reasoning_records": 500,
-    "additional_rule_reasoning_partition": "late",
+    "boundary_partition": "main",
+    "late_records": 1783,
     "late_fraction": 0.5,
     "late_repeats": 3,
     "epochs": 2,
@@ -33,48 +29,48 @@
     "jevbench_version": "v1.4.2",
     "jevbench_upstream_revision": "1df665e3956d7aab7fa0208ff6c4f2d8557f9f90",
     "trained_limits": {
-      "max_state": 4096,
+      "max_state": 1024,
       "max_question": 512,
       "max_candidate": 256,
-      "max_path": 4096,
+      "max_path": 2048,
       "max_candidates": 128
     }
   },
   "results": {
     "decision_dev_all": {
-      "correct": 1296,
+      "correct": 1295,
       "total": 1468
     },
     "decision_dev_clean": {
-      "correct": 1107,
+      "correct": 1105,
       "total": 1264
     },
     "transfer_dev_all": {
-      "correct": 629,
+      "correct": 630,
       "total": 764
     },
     "transfer_dev_clean": {
-      "correct": 549,
+      "correct": 551,
       "total": 656
     },
     "mmlupro": {
-      "correct": 565,
+      "correct": 574,
       "total": 1000
     },
+    "semif_handwritten": {
+      "correct": 134,
+      "total": 144
+    },
     "scienthoon": {
-      "correct": 653,
+      "correct": 620,
       "total": 873
     },
     "wanli": {
-      "correct": 192,
+      "correct": 182,
       "total": 256
     },
-    "semif_handwritten": {
-      "correct": 135,
-      "total": 144
-    },
     "jevbench_public": {
-      "correct": 187,
+      "correct": 192,
       "total": 231
     }
   }

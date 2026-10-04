@@ -16,13 +16,13 @@ The [official scorer](https://github.com/apolinario/decision-index/blob/87d4650b
 
 The inputs were rebuilt with the toolkit from its pinned public sources: `openai/gsm8k`, DeepMind's `searchless_chess` and the BPoMP poetry data. The official rebuild includes both GSM8K choice tracks. Requests preserve the complete state, questions, candidate IDs, candidate order and expected answers; all local models answered all requests in these evaluations.
 
-Predictions are converted to the toolkit's result format and scored using its `score_panel` and `index02.benchmark_value` functions. The benchmarks are scored individually; this release does not report a full Decision Index composite score. The original four-benchmark publication, including ESCI, was verified by rerunning the scorer on all ten local models' saved outputs: all 40 raw/skill/coverage results matched. That complete record remains in the machine-readable results; ESCI is omitted from the displayed comparisons.
+Predictions are converted to the toolkit's result format and scored using its `score_panel` and `index02.benchmark_value` functions. The benchmarks are scored individually; this release does not report a full Decision Index composite score. The original four-benchmark publication, including ESCI, was verified by rerunning the scorer on all ten local models' saved outputs: all 40 raw/skill/coverage results matched. The four current Qev-9B v0.3.0 scores were separately verified from its saved outputs with the same scorer. That complete record remains in the machine-readable results; ESCI is omitted from the displayed comparisons.
 
 The suite's rows are not redistributed here. Use the [upstream rebuild instructions](https://github.com/apolinario/decision-index/tree/87d4650b42b377c0291a89c1f1a879f9b31082bf) to obtain the inputs. This repository publishes aggregate results and provenance.
 
 ## Models and reference sources
 
-- Qev uses the released checkpoints: **2B v0.1.0**, **4B v0.1.0**, **9B v0.2.0**, with BF16 backbone computation, an FP32 decision head, temperature 1 and full causal reference execution.
+- Qev uses the released checkpoints: **2B v0.1.0**, **4B v0.1.0**, **9B v0.3.0**, with BF16 backbone computation, an FP32 decision head, temperature 1 and full causal reference execution.
 - Native Qwen bases use their original language-model heads, zero-shot candidate-code prompts and BF16 computation. The 4B baseline is `Qwen/Qwen3.5-4B-Base@710fd005d44d55ee27b7ad5147e318e546efdbfe`.
 - Kev uses the author's inference implementation in FP32 with unmerged adapters and temperature 1. The 4B run uses `jaredpalmer/kev-4b@139fdd9` and Kev code `5920c5f`; the 9B run uses `jaredpalmer/kev-9b@2629c06a` and code `557598f`.
 - JevAny's [Pointer](https://huggingface.co/SimpleJev/JevAny-Qwen3.5-4B-LoRA) and [Direct-Token](https://huggingface.co/SimpleJev/JevAny-Qwen3.5-4B-Direct-Token-LoRA) models use the author's `33cb677` inference code in FP32. Their base is the post-trained Qwen3.5-4B. The cover uses **Pointer** for every benchmark; both variants are included in the detailed results.

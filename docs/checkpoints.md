@@ -8,7 +8,7 @@ from qev import Qev
 model = Qev.from_pretrained("AustinFu/Qev-9B", device="cuda")
 ```
 
-The loader downloads the approximately 690 MiB Qev package and its Qwen base model. The model configuration records the compatible base version. The current 9B release is `v0.2.0` (MMLU-Pro 57.40%, JevBench 192/231). Use `revision="v0.2.0"` to pin it, or `revision="v0.1.0"` for the original release used to distill Qev-2B. Omitting `revision` loads the current release.
+The loader downloads the approximately 690 MiB Qev package and its Qwen base model. The model configuration records the compatible base version. The current 9B release is `v0.3.0` (MMLU-Pro 56.50%, JevBench 187/231), with 4,096-token state and complete-path limits. Use `revision="v0.3.0"` to pin it. This is also the teacher used for Qev-4B. The previous `v0.2.0` release and the original `v0.1.0` teacher used for Qev-2B remain available. Omitting `revision` loads the current release.
 
 For a local download:
 
@@ -26,7 +26,7 @@ model = Qev.from_pretrained(
 )
 ```
 
-CLI commands accept either a local directory or `AustinFu/Qev-9B`. Append `@v0.2.0` to select the current 9B release explicitly. Qev does not need `trust_remote_code`.
+CLI commands accept either a local directory or `AustinFu/Qev-9B`. Append `@v0.3.0` to select the current 9B release explicitly. Qev does not need `trust_remote_code`.
 
 ## Load Qev-4B
 

@@ -17,10 +17,10 @@
     "candidate_interaction": "last-full-attention"
   },
   "limits": {
-    "max_state": 1024,
+    "max_state": 4096,
     "max_question": 512,
     "max_candidate": 256,
-    "max_path": 2048,
+    "max_path": 4096,
     "max_candidates": 128
   },
   "training": {
@@ -43,7 +43,9 @@
     "none_insert_prob": 0.2,
     "none_insert_absent_frac": 0.5,
     "none_insert_exempt_sources": [
-      "synthetic/hs3_preference_boundary/"
+      "synthetic/hs3_preference_boundary/",
+      "synthetic/codex_gap/",
+      "synthetic/codex_web/"
     ]
   }
 }

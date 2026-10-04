@@ -49,11 +49,12 @@ torchrun --standalone --nproc_per_node=4 -m qev.train \
 | Adaptation | LoRA rank 64, alpha 128 |
 | Head | 256 channels, 4 attention heads, 2 layers |
 | Candidate interaction | `last-full-attention` |
-| Main / late records | 39,605 / 1,783 |
+| Model release / input limits | v0.3.0; state and complete path 4,096 tokens |
+| Main / late records | 38,198 / 2,883 |
 | Schedule | 2 epochs, seed 17, global batch 32 |
 | Late mixing | Final 50% of main-training steps; late records repeated 3 times |
 | Execution | `tree-batched`, BF16 backbone, FP32 head/reductions |
-| Selected step | 2643 |
+| Selected step | 2658 |
 
 `late_fraction` describes when late mixing starts; it is not the fraction of late examples in the resulting dataset. Changing GPU count requires adjusting microbatch/accumulation to keep the global batch fixed.
 

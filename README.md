@@ -125,16 +125,16 @@ Qev organizes inputs as **state → question → candidate**. Candidate branches
 
 | Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| JevBench public · 231 | 85.71 | **83.12** | 75.76 | 75.76 | 82.25 | 67.10 | 74.46 | 63.20 |
-| Decision development · clean | 84.49 | **87.42** | 87.18 | 77.69 | 86.95 | 73.73 | 85.36 | 65.43 |
-| Transfer development · clean | 85.67 | **83.99** | 82.16 | 74.39 | 82.01 | 71.49 | 77.29 | 65.09 |
-| MMLU-Pro · 1,000 | 83.50 | **57.40** | 51.10 | 50.40 | 50.30 | 43.50 | 38.70 | 31.20 |
-| SemIf · 144 handwritten | 96.53 | **93.06** | 90.97 | 90.28 | 90.28 | 77.08 | 82.64 | 63.89 |
-| scienthoon · 873 | 75.26 | 71.02 | **75.49** | 68.84 | 76.75 | 74.34 | 71.94 | 53.84 |
-| WANLI · 256 | 75.78 | **71.09** | 70.31 | 67.97 | 73.44 | 60.55 | 67.58 | 50.39 |
-| GSM8K · multiple choice | 79.87 | **61.37** | 46.36 | 55.53 | 54.59 | 37.00 | 37.76 | 30.40 |
-| ChessBench · 5,000 | 17.22 | 9.76 | **11.76** | 13.22 | 12.42 | 11.78 | 10.98 | 8.84 |
-| BPoMP · variant mean | 90.92 | **77.52** | 66.93 | 59.39 | 78.19 | 68.95 | 73.81 | 50.50 |
+| JevBench public · 231 | 85.71 | **80.95** | 75.76 | 75.76 | 82.25 | 67.10 | 74.46 | 63.20 |
+| Decision development · clean | 84.49 | **87.58** | 87.18 | 77.69 | 86.95 | 73.73 | 85.36 | 65.43 |
+| Transfer development · clean | 85.67 | **83.69** | 82.16 | 74.39 | 82.01 | 71.49 | 77.29 | 65.09 |
+| MMLU-Pro · 1,000 | 83.50 | **56.50** | 51.10 | 50.40 | 50.30 | 43.50 | 38.70 | 31.20 |
+| SemIf · 144 handwritten | 96.53 | **93.75** | 90.97 | 90.28 | 90.28 | 77.08 | 82.64 | 63.89 |
+| scienthoon · 873 | 75.26 | 74.80 | **75.49** | 68.84 | 76.75 | 74.34 | 71.94 | 53.84 |
+| WANLI · 256 | 75.78 | **75.00** | 70.31 | 67.97 | 73.44 | 60.55 | 67.58 | 50.39 |
+| GSM8K · multiple choice | 79.87 | **61.75** | 46.36 | 55.53 | 54.59 | 37.00 | 37.76 | 30.40 |
+| ChessBench · 5,000 | 17.22 | 10.34 | **11.76** | 13.22 | 12.42 | 11.78 | 10.98 | 8.84 |
+| BPoMP · variant mean | 90.92 | **81.03** | 66.93 | 59.39 | 78.19 | 68.95 | 73.81 | 50.50 |
 
 Scores (%): accuracy for the original benchmarks; official Decision Index raw scores for GSM8K, ChessBench and BPoMP, with BPoMP averaged across poem variants. Bold compares Qev-9B with Kev-9B; Jev and native bases are references. The cover compares Qev-4B, JevAny-4B Pointer, Kev-4B and Jev.
 
@@ -153,7 +153,7 @@ Training examples use the same `state` and `questions` as inference, with a `lab
 | Included examples | Six training and two validation requests, covering all three tasks | [examples/](examples/README.md) |
 | **Qev-train** | **2,442 synthetic training examples**: alignment, document rules, world knowledge and controlled boundary questions | [Dataset and synthesis methods](https://huggingface.co/datasets/AustinFu/Qev-train) |
 | Your data | Labelled or soft-target JSONL requests | [Data format](docs/data.md) |
-| 9B research recipe | 39,605 main and 1,783 late records; the full corpus is not bundled | [Composition and availability](docs/data.md#research-recipe-and-availability) |
+| 9B research recipe | 38,198 main and 2,883 late records; the full corpus is not bundled | [Composition and availability](docs/data.md#research-recipe-and-availability) |
 
 ```bash
 python -m qev.prepare \

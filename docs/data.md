@@ -20,11 +20,11 @@ Question targets can instead be soft distributions, using a `target` list in can
 
 Each split lists its file, purpose and record/question counts. Only `role: train` partitions enter training. The preparer writes `train` and `dev`; JevBench uses `external_evaluation`. Evaluation rejects test-role partitions unless explicitly enabled with `--allow-test`.
 
-The model supports variable candidate counts; the selected configuration admits at most 128 candidates, state 1024 tokens, question 512, candidate 256 and full path 2048. Runtime overrides for longer evaluation inputs are described separately from training limits.
+The model supports variable candidate counts; the current 9B configuration admits at most 128 candidates, state 4,096 tokens, question 512, candidate 256 and complete path 4,096. Earlier releases retain their recorded limits.
 
 ## Released synthetic training data
 
-[AustinFu/Qev-train](https://huggingface.co/datasets/AustinFu/Qev-train) provides **2,442 examples** from Qev-9B v0.2.0 training: 1,170 alignment questions, 364 document-rule judgments, 308 Wikipedia-grounded knowledge questions and 600 controlled boundary questions adapted from HelpSteer3 contexts. The dataset card documents generation, blind review, filtering and component-specific licenses in English and Chinese.
+[AustinFu/Qev-train](https://huggingface.co/datasets/AustinFu/Qev-train) provides **2,442 examples** shared by Qev-9B v0.2.0 and v0.3.0 training: 1,170 alignment questions, 364 document-rule judgments, 308 Wikipedia-grounded knowledge questions and 600 controlled boundary questions adapted from HelpSteer3 contexts. The dataset card documents generation, blind review, filtering and component-specific licenses in English and Chinese.
 
 ```bash
 hf download AustinFu/Qev-train --repo-type dataset --local-dir data/qev-train
@@ -34,18 +34,18 @@ The download includes canonical `train.jsonl`, a Qev `manifest.json`, an equival
 
 The fine-tuning configurations exempt `synthetic/hs3_preference_boundary/` from online None-option insertion. Retain that exemption with a custom configuration: changing the candidate set changes these reviewed boundary tasks.
 
-All records retain the original input, candidate order and hard labels. `target` contains one-hot label encodings; teacher probability caches, response targets and distillation pairs are not distributed. Metadata records the component, domain, planned language, license and related `group_id`. There is one training split: these examples are already seen by Qev-9B v0.2.0 and are not an independent evaluation set.
+All records retain the original input, candidate order and hard labels. `target` contains one-hot label encodings; teacher probability caches, response targets and distillation pairs are not distributed. Metadata records the component, domain, planned language, license and related `group_id`. There is one training split: these examples are already seen by the released 9B models and are not an independent evaluation set.
 
 ## Research recipe and availability
 
 | Partition | Records / questions | Composition |
 |---|---:|---|
-| Main | 39,605 / 45,887 | Previous 34,546-record pool, plus 4,459 HelpSteer3 Principle judgments and 600 synthetic boundary questions |
-| Late | 1,783 / 1,783 | 1,419 alignment records and 364 rule-compliance judgments |
+| Main | 38,198 / 45,503 | Original 34,546-record pool, 2,230 HelpSteer3 Principle judgments, and 1,422 web-action records |
+| Late | 2,883 / 2,883 | 1,419 alignment records, 364 document-rule judgments, 600 boundary questions, and 500 additional rule/reasoning questions |
 
 The alignment pack contains 249 selected earlier records and 1,170 synthetic records. The 249 selected records also occur in the main partition as intentional replay; late/main are training partitions, not an evaluation split. The 364 rule judgments consist of 182 positive/negative pairs. Late examples start at the final 50% of main-training steps and repeat three times.
 
-The selected 9B recipe places all 600 boundary questions in the **main** set; they are not added to the late partition. HelpSteer3 Principle supplies judgments about whether responses satisfy stated principles. The boundary tasks instead adapt Preference contexts into new hard-label tasks; original preference rankings are not used. The upstream [NVIDIA HelpSteer3 dataset](https://huggingface.co/datasets/nvidia/HelpSteer3) is pinned at revision `f6d145777bcbde96137596340fab89793acd1031`.
+Qev-9B v0.3.0 places the 600 boundary questions in the **late** set, alongside 500 questions about long-document rules, multi-hop evidence, dates/numbers and answer validation. Its web-action records cover 149 trajectories across 50 scenarios and belong to the main set. The published Qev-train v1.1.0 subset is unchanged; its partition metadata describes the original v0.2.0 release. HelpSteer3 Principle supplies judgments about whether responses satisfy stated principles. The boundary tasks instead adapt Preference contexts into new hard-label tasks; original preference rankings are not used. The upstream [NVIDIA HelpSteer3 dataset](https://huggingface.co/datasets/nvidia/HelpSteer3) is pinned at revision `f6d145777bcbde96137596340fab89793acd1031`.
 
 **Qev-train publishes the synthetic subset; the complete mixed research corpus and its original generation/review pipeline are not included in this source release.** This repository supports training on user data and rerunning public evaluation with the released weights. Rebuilding the exact reported training run additionally requires the remaining data and original training settings.
 
@@ -55,7 +55,7 @@ Data licensing and attribution are described in [third-party notices](../THIRD_P
 
 Qev-4B uses a separate 44,576-question training pool, with one question per record and hard labels removed. It combines general decisions, Principle judgments, controlled boundaries, web actions and additional reasoning/rule tasks. World-knowledge records and held-out response-probe parent questions were excluded; there is no separate late split or online option augmentation.
 
-The teacher supplies the entire target distribution. The [4B training guide](training-4b.md) describes the preparation and objective. This input pool, its research teacher and its cached outputs are not part of Qev-train v1.1.0. Qev-train remains the separately released 2,442-example synthetic subset with its original hard labels.
+The teacher supplies the entire target distribution. The [4B training guide](training-4b.md) describes the preparation and objective. The teacher is now published as [Qev-9B v0.3.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.3.0). The full input pool and its cached teacher outputs are not part of Qev-train v1.1.0. Qev-train remains the separately released 2,442-example synthetic subset with its original hard labels.
 
 ## JevBench
 

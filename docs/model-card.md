@@ -29,7 +29,9 @@ metrics:
 
 [Source and documentation](https://github.com/QiqianFu/Qev) · [中文说明](https://github.com/QiqianFu/Qev/blob/main/README.zh-CN.md) · [Model weights](https://huggingface.co/AustinFu/Qev-9B)
 
-Qev-9B v0.2.0 combines general decision training with HelpSteer3 Principle judgments and 600 synthetic boundary questions in the main set. Additional alignment and document-rule examples are repeated three times during the second half of training. It uses the full candidate-interaction architecture shown below.
+Qev-9B v0.3.0 combines general decisions, Principle judgments and web-action training with 4K context. Alignment, document-rule, boundary and additional rule/reasoning examples are repeated three times during the second half of training. It uses the full candidate-interaction architecture shown below.
+
+This checkpoint is also the teacher used to train Qev-4B v0.1.0. The previous 9B weights remain available at [v0.2.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.2.0), and the original Qev-2B teacher at [v0.1.0](https://huggingface.co/AustinFu/Qev-9B/tree/v0.1.0).
 
 ## Quick start
 
@@ -45,7 +47,7 @@ python -m pip install -e .
 from qev import Qev
 
 model = Qev.from_pretrained(
-    "AustinFu/Qev-9B", revision="main", device="cuda"
+    "AustinFu/Qev-9B", revision="v0.3.0", device="cuda"
 )
 answers = model.predict({
     "state": "I was charged twice. Please help immediately.",
@@ -67,7 +69,7 @@ For JSONL inference:
 
 ```bash
 python -m qev.predict \
-  --checkpoint AustinFu/Qev-9B@main \
+  --checkpoint AustinFu/Qev-9B@v0.3.0 \
   --input examples/requests.jsonl --out runs/predictions.jsonl \
   --device cuda --weights-dtype checkpoint
 ```
@@ -75,7 +77,7 @@ python -m qev.predict \
 ## Architecture and training
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/QiqianFu/Qev/main/assets/architecture.svg" alt="Qev encodes context, questions and answer options, then scores the options with its decision head." width="100%">
+  <a href="https://raw.githubusercontent.com/QiqianFu/Qev/main/assets/method.pdf"><img src="https://raw.githubusercontent.com/QiqianFu/Qev/main/assets/method.svg" alt="Qev branch encoding, final-layer candidate interaction and set decision head." width="100%"></a>
 </p>
 
 | Field | Released model |
@@ -86,14 +88,15 @@ python -m qev.predict \
 | Backbone interaction | `last-full-attention` |
 | Computation | BF16 backbone; FP32 decision head and key reductions |
 | Stored adaptation tensors | FP32 |
-| Model release | v0.2.0 |
-| Main training partition | 39,605 records, including 4,459 Principle judgments and 600 synthetic boundary questions |
-| Late partition | 1,419 alignment records + 364 rule-compliance judgments |
+| Model release | v0.3.0 |
+| Input limits | State 4,096; question 512; candidate 256; complete path 4,096 tokens |
+| Main training partition | 38,198 records, including 2,230 Principle judgments and 1,422 web-action records |
+| Late partition | 2,883 records: 1,419 alignment, 364 document rules, 600 boundary and 500 additional rule/reasoning questions |
 | Training schedule | Two epochs, global batch 32, seed 17 |
 | Late mixing | Starts halfway through main training; late examples repeat three times |
-| Selected checkpoint | Step 2643 |
+| Selected checkpoint | Step 2658 |
 
-The main and late partitions intentionally share 249 replay records. [Qev-train](https://huggingface.co/datasets/AustinFu/Qev-train) publishes 2,442 synthetic alignment, rule-compliance, world-knowledge and HelpSteer3-derived boundary examples, with generation methods and source-specific licenses. The complete mixed training corpus is not distributed. [Training guide](https://github.com/QiqianFu/Qev/blob/main/docs/training.md) · [Data recipe](https://github.com/QiqianFu/Qev/blob/main/docs/data.md).
+The main and late partitions intentionally share 249 replay records. [Qev-train](https://huggingface.co/datasets/AustinFu/Qev-train) publishes 2,442 synthetic alignment, rule-compliance, world-knowledge and HelpSteer3-derived boundary examples, with generation methods and source-specific licenses. The complete mixed training corpus, including the added web-action and rule/reasoning records, is not distributed. [Training guide](https://github.com/QiqianFu/Qev/blob/main/docs/training.md) · [Data recipe](https://github.com/QiqianFu/Qev/blob/main/docs/data.md).
 
 ## Evaluation
 
@@ -105,16 +108,16 @@ The main and late partitions intentionally share 249 replay records. [Qev-train]
 
 | Benchmark | Jev (reference) | Qwen3.5-9B-Base | Qev-9B | Kev-9B |
 |---|---:|---:|---:|---:|
-| JevBench public · 231 | 85.71 | 75.76 | **83.12** | 75.76 |
-| Decision development · clean | 84.49 | 77.69 | **87.42** | 87.18 |
-| Transfer development · clean | 85.67 | 74.39 | **83.99** | 82.16 |
-| MMLU-Pro · 1,000 | 83.50 | 50.40 | **57.40** | 51.10 |
-| SemIf · 144 handwritten | 96.53 | 90.28 | **93.06** | 90.97 |
-| scienthoon · 873 | 75.26 | 68.84 | 71.02 | **75.49** |
-| WANLI · 256 | 75.78 | 67.97 | **71.09** | 70.31 |
-| GSM8K · multiple choice | 79.87 | 55.53 | **61.37** | 46.36 |
-| ChessBench | 17.22 | 13.22 | 9.76 | **11.76** |
-| BPoMP · variant mean | 90.92 | 59.39 | **77.52** | 66.93 |
+| JevBench public · 231 | 85.71 | 75.76 | **80.95** | 75.76 |
+| Decision development · clean | 84.49 | 77.69 | **87.58** | 87.18 |
+| Transfer development · clean | 85.67 | 74.39 | **83.69** | 82.16 |
+| MMLU-Pro · 1,000 | 83.50 | 50.40 | **56.50** | 51.10 |
+| SemIf · 144 handwritten | 96.53 | 90.28 | **93.75** | 90.97 |
+| scienthoon · 873 | 75.26 | 68.84 | 74.80 | **75.49** |
+| WANLI · 256 | 75.78 | 67.97 | **75.00** | 70.31 |
+| GSM8K · multiple choice | 79.87 | 55.53 | **61.75** | 46.36 |
+| ChessBench | 17.22 | 13.22 | 10.34 | **11.76** |
+| BPoMP · variant mean | 90.92 | 59.39 | **81.03** | 66.93 |
 
 Scores (%). The new GSM8K, ChessBench and BPoMP rows use [Decision Index raw scores](https://github.com/QiqianFu/Qev/blob/main/docs/decision-index.md); the original rows use accuracy. Bold compares Qev with Kev.
 
