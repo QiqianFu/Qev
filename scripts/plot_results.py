@@ -22,7 +22,9 @@ PANELS = [
     ('chessbench', 'ChessBench', '5,000 positions'),
     ('bpomp', 'BPoMP', 'variant mean'),
 ]
-COVER_PANELS = [panel for panel in PANELS if panel[0] != 'decision_dev_clean']
+COVER_ORDER = ['mmlupro', 'semif_handwritten', 'jevbench_public', 'scienthoon',
+               'wanli', 'chessbench', 'bpomp']
+COVER_PANELS = [next(panel for panel in PANELS if panel[0] == key) for key in COVER_ORDER]
 BAR_MODELS = [
     ('qev_4b', 'Qev-4B', '#7652bb'),
     ('jevany_4b_pointer', 'JevAny-4B · Pointer', '#70a7b7'),
@@ -57,12 +59,13 @@ def main():
     results = json.loads((ROOT/'results/benchmarks.json').read_text())['results']
     results.update(json.loads((ROOT/'results/decision-index.json').read_text())['results'])
     plt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 11, 'svg.fonttype': 'none'})
-    fig, ax = plt.subplots(figsize=(16.8, 6.0))
-    fig.subplots_adjust(left=.065, right=.992, bottom=.21, top=.74)
-    fig.text(.065, .951, 'Qev · 4B model comparison', fontsize=18, fontweight='semibold', color='#35445e')
-    fig.text(.065, .885, 'Qev, JevAny and Kev · with Jev as a hosted reference', fontsize=11, color='#7c89a0')
+    fig, ax = plt.subplots(figsize=(13.2, 5.8))
+    fig.subplots_adjust(left=.035, right=.997, bottom=.21, top=.74)
+    fig.text(.014, .951, 'Qev · 4B model comparison', fontsize=19, fontweight='semibold', color='#35445e')
+    fig.text(.014, .885, 'Scores (%) · Qev, JevAny and Kev, with Jev as a hosted reference', fontsize=11.5, color='#7c89a0')
     ax.legend(handles=[Patch(facecolor=c, label=n) for _,n,c in BAR_MODELS], loc='lower left',
-              bbox_to_anchor=(-.007, 1.025), ncol=4, frameon=False, labelcolor='#46546b', fontsize=10)
+              bbox_to_anchor=(-.007, 1.025), ncol=4, frameon=False, labelcolor='#46546b', fontsize=11.5,
+              handlelength=1.6, columnspacing=1.4)
     for i, (key, _, _) in enumerate(COVER_PANELS):
         row = results[key]
         values = [100*score(row, model) for model, _, _ in BAR_MODELS]
@@ -70,18 +73,18 @@ def main():
             value = values[j]
             x = i + (j - (len(BAR_MODELS)-1)/2) * .225
             ax.bar(x, value, width=.195, color=color, linewidth=0, zorder=3)
-            ax.text(x, value+2, f'{value:.1f}', ha='center', va='bottom', fontsize=8.8,
+            ax.text(x, value+2, f'{value:.1f}', ha='center', va='bottom', fontsize=11,
                     color='#40516a')
-    ax.set_ylim(0, 108); ax.set_xlim(-.58, len(COVER_PANELS)-.42); ax.set_xticks([])
-    ax.set_yticks([0,20,40,60,80,100]); ax.set_ylabel('Score (%)', color='#7c89a0', fontsize=10)
-    ax.tick_params(axis='y', length=0, pad=8, labelcolor='#8190a6', labelsize=9)
+    ax.set_ylim(0, 108); ax.set_xlim(-.49, len(COVER_PANELS)-.51); ax.set_xticks([])
+    ax.set_yticks([0,20,40,60,80,100])
+    ax.tick_params(axis='y', length=0, pad=4, labelcolor='#8190a6', labelsize=10.5)
     ax.yaxis.grid(True, color='#e9edf4', linewidth=.8, zorder=0)
     for name, spine in ax.spines.items():
         spine.set_visible(name=='bottom'); spine.set_color('#d7dfea')
     for i, (_, title, count) in enumerate(COVER_PANELS):
-        ax.text(i, -.07, title, transform=ax.get_xaxis_transform(), ha='center', va='top', fontsize=10, color='#35445e')
-        ax.text(i, -.16, count, transform=ax.get_xaxis_transform(), ha='center', va='top', fontsize=9, color='#8190a6')
-    fig.text(.065, .035, 'Qev: BF16 backbone. Kev / JevAny: FP32. New benchmarks use Decision Index raw scores.', fontsize=9, color='#8190a6')
+        ax.text(i, -.07, title, transform=ax.get_xaxis_transform(), ha='center', va='top', fontsize=12, color='#35445e')
+        ax.text(i, -.16, count, transform=ax.get_xaxis_transform(), ha='center', va='top', fontsize=10.5, color='#8190a6')
+    fig.text(.014, .035, 'Qev: BF16 backbone. Kev / JevAny: FP32. ChessBench / BPoMP: Decision Index raw scores.', fontsize=10, color='#8190a6')
     save(fig, 'evaluation')
 
     values = np.array([[100*score(results[key], model) for key,_,_ in PANELS] for model,_ in MATRIX])

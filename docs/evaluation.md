@@ -35,17 +35,17 @@ Percent accuracy. Each released Qev model is a single seed. Bold scores mark the
 
 **Precision comparison: Kev and JevAny use FP32; Qev-9B, Qev-4B and Qev-2B use BF16 backbone computation.** Qev retains FP32 for its decision head and key reductions; its exported LoRA tensors are stored in FP32. These are not identical precision settings.
 
-| Scope | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| JevBench public · 231 | 85.71 | **80.95** | 75.76 | 75.76 | 82.25 | 67.10 | 74.46 | 63.20 |
-| decision_dev all · 1468 | 83.17 | **88.28** | 87.81 | 75.75 | 87.60 | 71.53 | 86.24 | 63.15 |
-| decision_dev clean · 1264 | 84.49 | **87.58** | 87.18 | 77.69 | 86.95 | 73.73 | 85.36 | 65.43 |
-| transfer_dev all · 764 | 84.69 | **82.33** | 81.15 | 73.43 | 80.89 | 70.29 | 76.44 | 64.53 |
-| transfer_dev clean · 656 | 85.67 | **83.69** | 82.16 | 74.39 | 82.01 | 71.49 | 77.29 | 65.09 |
-| MMLU-Pro · 1,000 | 83.50 | **56.50** | 51.10 | 50.40 | 50.30 | 43.50 | 38.70 | 31.20 |
-| SemIf · 144 handwritten | 96.53 | **93.75** | 90.97 | 90.28 | 90.28 | 77.08 | 82.64 | 63.89 |
-| scienthoon · 873 | 75.26 | 74.80 | **75.49** | 68.84 | 76.75 | 74.34 | 71.94 | 53.84 |
-| WANLI · 256 | 75.78 | **75.00** | 70.31 | 67.97 | 73.44 | 60.55 | 67.58 | 50.39 |
+| Scope | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | JevAny-4B Pointer | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| JevBench public · 231 | 85.71 | **80.95** | 75.76 | 75.76 | 82.25 | 78.35 | 67.10 | 74.46 | 63.20 |
+| decision_dev all · 1468 | 83.17 | **88.28** | 87.81 | 75.75 | 87.60 | 87.26 | 71.53 | 86.24 | 63.15 |
+| decision_dev clean · 1264 | 84.49 | **87.58** | 87.18 | 77.69 | 86.95 | 86.63 | 73.73 | 85.36 | 65.43 |
+| transfer_dev all · 764 | 84.69 | **82.33** | 81.15 | 73.43 | 80.89 | 85.60 | 70.29 | 76.44 | 64.53 |
+| transfer_dev clean · 656 | 85.67 | **83.69** | 82.16 | 74.39 | 82.01 | 84.60 | 71.49 | 77.29 | 65.09 |
+| MMLU-Pro · 1,000 | 83.50 | **56.50** | 51.10 | 50.40 | 50.30 | 52.30 | 43.50 | 38.70 | 31.20 |
+| SemIf · 144 handwritten | 96.53 | **93.75** | 90.97 | 90.28 | 90.28 | 90.28 | 77.08 | 82.64 | 63.89 |
+| scienthoon · 873 | 75.26 | 74.80 | **75.49** | 68.84 | 76.75 | 69.30 | 74.34 | 71.94 | 53.84 |
+| WANLI · 256 | 75.78 | **75.00** | 70.31 | 67.97 | 73.44 | 71.09 | 60.55 | 67.58 | 50.39 |
 
 The all-question dev rows include clean examples and candidate-permutation / None-present / None-absent variants. Clean rows match the clean reporting convention in Kev's README. SemIf uses 144 handwritten questions. Qev's broader 252-question research run also included 108 perturbations; its 96.43% overall score is not the 144-question comparison above.
 
@@ -72,11 +72,11 @@ Qev-4B and Kev-4B start from Qwen3.5-4B-Base; JevAny uses the post-trained Qwen3
 
 The three displayed additional benchmarks use the toolkit's official **raw** score, multiplied by 100. BPoMP averages accuracy across poem variants. GSM8K averages the four-choice and ten-choice tracks; ChessBench accepts all tied best moves.
 
-| Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| GSM8K · multiple choice | 79.87 | **61.75** | 46.36 | 55.53 | 54.59 | 37.00 | 37.76 | 30.40 |
-| ChessBench · 5,000 | 17.22 | 10.34 | **11.76** | 13.22 | 12.42 | 11.78 | 10.98 | 8.84 |
-| BPoMP · variant mean | 90.92 | **81.03** | 66.93 | 59.39 | 78.19 | 68.95 | 73.81 | 50.50 |
+| Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | JevAny-4B Pointer | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| GSM8K · multiple choice | 79.87 | **61.75** | 46.36 | 55.53 | 54.59 | 47.61 | 37.00 | 37.76 | 30.40 |
+| ChessBench · 5,000 | 17.22 | 10.34 | **11.76** | 13.22 | 12.42 | 11.32 | 11.78 | 10.98 | 8.84 |
+| BPoMP · variant mean | 90.92 | **81.03** | 66.93 | 59.39 | 78.19 | 73.87 | 68.95 | 73.81 | 50.50 |
 
 All local models answered every item in these three evaluations. Jev's new scores come from the toolkit's pinned public leaderboard, not a new API run. The [method note](decision-index.md) records exact sources, scoring rules and the GSM8K option-construction limitation. Original benchmark scores remain attached to their original evaluations.
 

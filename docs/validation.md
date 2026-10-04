@@ -139,3 +139,9 @@ The [9B release](https://huggingface.co/AustinFu/Qev-9B/tree/v0.3.0) contains th
 - Updated the 4B model card to identify its now-published teacher, downloaded and compared all five changed metadata files, and verified that 4B weights and tags are unchanged. Qev-2B retains its original v0.1.0 teacher.
 
 These checks validate packaging, recorded scores and publication. Full-size GPU inference, training and benchmark measurements were not rerun during this release.
+
+## README comparison and chart readability — 2026-10-04
+
+Added the standard JevAny-4B Pointer results to both README tables and the full evaluation tables. The cover now shows seven benchmarks in this order: MMLU-Pro, SemIf, JevBench, scienthoon, WANLI, ChessBench and BPoMP. Transfer development and GSM8K remain in the tables and matrix. Narrower side margins, a smaller canvas width and larger fonts make labels more legible at README width.
+
+Checked all 28 bar values and 32 added table values against the recorded results, preserved existing table cells and the full matrix, and inspected the chart at 940 pixels wide. Ran the plotting script, release checker and whitespace checks; model code and benchmark measurements are unchanged.
