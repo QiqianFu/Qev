@@ -151,3 +151,9 @@ Checked all 28 bar values and 32 added table values against the recorded results
 The English and Chinese READMEs now display SVG tables with light blue backgrounds for Qev-9B, Qev-4B and Qev-2B. The original Markdown tables remain available in expandable sections for copying. `python scripts/render_results_table.py` regenerates the images from those tables; rendering Chinese requires a Noto Sans CJK font.
 
 Verified all 180 displayed scores against the source tables and recorded metrics, checked the three highlighted columns, and inspected both rendered tables. The cover remains the seven-benchmark version with JevBench third; its public GitHub image contains neither Transfer development nor GSM8K. No benchmark scores or model code changed.
+
+## Consolidated evaluation guide — 2026-10-04
+
+Removed the expandable README tables and replaced the separate evaluation links with one [complete evaluation guide](evaluation.md). It now includes the full matrix, both JevAny variants, Decision Index methods and sources, JevBench details, reproduction commands, ablations and original result files. The old method-note URL points to the consolidated section.
+
+The table renderer now reads `results/benchmarks.json` and `results/decision-index.json` directly. Regeneration preserved all 180 values, labels, bold formatting and blue column backgrounds; both SVGs are visually identical after ignoring generated clipping IDs. The cover and recorded results are unchanged. Documentation and release checks passed.

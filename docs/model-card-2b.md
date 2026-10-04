@@ -54,7 +54,7 @@ To fine-tune on your own data, use `configs/qev-2b-finetune.json` with `python -
 | ChessBench | 8.84 | 10.98 |
 | BPoMP · variant mean | 50.50 | 73.81 |
 
-Scores (%). The three new rows use [Decision Index raw scores](decision-index.md); the original rows use accuracy. Public JevBench accuracy is 172/231. These are the selected checkpoint's recorded results. The native base uses its language-model head and zero-shot prompts. The comparison therefore includes architecture, training and readout differences; it does not isolate the contribution of response distillation. [Full results](evaluation.md).
+Scores (%). The three new rows use [Decision Index raw scores](evaluation.md#decision-index-021); the original rows use accuracy. Public JevBench accuracy is 172/231. These are the selected checkpoint's recorded results. The native base uses its language-model head and zero-shot prompts. The comparison therefore includes architecture, training and readout differences; it does not isolate the contribution of response distillation. [Full results](evaluation.md).
 
 The package includes the LoRA adapter, decision head, interaction gate, tokenizer, model configuration, both training configurations, recorded evaluation results and license files. The three trained tensor files preserve the selected checkpoint exactly; optimizer state and base weights are excluded.
 

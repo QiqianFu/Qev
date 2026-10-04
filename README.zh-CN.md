@@ -128,29 +128,9 @@ Qev 按 **state → question → candidate** 组织输入。候选分支读取�
   <a href="assets/evaluation-table.zh-CN.svg"><img src="assets/evaluation-table.zh-CN.svg" alt="评测结果：Qev-9B、Qev-4B、Qev-2B 三列以淡蓝色突出显示。" width="100%"></a>
 </p>
 
-<details>
-<summary>展开可复制的成绩表</summary>
-
-| 评测 | Jev（参考） | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | JevAny-4B Pointer | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| JevBench公开题 · 231题 | 85.71 | **80.95** | 75.76 | 75.76 | 82.25 | 78.35 | 67.10 | 74.46 | 63.20 |
-| decision_dev · clean | 84.49 | **87.58** | 87.18 | 77.69 | 86.95 | 86.63 | 73.73 | 85.36 | 65.43 |
-| transfer_dev · clean | 85.67 | **83.69** | 82.16 | 74.39 | 82.01 | 84.60 | 71.49 | 77.29 | 65.09 |
-| MMLU-Pro · 1000题 | 83.50 | **56.50** | 51.10 | 50.40 | 50.30 | 52.30 | 43.50 | 38.70 | 31.20 |
-| SemIf · 144道手写题 | 96.53 | **93.75** | 90.97 | 90.28 | 90.28 | 90.28 | 77.08 | 82.64 | 63.89 |
-| scienthoon · 873题 | 75.26 | 74.80 | **75.49** | 68.84 | 76.75 | 69.30 | 74.34 | 71.94 | 53.84 |
-| WANLI · 256题 | 75.78 | **75.00** | 70.31 | 67.97 | 73.44 | 71.09 | 60.55 | 67.58 | 50.39 |
-| GSM8K · 选择题改编 | 79.87 | **61.75** | 46.36 | 55.53 | 54.59 | 47.61 | 37.00 | 37.76 | 30.40 |
-| ChessBench · 5000题 | 17.22 | 10.34 | **11.76** | 13.22 | 12.42 | 11.32 | 11.78 | 10.98 | 8.84 |
-| BPoMP · 变体平均 | 90.92 | **81.03** | 66.93 | 59.39 | 78.19 | 73.87 | 68.95 | 73.81 | 50.50 |
-
-</details>
-
 表中均为百分制：原有评测为准确率，GSM8K、ChessBench 和 BPoMP 采用 Decision Index 官方原始分，其中 BPoMP 为不同变体的平均准确率。加粗比较 Qev-9B 与 Kev-9B；Jev 和原生底座作为参考。表格和封面中的 JevAny 均采用标准 4B Pointer 版。封面图比较 Qev-4B、JevAny-4B Pointer、Kev-4B 与 Jev。
 
-[4B 完整对比，含两个 JevAny 版本](docs/evaluation.md#4b-model-comparison) · [新增评测方法](docs/decision-index.md)。
-
-[完整评测矩阵](assets/evaluation-matrix.svg) · [完整结果、消融与评测设置](docs/evaluation.md) · [机器可读指标](results/benchmarks.json) · [231 题原始预测](results/qev-9b/jevbench-predictions.jsonl)
+[完整评测说明：模型对比、评测方法、消融与原始结果](docs/evaluation.md)
 
 ## 训练
 

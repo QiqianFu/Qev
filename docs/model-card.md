@@ -119,7 +119,7 @@ The main and late partitions intentionally share 249 replay records. [Qev-train]
 | ChessBench | 17.22 | 13.22 | 10.34 | **11.76** |
 | BPoMP · variant mean | 90.92 | 59.39 | **81.03** | 66.93 |
 
-Scores (%). The new GSM8K, ChessBench and BPoMP rows use [Decision Index raw scores](https://github.com/QiqianFu/Qev/blob/main/docs/decision-index.md); the original rows use accuracy. Bold compares Qev with Kev.
+Scores (%). The new GSM8K, ChessBench and BPoMP rows use [Decision Index raw scores](https://github.com/QiqianFu/Qev/blob/main/docs/evaluation.md#decision-index-021); the original rows use accuracy. Bold compares Qev with Kev.
 
 These are the recorded results for the released checkpoint, using full causal reference execution. The selected model is a single seed, and public benchmarks were observed during research iteration. The comparisons do not isolate architecture gains. [Results, sources, and reproduction commands](https://github.com/QiqianFu/Qev/blob/main/docs/evaluation.md).
 

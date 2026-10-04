@@ -128,29 +128,9 @@ Qev organizes inputs as **state → question → candidate**. Candidate branches
   <a href="assets/evaluation-table.svg"><img src="assets/evaluation-table.svg" alt="Benchmark results with Qev-9B, Qev-4B and Qev-2B highlighted in light blue." width="100%"></a>
 </p>
 
-<details>
-<summary>Copyable results table</summary>
-
-| Benchmark | Jev (reference) | Qev-9B | Kev-9B | Qwen3.5-9B-Base | Qev-4B | JevAny-4B Pointer | Qwen3.5-4B-Base | Qev-2B | Qwen3.5-2B-Base |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| JevBench public · 231 | 85.71 | **80.95** | 75.76 | 75.76 | 82.25 | 78.35 | 67.10 | 74.46 | 63.20 |
-| Decision development · clean | 84.49 | **87.58** | 87.18 | 77.69 | 86.95 | 86.63 | 73.73 | 85.36 | 65.43 |
-| Transfer development · clean | 85.67 | **83.69** | 82.16 | 74.39 | 82.01 | 84.60 | 71.49 | 77.29 | 65.09 |
-| MMLU-Pro · 1,000 | 83.50 | **56.50** | 51.10 | 50.40 | 50.30 | 52.30 | 43.50 | 38.70 | 31.20 |
-| SemIf · 144 handwritten | 96.53 | **93.75** | 90.97 | 90.28 | 90.28 | 90.28 | 77.08 | 82.64 | 63.89 |
-| scienthoon · 873 | 75.26 | 74.80 | **75.49** | 68.84 | 76.75 | 69.30 | 74.34 | 71.94 | 53.84 |
-| WANLI · 256 | 75.78 | **75.00** | 70.31 | 67.97 | 73.44 | 71.09 | 60.55 | 67.58 | 50.39 |
-| GSM8K · multiple choice | 79.87 | **61.75** | 46.36 | 55.53 | 54.59 | 47.61 | 37.00 | 37.76 | 30.40 |
-| ChessBench · 5,000 | 17.22 | 10.34 | **11.76** | 13.22 | 12.42 | 11.32 | 11.78 | 10.98 | 8.84 |
-| BPoMP · variant mean | 90.92 | **81.03** | 66.93 | 59.39 | 78.19 | 73.87 | 68.95 | 73.81 | 50.50 |
-
-</details>
-
 Scores (%): accuracy for the original benchmarks; official Decision Index raw scores for GSM8K, ChessBench and BPoMP, with BPoMP averaged across poem variants. Bold compares Qev-9B with Kev-9B; Jev and native bases are references. JevAny uses the standard 4B Pointer release in both this table and the cover. The cover compares Qev-4B, JevAny-4B Pointer, Kev-4B and Jev.
 
-[4B comparison, including both JevAny versions](docs/evaluation.md#4b-model-comparison) · [New benchmark methods](docs/decision-index.md).
-
-[Full benchmark matrix](assets/evaluation-matrix.svg) · [Full results, ablations and settings](docs/evaluation.md) · [Machine-readable metrics](results/benchmarks.json) · [All 231 predictions](results/qev-9b/jevbench-predictions.jsonl)
+[Full evaluation guide: model comparisons, methods, ablations and original results](docs/evaluation.md)
 
 ## Training
 

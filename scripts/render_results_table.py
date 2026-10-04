@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Render the README score tables with blue backgrounds for Qev columns."""
+"""Render bilingual README tables from the recorded benchmark metrics."""
+import json
 import re
 from io import StringIO
 from pathlib import Path
@@ -13,23 +14,49 @@ from matplotlib.patches import Rectangle
 
 ROOT = Path(__file__).resolve().parents[1]
 QEV = {'Qev-9B', 'Qev-4B', 'Qev-2B'}
+MODELS = [
+    ('jev', 'Jev'), ('qev_9b', 'Qev-9B'), ('kev_9b', 'Kev-9B'),
+    ('qwen35_9b_base', 'Qwen3.5-9B-Base'), ('qev_4b', 'Qev-4B'),
+    ('jevany_4b_pointer', 'JevAny-4B Pointer'), ('qwen35_4b_base', 'Qwen3.5-4B-Base'),
+    ('qev_2b', 'Qev-2B'), ('qwen35_2b_base', 'Qwen3.5-2B-Base'),
+]
+BENCHMARKS = [
+    ('jevbench_public', 'JevBench public · 231', 'JevBench公开题 · 231题'),
+    ('decision_dev_clean', 'Decision development · clean', 'decision_dev · clean'),
+    ('transfer_dev_clean', 'Transfer development · clean', 'transfer_dev · clean'),
+    ('mmlupro', 'MMLU-Pro · 1,000', 'MMLU-Pro · 1000题'),
+    ('semif_handwritten', 'SemIf · 144 handwritten', 'SemIf · 144道手写题'),
+    ('scienthoon', 'scienthoon · 873', 'scienthoon · 873题'),
+    ('wanli', 'WANLI · 256', 'WANLI · 256题'),
+    ('gsm8k', 'GSM8K · multiple choice', 'GSM8K · 选择题改编'),
+    ('chessbench', 'ChessBench · 5,000', 'ChessBench · 5000题'),
+    ('bpomp', 'BPoMP · variant mean', 'BPoMP · 变体平均'),
+]
 
 
-def read_table(path):
-    lines = path.read_text().splitlines()
-    start = next(i for i, line in enumerate(lines)
-                 if line.startswith(('| Benchmark |', '| 评测 |')))
+def results_table(chinese=False):
+    results = json.loads((ROOT / 'results/benchmarks.json').read_text())['results']
+    results.update(json.loads((ROOT / 'results/decision-index.json').read_text())['results'])
+    headers = ['评测' if chinese else 'Benchmark'] + [name for _, name in MODELS]
+    headers[1] = 'Jev（参考）' if chinese else 'Jev (reference)'
     rows = []
-    for line in lines[start:]:
-        if not line.startswith('|'):
-            break
-        rows.append([cell.strip() for cell in line.strip('|').split('|')])
-    return rows[0], rows[2:]
+    for key, english, translated in BENCHMARKS:
+        scores = {model: entry.get('accuracy', entry.get('raw'))
+                  for model, entry in results[key]['models'].items()}
+        cells = [translated if chinese else english]
+        for model, _ in MODELS:
+            value = f'{100 * scores[model]:.2f}'
+            other = {'qev_9b': 'kev_9b', 'kev_9b': 'qev_9b'}.get(model)
+            if other and scores[model] > scores[other]:
+                value = f'**{value}**'
+            cells.append(value)
+        rows.append(cells)
+    return headers, rows
 
 
 def render(language):
     chinese = language == 'zh-CN'
-    headers, rows = read_table(ROOT / ('README.zh-CN.md' if chinese else 'README.md'))
+    headers, rows = results_table(chinese)
     widths = [212] + [106] * (len(headers) - 1)
     header_height, row_height = 66, 44
     width, height = sum(widths), header_height + len(rows) * row_height
