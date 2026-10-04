@@ -8,6 +8,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 import numpy as np
+from result_highlights import highlighted_models
 
 ROOT = Path(__file__).resolve().parents[1]
 PANELS = [
@@ -96,11 +97,12 @@ def main():
     ax.set_xticks(range(len(PANELS)), [title for _,title,_ in PANELS], fontsize=9.5, color='#35445e')
     ax.set_yticks(range(len(MATRIX)), [name for _,name in MATRIX], fontsize=10.5, color='#35445e')
     ax.tick_params(length=0, pad=9)
-    comparisons = {'qev_9b': 'kev_9b', 'kev_9b': 'qev_9b', 'qev_4b': 'kev_4b', 'kev_4b': 'qev_4b'}
+    winners = {key: highlighted_models(
+        {model: score(results[key], model) for model, _ in MATRIX},
+        [model for model, _ in MATRIX]) for key, _, _ in PANELS}
     for row, (model, _) in enumerate(MATRIX):
         for col, (key, _, _) in enumerate(PANELS):
-            other = comparisons.get(model)
-            bold = other is not None and score(results[key], model) > score(results[key], other)
+            bold = model in winners[key]
             ax.text(col,row,f'{values[row,col]:.2f}',ha='center',va='center',fontsize=11,
                     color='white' if values[row,col]>=65 else '#35445e',fontweight='bold' if bold else 'normal')
     ax.set_xticks(np.arange(-.5, len(PANELS), 1), minor=True)

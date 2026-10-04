@@ -128,7 +128,7 @@ Qev organizes inputs as **state → question → candidate**. Candidate branches
   <a href="assets/evaluation-table.svg"><img src="assets/evaluation-table.svg" alt="Benchmark results with Qev-9B, Qev-4B and Qev-2B highlighted in light blue." width="100%"></a>
 </p>
 
-Scores (%): accuracy for the original benchmarks; official Decision Index raw scores for GSM8K, ChessBench and BPoMP, with BPoMP averaged across poem variants. Bold compares Qev-9B with Kev-9B; Jev and native bases are references. JevAny uses the standard 4B Pointer release in both this table and the cover. The cover compares Qev-4B, JevAny-4B Pointer, Kev-4B and Jev.
+Scores (%): accuracy for the original benchmarks; official Decision Index raw scores for GSM8K, ChessBench and BPoMP, with BPoMP averaged across poem variants. Bold compares Qev-9B with Kev-9B and marks the best displayed result in each 4B and 2B group, including ties. Jev is a reference. JevAny uses the standard 4B Pointer release in both this table and the cover. The cover compares Qev-4B, JevAny-4B Pointer, Kev-4B and Jev.
 
 [Full evaluation guide: model comparisons, methods, ablations and original results](docs/evaluation.md)
 

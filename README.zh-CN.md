@@ -128,7 +128,7 @@ Qev 按 **state → question → candidate** 组织输入。候选分支读取�
   <a href="assets/evaluation-table.zh-CN.svg"><img src="assets/evaluation-table.zh-CN.svg" alt="评测结果：Qev-9B、Qev-4B、Qev-2B 三列以淡蓝色突出显示。" width="100%"></a>
 </p>
 
-表中均为百分制：原有评测为准确率，GSM8K、ChessBench 和 BPoMP 采用 Decision Index 官方原始分，其中 BPoMP 为不同变体的平均准确率。加粗比较 Qev-9B 与 Kev-9B；Jev 和原生底座作为参考。表格和封面中的 JevAny 均采用标准 4B Pointer 版。封面图比较 Qev-4B、JevAny-4B Pointer、Kev-4B 与 Jev。
+表中均为百分制：原有评测为准确率，GSM8K、ChessBench 和 BPoMP 采用 Decision Index 官方原始分，其中 BPoMP 为不同变体的平均准确率。9B 沿用 Qev 与 Kev 的加粗比较；4B 和 2B 加粗各组所列模型的最高分，并列最高一并加粗。Jev 作为参考。表格和封面中的 JevAny 均采用标准 4B Pointer 版。封面图比较 Qev-4B、JevAny-4B Pointer、Kev-4B 与 Jev。
 
 [完整评测说明：模型对比、评测方法、消融与原始结果](docs/evaluation.md)
 

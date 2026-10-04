@@ -157,3 +157,7 @@ Verified all 180 displayed scores against the source tables and recorded metrics
 Removed the expandable README tables and replaced the separate evaluation links with one [complete evaluation guide](evaluation.md). It now includes the full matrix, both JevAny variants, Decision Index methods and sources, JevBench details, reproduction commands, ablations and original result files. The old method-note URL points to the consolidated section.
 
 The table renderer now reads `results/benchmarks.json` and `results/decision-index.json` directly. Regeneration preserved all 180 values, labels, bold formatting and blue column backgrounds; both SVGs are visually identical after ignoring generated clipping IDs. The cover and recorded results are unchanged. Documentation and release checks passed.
+
+## Best scores by model size — 2026-10-04
+
+The bilingual tables and full matrix now emphasize the best displayed scores within the 4B and 2B groups, including ties. The 9B Qev/Kev comparison is retained, and Jev remains an unbolded reference. Checked all 290 SVG scores and their emphasis, preserved every Markdown table value, and inspected the rendered table. The cover, blue backgrounds and recorded metrics are unchanged.

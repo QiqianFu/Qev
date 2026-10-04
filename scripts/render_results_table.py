@@ -11,6 +11,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
 from matplotlib.patches import Rectangle
+from result_highlights import highlighted_models
 
 ROOT = Path(__file__).resolve().parents[1]
 QEV = {'Qev-9B', 'Qev-4B', 'Qev-2B'}
@@ -44,10 +45,10 @@ def results_table(chinese=False):
         scores = {model: entry.get('accuracy', entry.get('raw'))
                   for model, entry in results[key]['models'].items()}
         cells = [translated if chinese else english]
+        winners = highlighted_models(scores, [model for model, _ in MODELS])
         for model, _ in MODELS:
             value = f'{100 * scores[model]:.2f}'
-            other = {'qev_9b': 'kev_9b', 'kev_9b': 'qev_9b'}.get(model)
-            if other and scores[model] > scores[other]:
+            if model in winners:
                 value = f'**{value}**'
             cells.append(value)
         rows.append(cells)
