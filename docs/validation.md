@@ -161,3 +161,15 @@ The table renderer now reads `results/benchmarks.json` and `results/decision-ind
 ## Best scores by model size — 2026-10-04
 
 The bilingual tables and full matrix now emphasize the best displayed scores within the 4B and 2B groups, including ties. The 9B Qev/Kev comparison is retained, and Jev remains an unbolded reference. Checked all 290 SVG scores and their emphasis, preserved every Markdown table value, and inspected the rendered table. The cover, blue backgrounds and recorded metrics are unchanged.
+
+## Qev-0.8B and NanoJev — 2026-10-05
+
+Selected the directly initialized, teacher-distilled Qev-0.8B checkpoint at step 2,786, seed 17. Recomputed the matched reporting subsets from 4,844 stored predictions per model (9,688 total) and retained all previously recorded scores. The small models have no Decision Index measurements; their missing cells are displayed as dashes.
+
+Validated 160 bilingual table cells and 100 matrix cells, including emphasis and the four blue Qev columns. Inspected the rendered tables and matrix. The existing 4B cover is byte-identical. Exported adaptation tensors and tokenizer are identical to the original checkpoint; loaded the actual tokenizer, checked all tensor headers, and matched the training/fine-tuning configurations to the exported model metadata.
+
+Three focused CPU tests passed: portable export, legacy loading and Python API; Hub version resolution; teacher temperature and cache preservation. Release consistency and documentation checks passed. Full-size GPU inference, training and benchmark measurements were not rerun.
+
+<!-- qev-0.8b-publication:start -->
+Published [Qev-0.8B v0.1.0](https://huggingface.co/AustinFu/Qev-0.8B/tree/v0.1.0) at `9fc71346c2aed987c7c3e5a3d8e01c02a3e97f5c`. Downloaded all 25 files anonymously into a fresh cache and compared them with the prepared package. The tag and main resolve to the verified public checkpoint.
+<!-- qev-0.8b-publication:end -->

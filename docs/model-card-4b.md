@@ -79,11 +79,11 @@ These are measurements from one checkpoint and seed. Training data and objective
 
 ## Additional evaluation — 2026-10-03
 
-| Benchmark | Qwen3.5-4B-Base | Qev-4B |
-|---|---:|---:|
-| GSM8K · multiple choice | 37.00 | 54.59 |
-| ChessBench · 5,000 | 11.78 | 12.42 |
-| BPoMP · variant mean | 68.95 | 78.19 |
+| Benchmark | Qev-4B |
+| --- | ---: |
+| GSM8K · multiple choice | 54.59 |
+| ChessBench · 5,000 | 12.42 |
+| BPoMP · variant mean | 78.19 |
 
 These are Decision Index 0.2.1 raw scores (%); BPoMP averages over variants. [Scoring definitions and sources](https://github.com/QiqianFu/Qev/blob/main/docs/evaluation.md#decision-index-021).
 

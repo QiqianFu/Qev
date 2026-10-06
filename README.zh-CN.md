@@ -8,7 +8,7 @@
   <a href="LICENSE"><img src="assets/badges/license.svg" alt="Apache-2.0"></a>
 </p>
 
-<p align="center"><a href="README.md">English</a> | <strong>简体中文</strong> | <a href="https://huggingface.co/AustinFu/Qev-2B">🤗 Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-4B">🤗 Qev-4B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a> | <a href="https://huggingface.co/datasets/AustinFu/Qev-train">🤗 训练数据</a></p>
+<p align="center"><a href="README.md">English</a> | <strong>简体中文</strong> | <a href="https://huggingface.co/AustinFu/Qev-0.8B">🤗 Qev-0.8B</a> | <a href="https://huggingface.co/AustinFu/Qev-2B">🤗 Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-4B">🤗 Qev-4B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a> | <a href="https://huggingface.co/datasets/AustinFu/Qev-train">🤗 训练数据</a></p>
 
 **Qev 是从 Qwen 微调而来的决策模型。** 给定上下文、问题和候选答案，模型直接返回选择及各选项的概率。同一套模型支持 **Choice 选择、Noul 是非判断、Score 序数评分**。
 
@@ -16,7 +16,7 @@
 
 | 从这里开始 | 可以做什么 |
 |---|---|
-| **[获取模型权重](#models)** | 比较 Qev-2B、Qev-4B 与 Qev-9B，查看检查点与下载说明 |
+| **[获取模型权重](#models)** | 比较 Qev-0.8B、Qev-2B、Qev-4B 与 Qev-9B，查看检查点与下载说明 |
 | **[运行模型](#推理)** | 通过 Python 或 JSONL 接口，获取选项概率和决策 |
 | **[训练模型](#训练)** | 准备标注数据，从 Qwen 底座训练，或在 Qev 检查点上继续微调 |
 | **[查看评测](#评测)** | 查看 Qev 与对照模型在各项基准上的成绩 |
@@ -27,10 +27,10 @@
 
 <a id="models"></a>
 
-| 选择模型 | Qev-2B | Qev-4B | Qev-9B |
-|---|---|---|---|
-| 定位 | 经过响应蒸馏的轻量模型 | 从 Qwen 底座直接训练的中等规模模型 | 最大规模的决策模型 |
-| 使用 | [2B 模型权重](https://huggingface.co/AustinFu/Qev-2B) | [4B 模型权重](https://huggingface.co/AustinFu/Qev-4B) | [9B 模型权重](https://huggingface.co/AustinFu/Qev-9B) |
+| 选择模型 | Qev-0.8B | Qev-2B | Qev-4B | Qev-9B |
+|---|---|---|---|---|
+| 定位 | 从 Qwen 底座直接蒸馏的最小模型 | 经过响应蒸馏的轻量模型 | 从 Qwen 底座直接蒸馏的中等规模模型 | 最大规模的决策模型 |
+| 使用 | [0.8B 模型权重](https://huggingface.co/AustinFu/Qev-0.8B) | [2B 模型权重](https://huggingface.co/AustinFu/Qev-2B) | [4B 模型权重](https://huggingface.co/AustinFu/Qev-4B) | [9B 模型权重](https://huggingface.co/AustinFu/Qev-9B) |
 
 ## 安装
 
@@ -60,7 +60,7 @@ python scripts/smoke.py --out runs/smoke
 ```python
 from qev import Qev
 
-# 可选择 "AustinFu/Qev-2B"、"AustinFu/Qev-4B" 或 "AustinFu/Qev-9B"。
+# 可选择 "AustinFu/Qev-0.8B"、"AustinFu/Qev-2B"、"AustinFu/Qev-4B" 或 "AustinFu/Qev-9B"。
 model = Qev.from_pretrained(
     "AustinFu/Qev-9B", device="cuda"
 )
@@ -122,13 +122,13 @@ Qev 按 **state → question → candidate** 组织输入。候选分支读取�
 
 ## 评测
 
-**精度对比：Qev-9B、Qev-4B 与 Qev-2B 的主干计算使用 BF16，Kev 和 JevAny 使用 FP32。** Qev 的决策头保持 FP32。
+**精度对比：Qev 各规模模型的主干计算使用 BF16，Kev 和 JevAny 使用 FP32。** Qev 的决策头保持 FP32。
 
 <p align="center">
-  <a href="assets/evaluation-table.zh-CN.svg"><img src="assets/evaluation-table.zh-CN.svg" alt="评测结果：Qev-9B、Qev-4B、Qev-2B 三列以淡蓝色突出显示。" width="100%"></a>
+  <a href="assets/evaluation-table.zh-CN.svg"><img src="assets/evaluation-table.zh-CN.svg" alt="评测结果：Qev-9B、Qev-4B、Qev-2B、Qev-0.8B 四列以淡蓝色突出显示。" width="100%"></a>
 </p>
 
-表中均为百分制：原有评测为准确率，GSM8K、ChessBench 和 BPoMP 采用 Decision Index 官方原始分，其中 BPoMP 为不同变体的平均准确率。9B 沿用 Qev 与 Kev 的加粗比较；4B 和 2B 加粗各组所列模型的最高分，并列最高一并加粗。Jev 作为参考。表格和封面中的 JevAny 均采用标准 4B Pointer 版。封面图比较 Qev-4B、JevAny-4B Pointer、Kev-4B 与 Jev。
+表中均为百分制：原有评测为准确率，GSM8K、ChessBench 和 BPoMP 采用 Decision Index 官方原始分，其中 BPoMP 为不同变体的平均准确率。9B、4B、2B 和十亿参数以下各组加粗所列模型的最高分，并列最高一并加粗。最小模型组比较 Qev-0.8B 与 NanoJev-0.6B；“—”表示未评测。Jev 作为参考。表格和封面中的 JevAny 均采用标准 4B Pointer 版。封面图比较 Qev-4B、JevAny-4B Pointer、Kev-4B 与 Jev。
 
 [完整评测说明：模型对比、评测方法、消融与原始结果](docs/evaluation.md)
 
@@ -167,6 +167,10 @@ python -m qev.train \
 `--init-checkpoint` 加载模型参数，重新建立优化器与学习率计划；`--resume` 恢复同一次训练及其原数据校验。省略初始化参数则从配置中的 Qwen 底座开始。
 
 [正式四卡配置](configs/qev-9b.json)使用 rank 64、全局 batch 32、两轮训练和收尾分区混入。单卡、多卡、断点恢复与全参训练见[训练指南](docs/training.md)。
+
+### 训练 0.8B 模型
+
+Qev-0.8B 从 Qwen3.5-0.8B-Base 出发，通过单阶段训练学习 Qev-9B 教师的选项概率。使用[蒸馏配置](configs/qev-0.8b-distill.json)，或用[微调配置](configs/qev-0.8b-finetune.json)在自己的标注数据上继续训练。[训练方法与命令](docs/training-0.8b.zh-CN.md)。
 
 ### 训练 4B 模型
 

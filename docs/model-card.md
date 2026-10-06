@@ -103,21 +103,21 @@ The main and late partitions intentionally share 249 replay records. [Qev-train]
 **Qev-9B uses BF16 backbone computation; Kev-9B uses FP32.**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/QiqianFu/Qev/main/assets/evaluation-matrix.svg" alt="Qev models, native bases and reference models across ten benchmarks." width="100%">
+  <img src="https://raw.githubusercontent.com/QiqianFu/Qev/main/assets/evaluation-matrix.svg" alt="Qev models and reference models across ten benchmarks." width="100%">
 </p>
 
-| Benchmark | Jev (reference) | Qwen3.5-9B-Base | Qev-9B | Kev-9B |
-|---|---:|---:|---:|---:|
-| JevBench public · 231 | 85.71 | 75.76 | **80.95** | 75.76 |
-| Decision development · clean | 84.49 | 77.69 | **87.58** | 87.18 |
-| Transfer development · clean | 85.67 | 74.39 | **83.69** | 82.16 |
-| MMLU-Pro · 1,000 | 83.50 | 50.40 | **56.50** | 51.10 |
-| SemIf · 144 handwritten | 96.53 | 90.28 | **93.75** | 90.97 |
-| scienthoon · 873 | 75.26 | 68.84 | 74.80 | **75.49** |
-| WANLI · 256 | 75.78 | 67.97 | **75.00** | 70.31 |
-| GSM8K · multiple choice | 79.87 | 55.53 | **61.75** | 46.36 |
-| ChessBench | 17.22 | 13.22 | 10.34 | **11.76** |
-| BPoMP · variant mean | 90.92 | 59.39 | **81.03** | 66.93 |
+| Benchmark | Jev (reference) | Qev-9B | Kev-9B |
+| --- | ---: | ---: | ---: |
+| JevBench public · 231 | 85.71 | **80.95** | 75.76 |
+| Decision development · clean | 84.49 | **87.58** | 87.18 |
+| Transfer development · clean | 85.67 | **83.69** | 82.16 |
+| MMLU-Pro · 1,000 | 83.50 | **56.50** | 51.10 |
+| SemIf · 144 handwritten | 96.53 | **93.75** | 90.97 |
+| scienthoon · 873 | 75.26 | 74.80 | **75.49** |
+| WANLI · 256 | 75.78 | **75.00** | 70.31 |
+| GSM8K · multiple choice | 79.87 | **61.75** | 46.36 |
+| ChessBench | 17.22 | 10.34 | **11.76** |
+| BPoMP · variant mean | 90.92 | **81.03** | 66.93 |
 
 Scores (%). The new GSM8K, ChessBench and BPoMP rows use [Decision Index raw scores](https://github.com/QiqianFu/Qev/blob/main/docs/evaluation.md#decision-index-021); the original rows use accuracy. Bold compares Qev with Kev.
 

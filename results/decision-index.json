@@ -260,6 +260,10 @@
           "source": "published_leaderboard",
           "version": "Jev 1.13.0"
         }
+      },
+      "not_evaluated": {
+        "qev_0p8b": "Not measured for this checkpoint",
+        "nanojev_0p6b": "Not measured for this checkpoint"
       }
     },
     "chessbench": {
@@ -446,6 +450,10 @@
           "source": "published_leaderboard",
           "version": "Jev 1.13.0"
         }
+      },
+      "not_evaluated": {
+        "qev_0p8b": "Not measured for this checkpoint",
+        "nanojev_0p6b": "Not measured for this checkpoint"
       }
     },
     "esci": {
@@ -632,6 +640,10 @@
           "source": "published_leaderboard",
           "version": "Jev 1.13.0"
         }
+      },
+      "not_evaluated": {
+        "qev_0p8b": "Not measured for this checkpoint",
+        "nanojev_0p6b": "Not measured for this checkpoint"
       }
     },
     "bpomp": {
@@ -818,6 +830,10 @@
           "source": "published_leaderboard",
           "version": "Jev 1.13.0"
         }
+      },
+      "not_evaluated": {
+        "qev_0p8b": "Not measured for this checkpoint",
+        "nanojev_0p6b": "Not measured for this checkpoint"
       }
     }
   }

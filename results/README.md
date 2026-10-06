@@ -1,5 +1,9 @@
 # Benchmark results
 
+- [Qev-0.8B](qev-0.8b/evaluation.json) and [NanoJev-0.6B](nanojev-0.6b/evaluation.json): seven original evaluation suites and matched reporting subsets, added 2026-10-05. Each folder includes provenance and all 231 public JevBench predictions. Qev-0.8B is the seed-17, step-2,786 model distilled directly from Qwen3.5-0.8B-Base. Their Decision Index tasks have not been measured.
+
+Native Qwen Base columns are omitted from the displayed tables and matrix; their measurements remain here for provenance.
+
 - [Decision Index scores](decision-index.json): official 0.2.1 raw scores, chance-adjusted skill and per-track details for GSM8K, ChessBench, Amazon ESCI and BPoMP. Jev is a published leaderboard reference.
 - [Qwen3.5-4B-Base](qwen3.5-4b-base/evaluation.json), [Kev-4B](kev-4b/evaluation.json), [JevAny Pointer](jevany-4b-pointer/evaluation.json) and [JevAny Direct-Token](jevany-4b-direct/evaluation.json): original-suite counts and matched subsets. Each folder also preserves public JevBench predictions and inference provenance.
 - [Benchmark metrics](benchmarks.json): correct answers, question counts and model descriptions for the README tables.

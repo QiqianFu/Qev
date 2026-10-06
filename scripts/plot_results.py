@@ -33,15 +33,17 @@ BAR_MODELS = [
     ('jev', 'Jev · reference', '#94a5b9'),
 ]
 MATRIX = [('jev', 'Jev · reference'), ('qev_9b', 'Qev-9B'),
-          ('kev_9b', 'Kev-9B'), ('qwen35_9b_base', 'Qwen3.5-9B-Base'),
+          ('kev_9b', 'Kev-9B'),
           ('qev_4b', 'Qev-4B'), ('kev_4b', 'Kev-4B'),
           ('jevany_4b_pointer', 'JevAny-4B · Pointer'),
           ('jevany_4b_direct', 'JevAny-4B · Direct-Token'),
-          ('qwen35_4b_base', 'Qwen3.5-4B-Base'),
-          ('qev_2b', 'Qev-2B'), ('qwen35_2b_base', 'Qwen3.5-2B-Base')]
+          ('qev_2b', 'Qev-2B'), ('qev_0p8b', 'Qev-0.8B'),
+          ('nanojev_0p6b', 'NanoJev-0.6B')]
 
 
 def score(entry, model):
+    if model in entry.get('not_evaluated', {}):
+        return np.nan
     row = entry['models'][model]
     return row['accuracy'] if 'accuracy' in row else row['raw']
 
@@ -92,18 +94,20 @@ def main():
     fig, ax = plt.subplots(figsize=(16.8, 7.7))
     fig.subplots_adjust(left=.205, right=.983, top=.84, bottom=.13)
     fig.text(.038, .95, 'Qev · benchmark matrix', fontsize=17, fontweight='semibold', color='#35445e')
-    fig.text(.038, .902, 'Scores (%) · ten benchmarks across the Qev family, native bases and reference models', fontsize=10.5, color='#7c89a0')
-    ax.imshow(values, cmap='Purples', vmin=0, vmax=100, aspect='auto')
+    fig.text(.038, .902, 'Scores (%) · Qev and reference models · — means not evaluated', fontsize=10.5, color='#7c89a0')
+    cmap = plt.colormaps['Purples'].with_extremes(bad='#f1f5f9')
+    ax.imshow(np.ma.masked_invalid(values), cmap=cmap, vmin=0, vmax=100, aspect='auto')
     ax.set_xticks(range(len(PANELS)), [title for _,title,_ in PANELS], fontsize=9.5, color='#35445e')
     ax.set_yticks(range(len(MATRIX)), [name for _,name in MATRIX], fontsize=10.5, color='#35445e')
     ax.tick_params(length=0, pad=9)
     winners = {key: highlighted_models(
-        {model: score(results[key], model) for model, _ in MATRIX},
+        {model: score(results[key], model) for model, _ in MATRIX if model in results[key]['models']},
         [model for model, _ in MATRIX]) for key, _, _ in PANELS}
     for row, (model, _) in enumerate(MATRIX):
         for col, (key, _, _) in enumerate(PANELS):
             bold = model in winners[key]
-            ax.text(col,row,f'{values[row,col]:.2f}',ha='center',va='center',fontsize=11,
+            label = f'{values[row,col]:.2f}' if np.isfinite(values[row,col]) else '—'
+            ax.text(col,row,label,ha='center',va='center',fontsize=11,
                     color='white' if values[row,col]>=65 else '#35445e',fontweight='bold' if bold else 'normal')
     ax.set_xticks(np.arange(-.5, len(PANELS), 1), minor=True)
     ax.set_yticks(np.arange(-.5, len(MATRIX), 1), minor=True)

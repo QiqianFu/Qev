@@ -1,0 +1,16 @@
+{
+  "repo_id": "AustinFu/Qev-0.8B",
+  "revision": "v0.1.0",
+  "base": "Qwen/Qwen3.5-0.8B-Base",
+  "base_revision": "dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68",
+  "dtype": "bf16",
+  "head_dtype": "fp32",
+  "temperature": 1.0,
+  "step": 2786,
+  "seed": 17,
+  "teacher": "AustinFu/Qev-9B@v0.3.0",
+  "description": "Direct base initialization; two epochs of teacher-probability cross entropy; rank-64 LoRA and 256-dimensional two-layer decision head",
+  "source": "Recorded local evaluation",
+  "subset_convention": "Clean development; 144 handwritten SemIf; complete public JevBench",
+  "unanswered_policy": "count as incorrect"
+}

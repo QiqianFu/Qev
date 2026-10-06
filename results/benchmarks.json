@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-03",
+  "date": "2026-10-05",
   "metric": "argmax_accuracy",
   "models": {
     "jev": {
@@ -83,6 +83,36 @@
       "dtype": "fp32",
       "temperature": 1.0,
       "description": "Direct-token readout on post-trained Qwen3.5-4B, author exact inference path"
+    },
+    "qev_0p8b": {
+      "repo_id": "AustinFu/Qev-0.8B",
+      "revision": "v0.1.0",
+      "base": "Qwen/Qwen3.5-0.8B-Base",
+      "base_revision": "dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68",
+      "dtype": "bf16",
+      "head_dtype": "fp32",
+      "temperature": 1.0,
+      "step": 2786,
+      "seed": 17,
+      "teacher": "AustinFu/Qev-9B@v0.3.0",
+      "description": "Direct base initialization; two epochs of teacher-probability cross entropy; rank-64 LoRA and 256-dimensional two-layer decision head"
+    },
+    "nanojev_0p6b": {
+      "repo_id": "C-Tianyu/NanoJev",
+      "revision": "047b927b",
+      "tag": "unified-games-v1",
+      "base": "Qwen/Qwen3-0.6B",
+      "code_url": "https://github.com/TianyuCodings/NanoJev",
+      "code_revision": "76fdfc9e",
+      "weights_dtype": "fp32",
+      "forward_dtype": "bf16",
+      "temperature": 1.0,
+      "description": "Full fine-tuning on four games; author predictor with request-schema adaptation",
+      "input_adaptations": [
+        "noul mapped to boolean",
+        "null candidate text replaced by its ID",
+        "structured state and descriptions serialized as JSON"
+      ]
     }
   },
   "results": {
@@ -132,6 +162,14 @@
         "jevany_4b_direct": {
           "correct": 1278,
           "accuracy": 0.8705722070844687
+        },
+        "qev_0p8b": {
+          "correct": 1211,
+          "accuracy": 0.8249318801089919
+        },
+        "nanojev_0p6b": {
+          "correct": 450,
+          "accuracy": 0.3065395095367847
         }
       }
     },
@@ -181,6 +219,14 @@
         "jevany_4b_direct": {
           "correct": 1090,
           "accuracy": 0.8623417721518988
+        },
+        "qev_0p8b": {
+          "correct": 1029,
+          "accuracy": 0.8140822784810127
+        },
+        "nanojev_0p6b": {
+          "correct": 419,
+          "accuracy": 0.3314873417721519
         }
       }
     },
@@ -230,6 +276,14 @@
         "jevany_4b_direct": {
           "correct": 660,
           "accuracy": 0.8638743455497382
+        },
+        "qev_0p8b": {
+          "correct": 503,
+          "accuracy": 0.6583769633507853
+        },
+        "nanojev_0p6b": {
+          "correct": 266,
+          "accuracy": 0.3481675392670157
         }
       }
     },
@@ -279,6 +333,14 @@
         "jevany_4b_direct": {
           "correct": 561,
           "accuracy": 0.8551829268292683
+        },
+        "qev_0p8b": {
+          "correct": 431,
+          "accuracy": 0.6570121951219512
+        },
+        "nanojev_0p6b": {
+          "correct": 248,
+          "accuracy": 0.3780487804878049
         }
       }
     },
@@ -328,6 +390,14 @@
         "jevany_4b_direct": {
           "correct": 511,
           "accuracy": 0.511
+        },
+        "qev_0p8b": {
+          "correct": 247,
+          "accuracy": 0.247
+        },
+        "nanojev_0p6b": {
+          "correct": 107,
+          "accuracy": 0.107
         }
       }
     },
@@ -377,6 +447,14 @@
         "jevany_4b_direct": {
           "correct": 130,
           "accuracy": 0.9027777777777778
+        },
+        "qev_0p8b": {
+          "correct": 109,
+          "accuracy": 0.7569444444444444
+        },
+        "nanojev_0p6b": {
+          "correct": 59,
+          "accuracy": 0.4097222222222222
         }
       }
     },
@@ -426,6 +504,14 @@
         "jevany_4b_direct": {
           "correct": 601,
           "accuracy": 0.6884306987399771
+        },
+        "qev_0p8b": {
+          "correct": 596,
+          "accuracy": 0.6827033218785796
+        },
+        "nanojev_0p6b": {
+          "correct": 312,
+          "accuracy": 0.35738831615120276
         }
       }
     },
@@ -475,6 +561,14 @@
         "jevany_4b_direct": {
           "correct": 182,
           "accuracy": 0.7109375
+        },
+        "qev_0p8b": {
+          "correct": 169,
+          "accuracy": 0.66015625
+        },
+        "nanojev_0p6b": {
+          "correct": 85,
+          "accuracy": 0.33203125
         }
       }
     },
@@ -524,6 +618,14 @@
         "jevany_4b_direct": {
           "correct": 184,
           "accuracy": 0.7965367965367965
+        },
+        "qev_0p8b": {
+          "correct": 169,
+          "accuracy": 0.7316017316017316
+        },
+        "nanojev_0p6b": {
+          "correct": 97,
+          "accuracy": 0.4199134199134199
         }
       }
     }
@@ -542,7 +644,9 @@
         "qwen35_4b_base": 53,
         "kev_4b": 67,
         "jevany_4b_pointer": 69,
-        "jevany_4b_direct": 71
+        "jevany_4b_direct": 71,
+        "qev_0p8b": 61,
+        "nanojev_0p6b": 30
       }
     },
     "easy": {
@@ -558,7 +662,9 @@
         "qwen35_4b_base": 48,
         "kev_4b": 48,
         "jevany_4b_pointer": 48,
-        "jevany_4b_direct": 48
+        "jevany_4b_direct": 48,
+        "qev_0p8b": 48,
+        "nanojev_0p6b": 32
       }
     },
     "hard": {
@@ -574,7 +680,9 @@
         "qwen35_4b_base": 54,
         "kev_4b": 60,
         "jevany_4b_pointer": 64,
-        "jevany_4b_direct": 65
+        "jevany_4b_direct": 65,
+        "qev_0p8b": 60,
+        "nanojev_0p6b": 35
       }
     }
   },

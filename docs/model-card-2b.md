@@ -41,20 +41,20 @@ Install Qev from the source repository using Python 3.12 and a hardware-compatib
 
 To fine-tune on your own data, use `configs/qev-2b-finetune.json` with `python -m qev.train --init-checkpoint AustinFu/Qev-2B`. To train with a teacher, follow the [distillation guide](distillation.md) or [中文指南](distillation.zh-CN.md).
 
-| Benchmark | Qwen3.5-2B-Base | Qev-2B |
-|---|---:|---:|
-| JevBench public · 231 | 63.20 | 74.46 |
-| Decision development · clean | 65.43 | 85.36 |
-| Transfer development · clean | 65.09 | 77.29 |
-| MMLU-Pro · 1,000 | 31.20 | 38.70 |
-| SemIf · 144 handwritten | 63.89 | 82.64 |
-| scienthoon · 873 | 53.84 | 71.94 |
-| WANLI · 256 | 50.39 | 67.58 |
-| GSM8K · multiple choice | 30.40 | 37.76 |
-| ChessBench | 8.84 | 10.98 |
-| BPoMP · variant mean | 50.50 | 73.81 |
+| Benchmark | Qev-2B |
+| --- | ---: |
+| JevBench public · 231 | 74.46 |
+| Decision development · clean | 85.36 |
+| Transfer development · clean | 77.29 |
+| MMLU-Pro · 1,000 | 38.70 |
+| SemIf · 144 handwritten | 82.64 |
+| scienthoon · 873 | 71.94 |
+| WANLI · 256 | 67.58 |
+| GSM8K · multiple choice | 37.76 |
+| ChessBench | 10.98 |
+| BPoMP · variant mean | 73.81 |
 
-Scores (%). The three new rows use [Decision Index raw scores](evaluation.md#decision-index-021); the original rows use accuracy. Public JevBench accuracy is 172/231. These are the selected checkpoint's recorded results. The native base uses its language-model head and zero-shot prompts. The comparison therefore includes architecture, training and readout differences; it does not isolate the contribution of response distillation. [Full results](evaluation.md).
+Scores (%). The three new rows use [Decision Index raw scores](evaluation.md#decision-index-021); the original rows use accuracy. Public JevBench accuracy is 172/231. These are the selected checkpoint's recorded results. These scores do not isolate the contribution of response distillation. [Full results](evaluation.md).
 
 The package includes the LoRA adapter, decision head, interaction gate, tokenizer, model configuration, both training configurations, recorded evaluation results and license files. The three trained tensor files preserve the selected checkpoint exactly; optimizer state and base weights are excluded.
 

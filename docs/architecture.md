@@ -1,6 +1,6 @@
 # Qev architecture
 
-Qev-9B fine-tunes Qwen3.5-9B-Base into a model that scores explicit candidates. Its selected release uses rank-64 LoRA, a final-layer gated candidate interaction, and a two-layer set decision head. The configuration is [qev-9b.json](../configs/qev-9b.json). Qev-2B and Qev-4B use the same decision architecture on their respective Qwen bases; [qev-4b.json](../configs/qev-4b.json) uses 4,096-token state and complete-path limits.
+Qev-9B fine-tunes Qwen3.5-9B-Base into a model that scores explicit candidates. Its selected release uses rank-64 LoRA, a final-layer gated candidate interaction, and a two-layer set decision head. The configuration is [qev-9b.json](../configs/qev-9b.json). Qev-0.8B, Qev-2B and Qev-4B use the same decision architecture on their respective Qwen bases; [qev-4b.json](../configs/qev-4b.json) uses 4,096-token state and complete-path limits.
 
 ![Architecture](../assets/architecture.svg)
 

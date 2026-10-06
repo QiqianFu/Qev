@@ -1,0 +1,86 @@
+{
+  "model": "qev_0p8b",
+  "date": "2026-10-05",
+  "full_suite": {
+    "decision_dev": {
+      "correct": 1211,
+      "total": 1468,
+      "accuracy": 0.8249318801089919,
+      "rejected": 0
+    },
+    "transfer_dev": {
+      "correct": 503,
+      "total": 764,
+      "accuracy": 0.6583769633507853,
+      "rejected": 0
+    },
+    "mmlupro": {
+      "correct": 247,
+      "total": 1000,
+      "accuracy": 0.247,
+      "rejected": 0
+    },
+    "semif": {
+      "correct": 190,
+      "total": 252,
+      "accuracy": 0.753968253968254,
+      "rejected": 0
+    },
+    "scienthoon": {
+      "correct": 596,
+      "total": 873,
+      "accuracy": 0.6827033218785796,
+      "rejected": 0
+    },
+    "wanli": {
+      "correct": 169,
+      "total": 256,
+      "accuracy": 0.66015625,
+      "rejected": 0
+    },
+    "public": {
+      "correct": 169,
+      "total": 231,
+      "accuracy": 0.7316017316017316,
+      "rejected": 0
+    }
+  },
+  "matched_subsets": {
+    "decision_dev_all": {
+      "correct": 1211,
+      "total": 1468
+    },
+    "decision_dev_clean": {
+      "correct": 1029,
+      "total": 1264
+    },
+    "transfer_dev_all": {
+      "correct": 503,
+      "total": 764
+    },
+    "transfer_dev_clean": {
+      "correct": 431,
+      "total": 656
+    },
+    "semif_handwritten": {
+      "correct": 109,
+      "total": 144
+    },
+    "mmlupro": {
+      "correct": 247,
+      "total": 1000
+    },
+    "scienthoon": {
+      "correct": 596,
+      "total": 873
+    },
+    "wanli": {
+      "correct": 169,
+      "total": 256
+    },
+    "jevbench_public": {
+      "correct": 169,
+      "total": 231
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "repo_id": "C-Tianyu/NanoJev",
+  "revision": "047b927b",
+  "tag": "unified-games-v1",
+  "base": "Qwen/Qwen3-0.6B",
+  "code_url": "https://github.com/TianyuCodings/NanoJev",
+  "code_revision": "76fdfc9e",
+  "weights_dtype": "fp32",
+  "forward_dtype": "bf16",
+  "temperature": 1.0,
+  "description": "Full fine-tuning on four games; author predictor with request-schema adaptation",
+  "input_adaptations": [
+    "noul mapped to boolean",
+    "null candidate text replaced by its ID",
+    "structured state and descriptions serialized as JSON"
+  ],
+  "source": "Recorded local evaluation",
+  "subset_convention": "Clean development; 144 handwritten SemIf; complete public JevBench",
+  "unanswered_policy": "count as incorrect"
+}

@@ -54,7 +54,10 @@ def main():
                 errors.append(f'{name}/{model}: inconsistent metric')
     decision_index=json.loads((ROOT/'results/decision-index.json').read_text())
     for name,entry in decision_index['results'].items():
-        if set(entry['models'])!=set(results['models']):
+        missing = entry.get('not_evaluated', {})
+        if set(entry['models']) & set(missing) or any(not reason for reason in missing.values()):
+            errors.append(f'{name}: ambiguous missing results')
+        if set(entry['models']) | set(missing) != set(results['models']):
             errors.append(f'{name}: model coverage differs from the main results')
         for model,row in entry['models'].items():
             if not all(math.isfinite(row[k]) and 0<=row[k]<=1 for k in ['raw','skill','coverage']):
@@ -82,7 +85,8 @@ def main():
         if probs[row['prediction']]!=max(values) or row['correct']!=(row['prediction']==row['label']):
             errors.append(f"prediction/label mismatch: {row['record_id']}")
     prediction_count=len(rows)
-    for folder, model in [('qev-4b', 'qev_4b'), ('qev-2b', 'qev_2b'), ('qwen3.5-2b-base', 'qwen35_2b_base'),
+    for folder, model in [('qev-0.8b', 'qev_0p8b'), ('nanojev-0.6b', 'nanojev_0p6b'),
+                          ('qev-4b', 'qev_4b'), ('qev-2b', 'qev_2b'), ('qwen3.5-2b-base', 'qwen35_2b_base'),
                           ('qwen3.5-4b-base','qwen35_4b_base'), ('kev-4b','kev_4b'),
                           ('jevany-4b-pointer','jevany_4b_pointer'), ('jevany-4b-direct','jevany_4b_direct')]:
         records=[json.loads(line) for line in (ROOT/'results'/folder/'jevbench-predictions.jsonl').read_text().splitlines()]
@@ -95,7 +99,8 @@ def main():
                 errors.append(f'{folder}: invalid probabilities')
             if ps[row['prediction']]!=max(ps.values()) or row['correct']!=(row['prediction']==row['label']):
                 errors.append(f'{folder}: inconsistent prediction')
-    for folder,model in [('qev-4b','qev_4b'),('qev-9b','qev_9b'), ('qwen3.5-4b-base','qwen35_4b_base'),
+    for folder,model in [('qev-0.8b','qev_0p8b'), ('nanojev-0.6b','nanojev_0p6b'),
+                        ('qev-4b','qev_4b'),('qev-9b','qev_9b'), ('qwen3.5-4b-base','qwen35_4b_base'),
                         ('kev-4b','kev_4b'), ('jevany-4b-pointer','jevany_4b_pointer'), ('jevany-4b-direct','jevany_4b_direct')]:
         evaluation=json.loads((ROOT/'results'/folder/'evaluation.json').read_text())
         for scope,row in evaluation['matched_subsets'].items():

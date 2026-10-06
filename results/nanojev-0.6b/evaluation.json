@@ -1,0 +1,86 @@
+{
+  "model": "nanojev_0p6b",
+  "date": "2026-10-05",
+  "full_suite": {
+    "decision_dev": {
+      "correct": 450,
+      "total": 1468,
+      "accuracy": 0.3065395095367847,
+      "rejected": 0
+    },
+    "transfer_dev": {
+      "correct": 266,
+      "total": 764,
+      "accuracy": 0.3481675392670157,
+      "rejected": 0
+    },
+    "mmlupro": {
+      "correct": 107,
+      "total": 1000,
+      "accuracy": 0.107,
+      "rejected": 0
+    },
+    "semif": {
+      "correct": 98,
+      "total": 252,
+      "accuracy": 0.3888888888888889,
+      "rejected": 0
+    },
+    "scienthoon": {
+      "correct": 312,
+      "total": 873,
+      "accuracy": 0.35738831615120276,
+      "rejected": 0
+    },
+    "wanli": {
+      "correct": 85,
+      "total": 256,
+      "accuracy": 0.33203125,
+      "rejected": 0
+    },
+    "public": {
+      "correct": 97,
+      "total": 231,
+      "accuracy": 0.4199134199134199,
+      "rejected": 0
+    }
+  },
+  "matched_subsets": {
+    "decision_dev_all": {
+      "correct": 450,
+      "total": 1468
+    },
+    "decision_dev_clean": {
+      "correct": 419,
+      "total": 1264
+    },
+    "transfer_dev_all": {
+      "correct": 266,
+      "total": 764
+    },
+    "transfer_dev_clean": {
+      "correct": 248,
+      "total": 656
+    },
+    "semif_handwritten": {
+      "correct": 59,
+      "total": 144
+    },
+    "mmlupro": {
+      "correct": 107,
+      "total": 1000
+    },
+    "scienthoon": {
+      "correct": 312,
+      "total": 873
+    },
+    "wanli": {
+      "correct": 85,
+      "total": 256
+    },
+    "jevbench_public": {
+      "correct": 97,
+      "total": 231
+    }
+  }
+}

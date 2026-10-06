@@ -8,7 +8,7 @@
   <a href="LICENSE"><img src="assets/badges/license.svg" alt="Apache-2.0"></a>
 </p>
 
-<p align="center"><strong>English</strong> | <a href="README.zh-CN.md">简体中文</a> | <a href="https://huggingface.co/AustinFu/Qev-2B">🤗 Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-4B">🤗 Qev-4B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a> | <a href="https://huggingface.co/datasets/AustinFu/Qev-train">🤗 Training data</a></p>
+<p align="center"><strong>English</strong> | <a href="README.zh-CN.md">简体中文</a> | <a href="https://huggingface.co/AustinFu/Qev-0.8B">🤗 Qev-0.8B</a> | <a href="https://huggingface.co/AustinFu/Qev-2B">🤗 Qev-2B</a> | <a href="https://huggingface.co/AustinFu/Qev-4B">🤗 Qev-4B</a> | <a href="https://huggingface.co/AustinFu/Qev-9B">🤗 Qev-9B</a> | <a href="https://huggingface.co/datasets/AustinFu/Qev-train">🤗 Training data</a></p>
 
 **Qev fine-tunes Qwen into a decision model.** Give it context, a question, and candidate answers; get a choice and a probability for every option. One model handles **Choice**, **Noul** (yes/no), and **Score** (ordered ratings).
 
@@ -16,7 +16,7 @@ This repository provides the model architecture, training and evaluation code, P
 
 | Start here | What you can do |
 |---|---|
-| **[Get model weights](#models)** | Compare Qev-2B, Qev-4B and Qev-9B and find their checkpoint details |
+| **[Get model weights](#models)** | Compare Qev-0.8B, Qev-2B, Qev-4B and Qev-9B and find their checkpoint details |
 | **[Run a model](#inference)** | Get decisions and option probabilities through Python or JSONL |
 | **[Train a model](#training)** | Prepare labelled data, train from Qwen, or fine-tune an existing Qev checkpoint |
 | **[View evaluation](#evaluation)** | Compare benchmark results across Qev and reference models |
@@ -27,10 +27,10 @@ This repository provides the model architecture, training and evaluation code, P
 
 <a id="models"></a>
 
-| Choose a model | Qev-2B | Qev-4B | Qev-9B |
-|---|---|---|---|
-| Role | Compact model with response distillation | Mid-sized model trained directly from the Qwen base | Largest decision model |
-| Get started | [2B model weights](https://huggingface.co/AustinFu/Qev-2B) | [4B model weights](https://huggingface.co/AustinFu/Qev-4B) | [9B model weights](https://huggingface.co/AustinFu/Qev-9B) |
+| Choose a model | Qev-0.8B | Qev-2B | Qev-4B | Qev-9B |
+|---|---|---|---|---|
+| Role | Smallest model, distilled directly from the Qwen base | Compact model with response distillation | Mid-sized model distilled directly from the Qwen base | Largest decision model |
+| Get started | [0.8B model weights](https://huggingface.co/AustinFu/Qev-0.8B) | [2B model weights](https://huggingface.co/AustinFu/Qev-2B) | [4B model weights](https://huggingface.co/AustinFu/Qev-4B) | [9B model weights](https://huggingface.co/AustinFu/Qev-9B) |
 
 ## Installation
 
@@ -60,7 +60,7 @@ Load the model once in your process, then submit requests:
 ```python
 from qev import Qev
 
-# Choose "AustinFu/Qev-2B", "AustinFu/Qev-4B" or "AustinFu/Qev-9B".
+# Choose "AustinFu/Qev-0.8B", "AustinFu/Qev-2B", "AustinFu/Qev-4B" or "AustinFu/Qev-9B".
 model = Qev.from_pretrained(
     "AustinFu/Qev-9B", device="cuda"
 )
@@ -122,13 +122,13 @@ Qev organizes inputs as **state → question → candidate**. Candidate branches
 
 ## Evaluation
 
-**Precision: Qev-9B, Qev-4B and Qev-2B use BF16 backbone computation; Kev and JevAny use FP32.** Qev's decision head remains in FP32.
+**Precision: All Qev sizes use BF16 backbone computation; Kev and JevAny use FP32.** Qev's decision head remains in FP32.
 
 <p align="center">
-  <a href="assets/evaluation-table.svg"><img src="assets/evaluation-table.svg" alt="Benchmark results with Qev-9B, Qev-4B and Qev-2B highlighted in light blue." width="100%"></a>
+  <a href="assets/evaluation-table.svg"><img src="assets/evaluation-table.svg" alt="Benchmark results with Qev-9B, Qev-4B, Qev-2B and Qev-0.8B highlighted in light blue." width="100%"></a>
 </p>
 
-Scores (%): accuracy for the original benchmarks; official Decision Index raw scores for GSM8K, ChessBench and BPoMP, with BPoMP averaged across poem variants. Bold compares Qev-9B with Kev-9B and marks the best displayed result in each 4B and 2B group, including ties. Jev is a reference. JevAny uses the standard 4B Pointer release in both this table and the cover. The cover compares Qev-4B, JevAny-4B Pointer, Kev-4B and Jev.
+Scores (%): accuracy for the original benchmarks; official Decision Index raw scores for GSM8K, ChessBench and BPoMP, with BPoMP averaged across poem variants. Bold marks the best displayed score within the 9B, 4B, 2B and sub-billion groups, including ties. The sub-billion comparison uses Qev-0.8B and NanoJev-0.6B; “—” means not evaluated. Jev is a reference. JevAny uses the standard 4B Pointer release in both this table and the cover. The cover compares Qev-4B, JevAny-4B Pointer, Kev-4B and Jev.
 
 [Full evaluation guide: model comparisons, methods, ablations and original results](docs/evaluation.md)
 
@@ -167,6 +167,10 @@ python -m qev.train \
 `--init-checkpoint` loads model parameters and starts a fresh optimizer and schedule. `--resume` continues the same run with its original data checks. Omit initialization to start from the Qwen base in the configuration.
 
 The [formal four-GPU recipe](configs/qev-9b.json) uses rank 64, global batch 32, two epochs, and a late-training partition. Single-GPU use, distributed training, resume and full fine-tuning are documented in the [training guide](docs/training.md).
+
+### Train the 0.8B model
+
+Qev-0.8B starts from Qwen3.5-0.8B-Base and learns the Qev-9B teacher’s option probabilities in one stage. Use [the distillation recipe](configs/qev-0.8b-distill.json) or [fine-tune the released model](configs/qev-0.8b-finetune.json) on labelled data. [Training method and commands](docs/training-0.8b.md).
 
 ### Train the 4B model
 

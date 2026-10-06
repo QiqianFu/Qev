@@ -1,0 +1,51 @@
+{
+  "model": {
+    "base": "Qwen/Qwen3.5-0.8B-Base",
+    "revision": "dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68",
+    "head_dim": 256,
+    "head_heads": 4,
+    "head_layers": 2,
+    "lora_rank": 64,
+    "lora_dropout": 0.0,
+    "weights_dtype": "bf16",
+    "attention": "sdpa",
+    "rows_per_forward": 32,
+    "layout": "state-question-candidate.v1",
+    "max_padding_ratio": 1.25,
+    "max_padded_tokens": 8192,
+    "choice_none_policy": "as-provided",
+    "candidate_interaction": "last-full-attention"
+  },
+  "limits": {
+    "max_state": 4096,
+    "max_question": 512,
+    "max_candidate": 256,
+    "max_path": 4096,
+    "max_candidates": 128
+  },
+  "training": {
+    "epochs": 2,
+    "batch_size": 8,
+    "accum": 2,
+    "seed": 17,
+    "lr": 2e-05,
+    "head_lr": 0.0001,
+    "joint_gate_lr": 0.01,
+    "weight_decay": 0.01,
+    "warmup_steps": 20,
+    "head_warmup_steps": 100,
+    "reset_training_rng": true,
+    "gradient_checkpointing": true,
+    "save_every": 800,
+    "autocast": "bf16",
+    "batch_assignment": "leaf-balanced-v1",
+    "prefix_execution": "tree-batched",
+    "none_insert_prob": 0.0,
+    "none_absent_prob": 0.0,
+    "distillation": {
+      "cache": "data/teacher-logits-0.8b",
+      "weight": 1.0,
+      "temperature": 1.563437713227029
+    }
+  }
+}

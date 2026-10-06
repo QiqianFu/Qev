@@ -4,7 +4,7 @@
 
 Copyright 2026 Qiqian Fu and Qev contributors.
 
-Qev's code, documentation, original SVG illustrations, example requests, and generated prediction results are provided under the [Apache License 2.0](LICENSE). The Qev adaptation weights published at [AustinFu/Qev-2B](https://huggingface.co/AustinFu/Qev-2B), [AustinFu/Qev-4B](https://huggingface.co/AustinFu/Qev-4B) and [AustinFu/Qev-9B](https://huggingface.co/AustinFu/Qev-9B), including their LoRA adapters, decision heads and interaction gates, use the same license. Contributions are accepted under these terms unless explicitly stated otherwise.
+Qev's code, documentation, original SVG illustrations, example requests, and generated prediction results are provided under the [Apache License 2.0](LICENSE). The Qev adaptation weights published at [AustinFu/Qev-0.8B](https://huggingface.co/AustinFu/Qev-0.8B), [AustinFu/Qev-2B](https://huggingface.co/AustinFu/Qev-2B), [AustinFu/Qev-4B](https://huggingface.co/AustinFu/Qev-4B) and [AustinFu/Qev-9B](https://huggingface.co/AustinFu/Qev-9B), including their LoRA adapters, decision heads and interaction gates, use the same license. Contributions are accepted under these terms unless explicitly stated otherwise.
 
 Third-party materials retain the terms listed below. The Qev license does not relicense training datasets, external services, or third-party recordings.
 
@@ -13,7 +13,7 @@ Third-party materials retain the terms listed below. The Qev license does not re
 | Material | Source and copyright | License and scope |
 |---|---|---|
 | Kev conventions and adapted implementation | [Jared Palmer's Kev](https://github.com/jaredpalmer/kev), Copyright 2026 Jared Palmer | [Apache-2.0, original notice retained](licenses/Kev-Apache-2.0.txt). Qev adapts delimiter and rendering conventions, LoRA targets, and cache forking. Modified source files identify the Qev adaptation. |
-| Qwen models and tokenizers | [Qwen3.5-9B-Base](https://huggingface.co/Qwen/Qwen3.5-9B-Base), [Qwen3.5-4B-Base](https://huggingface.co/Qwen/Qwen3.5-4B-Base) and [Qwen3.5-2B-Base](https://huggingface.co/Qwen/Qwen3.5-2B-Base), Copyright 2026 Alibaba Cloud | [Apache-2.0](licenses/Qwen3.5-Apache-2.0.txt). Tokenizers accompany the corresponding Qev checkpoints; base weights are downloaded separately. |
+| Qwen models and tokenizers | [Qwen3.5-0.8B-Base](https://huggingface.co/Qwen/Qwen3.5-0.8B-Base), [Qwen3.5-9B-Base](https://huggingface.co/Qwen/Qwen3.5-9B-Base), [Qwen3.5-4B-Base](https://huggingface.co/Qwen/Qwen3.5-4B-Base) and [Qwen3.5-2B-Base](https://huggingface.co/Qwen/Qwen3.5-2B-Base), Copyright 2026 Alibaba Cloud | [Apache-2.0](licenses/Qwen3.5-Apache-2.0.txt). Tokenizers accompany the corresponding Qev checkpoints; base weights are downloaded separately. |
 | JevBench public evaluation tasks | [JevBench](https://github.com/fstandhartinger/jevbench), Copyright 2026 Florian Standhartinger and contributors | [MIT](licenses/JevBench-MIT.txt), with [upstream third-party notices](licenses/JevBench-THIRD-PARTY.md). Tasks are downloaded by the optional preparation script. The original license, third-party notice, and per-question provenance accompany the prepared dataset. |
 | Crafter visuals in the gameplay recording | [Crafter](https://github.com/danijar/crafter), Copyright 2021 Danijar Hafner | [MIT](licenses/Crafter-MIT.txt). The gameplay recording contains the environment's visual assets; the recording and Qev decision overlay were produced for this project. |
 

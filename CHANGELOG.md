@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added Qev-0.8B seed 17 (step 2,786): direct base initialization and 9B probability distillation, with 169/231 public JevBench and 24.70% MMLU-Pro. Includes model selection, portable packaging, training recipes and bilingual documentation.
+- Added NanoJev-0.6B results. Removed native Qwen Base columns from displayed tables and the matrix, while preserving their recorded measurements. Unmeasured small-model Decision Index scores are shown as dashes.
+
 - Published Qev-9B v0.3.0 with 4K context, web-action training and additional rule/reasoning examples. Updated all 9B metrics and preserved v0.2.0 weights and results. The newly published checkpoint is the original Qev-4B teacher.
 
 - Added native Qwen3.5-4B-Base, Kev-4B and both JevAny-4B variants to the result tables, plus GSM8K, ChessBench, Amazon ESCI and BPoMP scored with Decision Index 0.2.1.

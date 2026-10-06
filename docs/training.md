@@ -2,6 +2,8 @@
 
 All commands run from the repository root. Python 3.12 and the pinned dependencies in `pyproject.toml` match the tested CPU environment and the research training stack. Install a hardware-compatible PyTorch 2.8.0 wheel first. CUDA acceleration packages such as compatible flash-linear-attention kernels are optional; identify the actual execution path when reporting speed.
 
+For Qev-0.8B, use [the two-GPU distillation recipe](../configs/qev-0.8b-distill.json) or [the supervised fine-tuning recipe](../configs/qev-0.8b-finetune.json). See the [0.8B training method](training-0.8b.md) or [中文](training-0.8b.zh-CN.md).
+
 For Qev-4B, use `configs/qev-4b-finetune.json` with `--init-checkpoint AustinFu/Qev-4B`. The released model starts directly from the Qwen base and learns teacher probabilities; see the [4B method and recipe](training-4b.md) or [中文](training-4b.zh-CN.md).
 
 For Qev-2B, use `configs/qev-2b-finetune.json` and the 2B checkpoint. To reproduce its teacher-training method, see the [distillation guide](distillation.md).
@@ -72,7 +74,7 @@ Use an actual saved step. Resume restores optimizer, schedule, RNG and data curs
 
 ## Advanced recipes
 
-- `qev-0.8b.json`: the smaller research configuration; no 0.8B checkpoint is presented as the selected Qev-9B release.
+- `qev-0.8b.json`: an older rank-16 research configuration. The released 0.8B model uses `qev-0.8b-distill.json` (rank 64).
 - `qev-9b-independent.json`: no extra backbone cross interaction, zero set-attention layers; projection and shared scorer remain.
 - `qev-9b-readout-cross.json`: sibling interaction only reads terminal readouts.
 - `qev-9b-fullft.json`: FSDP2 full fine-tuning with layer-wise learning-rate decay. Its original experiment used a different training dataset from the released model. Requires CUDA; full-FT resume and `--init-checkpoint` are currently unsupported.

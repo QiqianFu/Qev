@@ -14,12 +14,11 @@ from matplotlib.patches import Rectangle
 from result_highlights import highlighted_models
 
 ROOT = Path(__file__).resolve().parents[1]
-QEV = {'Qev-9B', 'Qev-4B', 'Qev-2B'}
+QEV = {'Qev-9B', 'Qev-4B', 'Qev-2B', 'Qev-0.8B'}
 MODELS = [
     ('jev', 'Jev'), ('qev_9b', 'Qev-9B'), ('kev_9b', 'Kev-9B'),
-    ('qwen35_9b_base', 'Qwen3.5-9B-Base'), ('qev_4b', 'Qev-4B'),
-    ('jevany_4b_pointer', 'JevAny-4B Pointer'), ('qwen35_4b_base', 'Qwen3.5-4B-Base'),
-    ('qev_2b', 'Qev-2B'), ('qwen35_2b_base', 'Qwen3.5-2B-Base'),
+    ('qev_4b', 'Qev-4B'), ('jevany_4b_pointer', 'JevAny-4B Pointer'),
+    ('qev_2b', 'Qev-2B'), ('qev_0p8b', 'Qev-0.8B'), ('nanojev_0p6b', 'NanoJev-0.6B'),
 ]
 BENCHMARKS = [
     ('jevbench_public', 'JevBench public · 231', 'JevBench公开题 · 231题'),
@@ -47,7 +46,7 @@ def results_table(chinese=False):
         cells = [translated if chinese else english]
         winners = highlighted_models(scores, [model for model, _ in MODELS])
         for model, _ in MODELS:
-            value = f'{100 * scores[model]:.2f}'
+            value = f'{100 * scores[model]:.2f}' if model in scores else '—'
             if model in winners:
                 value = f'**{value}**'
             cells.append(value)
@@ -67,7 +66,7 @@ def render(language):
     if chinese and cjk is None:
         raise RuntimeError('Install a Noto Sans CJK font to render the Chinese table.')
     plt.rcParams.update({
-        'font.family': ['DejaVu Sans'] + ([cjk] if chinese else []) + ['sans-serif'],
+        'font.family': ([cjk] if chinese else ['DejaVu Sans']) + ['sans-serif'],
         'svg.fonttype': 'none',
     })
     fig = plt.figure(figsize=(width / 100, height / 100), dpi=100)
@@ -82,7 +81,7 @@ def render(language):
             ax.add_patch(Rectangle((x, 0), cell_width, height, facecolor='#e7f2ff'))
         ax.add_patch(Rectangle((x, 0), cell_width, header_height,
                               facecolor='#cfe5ff' if ours else '#f1f5f9'))
-        title = name.replace('Qwen3.5-', 'Qwen3.5\n').replace(' Pointer', '\nPointer')
+        title = name.replace('NanoJev-', 'NanoJev\n').replace(' Pointer', '\nPointer')
         title = title.replace(' (reference)', '\n(reference)').replace('（参考）', '\n（参考）')
         ax.text(x + (12 if col == 0 else cell_width / 2), header_height / 2, title,
                 ha='left' if col == 0 else 'center', va='center', fontsize=10.2,
@@ -100,7 +99,7 @@ def render(language):
                     ax.text(x + 12, cy + 10, note, ha='left', va='center',
                             fontsize=8.2, color='#64748b')
             else:
-                assert re.fullmatch(r'\d+\.\d{2}', value), value
+                assert value == '—' or re.fullmatch(r'\d+\.\d{2}', value), value
                 ax.text(x + cell_width / 2, cy, value, ha='center', va='center',
                         fontsize=11.5, fontweight='bold' if bold else 'normal', color='#26364a')
         x += cell_width
@@ -109,7 +108,7 @@ def render(language):
     name = 'evaluation-table' + ('.zh-CN' if chinese else '')
     buffer = StringIO()
     fig.savefig(buffer, format='svg', metadata={'Date': None, 'Title': 'Qev evaluation results',
-                'Description': 'Qev-9B, Qev-4B and Qev-2B columns have light blue backgrounds.'})
+                'Description': 'Qev-9B, Qev-4B, Qev-2B and Qev-0.8B columns have light blue backgrounds. A dash means not evaluated.'})
     (ROOT / 'assets' / f'{name}.svg').write_text(
         '\n'.join(line.rstrip() for line in buffer.getvalue().splitlines()) + '\n')
     preview = ROOT / 'runs/validation'
