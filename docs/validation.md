@@ -179,3 +179,24 @@ Published [Qev-0.8B v0.1.0](https://huggingface.co/AustinFu/Qev-0.8B/tree/v0.1.0
 CPU: the full test suite passed (333 passed, 10 skipped; the skips need CUDA or do not apply to an interaction mode). `tests/test_session.py` checks that only appended state tokens are computed, that questions leave the state cache bit-identical, and that cached, reference and tree sessions agree.
 
 GPU (one A40, PyTorch 2.8.0, Transformers 5.17.0): the session, prefix-inference and tree-inference tests passed on CUDA with the fused `causal-conv1d` 1.7.0 and `fla` 0.5.2 kernels and with the PyTorch reference kernels (82 passed, 4 skipped each). With the released Qev-0.8B and Qev-9B v0.3.0 weights in BF16, a six-chunk session computed only appended tokens, including a single-token chunk, and left the state cache bit-identical after questions. Against reference execution on the same tokens, the largest probability difference was 0.025 (0.8B) and 0.020 (9B), already 0.025 before any extension; one 0.8B prediction differed. Session tokenization effects are described in [incremental sessions](checkpoints.md#incremental-sessions). Single-run timing is not a benchmark. Task scores were not measured for sessions.
+
+## Copy-free cache forks and chunked prefill — 2026-10-27
+
+CPU: the full test suite passed (352 passed, 11 skipped; the new skip is a CUDA-only allocator test). `tests/test_cache_forks.py` checks that question and candidate forks reference the parent KV tensors themselves and store only their own tokens, that the parent cache stays bit-identical, that the merged prefix/suffix attention matches dense attention, that shared forks match copying forks for several `rows_per_forward` values and both attention backends, and that chunked prefill matches a single forward.
+
+GPU (one A40 shared with an unrelated load, PyTorch 2.8.0, Transformers 5.17.0): the fork, session, prefix-inference, tree-inference and model tests passed on CUDA with the fused kernels and with the PyTorch reference kernels (126 passed, 4 skipped each). On CUDA, question peak memory no longer grew with state length, while copying forks grew by more than eight state-KV copies.
+
+Released Qev-0.8B and Qev-9B v0.3.0 in BF16 were compared with the previous implementation on 300-, 1,500- and 3,800-token states and choice (4 candidates), noul and score questions. Reference execution was bit-identical. Cached one-shot (multi- and single-question) and three-chunk session probabilities differed from the previous cached execution by at most 0.011 (0.8B) and 0.034 (9B), with no changed prediction among 90 compared questions. Over the same inputs, previous cached execution differed from reference by up to 0.012 (0.8B) and 0.022 (9B); the new one by up to 0.010 and 0.034. The difference comes from merging two BF16 attention outputs instead of one fused softmax.
+
+Qev-9B sessions (single runs on the shared GPU; not a benchmark). Peak is the allocator maximum above the memory held before the step:
+
+| State tokens | Version | Ingest | Ingest peak | Choice (4) | Noul | Score (5) |
+|---:|---|---:|---:|---:|---:|---:|
+| 4,096 | previous | 3.8 s | 0.93 GiB | 0.26 s, 1.13 GiB | 0.24 s, 0.66 GiB | 0.27 s, 1.36 GiB |
+| 4,096 | new | 3.8 s | 0.93 GiB | 0.23 s, 0.28 GiB | 0.22 s, 0.18 GiB | 0.23 s, 0.33 GiB |
+| 16,384 | previous | 18.9 s | 3.55 GiB | 0.41 s, 3.75 GiB | 0.33 s, 2.21 GiB | 0.44 s, 4.55 GiB |
+| 16,384 | new | 11.7 s | 2.24 GiB | 0.26 s, 0.38 GiB | 0.25 s, 0.28 GiB | 0.26 s, 0.43 GiB |
+| 50,000 | previous | 44.2 s | 10.75 GiB | 0.79 s, 10.95 GiB | 0.59 s, 6.45 GiB | 0.90 s, 13.28 GiB |
+| 50,000 | new | 50.4 s | 3.99 GiB | 0.32 s, 0.66 GiB | 0.32 s, 0.55 GiB | 0.34 s, 0.72 GiB |
+
+The 50,000-token state cache holds 1.59 GiB. The remaining growth of question peaks with state length is the FP32 copy of one layer's prefix KV in the candidate-interaction readout. On these inputs, long-state predictions agreed with the previous implementation within 0.009 and kept every prediction. Task scores were not measured for states beyond the released 4,096-token limit.

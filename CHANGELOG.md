@@ -3,6 +3,9 @@
 ## Unreleased
 
 - Added incremental sessions (`Qev.session`, `QevSession`): a growing state reuses its state-only KV/DeltaNet cache across predictions, computing only appended tokens. One-shot prediction is unchanged.
+- Cached question and candidate forks no longer copy the full-attention KV of their prefix: they reference it in place, store only their own tokens and merge prefix and own attention by log-sum-exp (audited Qwen3/Qwen3.5 attention only; other layouts keep full copies). Question memory no longer grows with state length times candidates.
+- State prefill runs in chunks of at most `prefill_chunk` tokens (default 8,192, `Qev.from_pretrained(..., prefill_chunk=...)`) for sessions and one-shot cached requests. Inputs within one chunk run exactly as before.
+- Raising only `max_state` now raises `max_path` by the same amount, keeping the question and candidate allowance.
 - Added Qev-0.8B seed 17 (step 2,786): direct base initialization and 9B probability distillation, with 169/231 public JevBench and 24.70% MMLU-Pro. Includes model selection, portable packaging, training recipes and bilingual documentation.
 - Added NanoJev-0.6B results. Removed native Qwen Base columns from displayed tables and the matrix, while preserving their recorded measurements. Unmeasured small-model Decision Index scores are shown as dashes.
 
