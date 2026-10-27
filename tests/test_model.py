@@ -152,15 +152,18 @@ def test_selective_checkpointing_preserves_gradients(model, encoder, record):
         configure_checkpointing(model.backbone, layers=[999])
 
 
-def test_cache_forks_do_not_modify_parent_or_sibling(model, encoder, record):
+@pytest.mark.parametrize("share_prefix", [False, True])
+def test_cache_forks_do_not_modify_parent_or_sibling(model, encoder, record, share_prefix):
     import copy
     from transformers import DynamicCache
     from transformers.cache_utils import DynamicLayer
+    from qev.cache import SharedPrefixLayer, fork_inference_cache
 
-    def tensors(cache):
+    def tensors(cache, attention=True):
         for layer in cache.layers:
             if isinstance(layer, DynamicLayer):
-                yield layer.keys; yield layer.values
+                if attention:
+                    yield layer.keys; yield layer.values
             else:
                 yield from layer.conv_states.values()
                 yield from layer.recurrent_states.values()
@@ -172,12 +175,18 @@ def test_cache_forks_do_not_modify_parent_or_sibling(model, encoder, record):
         expected = [t.clone() for t in tensors(parent)]
         legacy = copy.deepcopy(parent)
         legacy.reorder_cache(torch.zeros(3, dtype=torch.long, device=model.device))
-        child = model.fork_cache(parent, 3)
-        for old, new in zip(tensors(legacy), tensors(child), strict=True):
+        assert model.shares_prefix
+        child = fork_inference_cache(parent, 3, share_prefix=share_prefix)
+        for old, new in zip(tensors(legacy, not share_prefix), tensors(child, not share_prefix), strict=True):
             torch.testing.assert_close(old, new, atol=0, rtol=0)
             sibling = new[1].clone()
             new[0].add_(1)
             torch.testing.assert_close(new[1], sibling, atol=0, rtol=0)
+        for source, fork in zip(parent.layers, child.layers, strict=True):
+            if share_prefix and isinstance(source, DynamicLayer):
+                # The fork references the parent KV itself and owns no attention tokens yet.
+                assert type(fork) is SharedPrefixLayer and not fork.is_initialized
+                assert fork.segments[0][0] is source.keys and fork.segments[0][1] is source.values
         model._run_rows([enc.questions[0].prefix] * 3, cache=child, offset=len(enc.state))
         for original, current in zip(expected, tensors(parent), strict=True):
             torch.testing.assert_close(original, current, atol=0, rtol=0)

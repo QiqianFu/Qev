@@ -13,7 +13,8 @@ from torch import nn
 from torch.nn import functional as F
 
 from .encoding import LAYOUT, leaf_rows
-from .cache import FunctionalCache, fork_inference_cache
+from .cache import (FunctionalCache, SharedPrefixCache, fork_inference_cache, kv_segments,
+                    shared_prefix_attention)
 from .execution import READOUT_PRECISION, fp32_einsum
 
 
@@ -190,12 +191,18 @@ class QevModel(nn.Module):
         valid = columns < lengths[:, None]
         positions = (columns + offset).expand(len(rows), -1).masked_fill(~valid, 0)
         mask = valid.long()
-        if cache is not None:
+        shared = isinstance(cache, SharedPrefixCache)
+        # Shared-prefix attention builds no mask; DeltaNet padding only reads the new columns.
+        if cache is not None and not shared:
             mask = torch.cat([torch.ones(len(rows), offset, dtype=mask.dtype, device=self.device), mask], -1)
         inputs = dict(input_ids=ids, attention_mask=mask, position_ids=positions,
                       past_key_values=cache, use_cache=cache is not None, return_dict=True)
+        # A shared-prefix fork holds only its own KV; its forwards must read the parent's in place.
+        attention = (shared_prefix_attention(_base_model(self.backbone).config, cache) if shared
+                     else nullcontext())
         if not defer:
-            return self.backbone(**inputs)
+            with attention:
+                return self.backbone(**inputs)
         # Stop before the joint layer; it needs all sibling candidates at once.
         def stop(module, args, kwargs):
             raise _Deferred(args[0] if args else kwargs["hidden_states"], kwargs)
@@ -205,18 +212,19 @@ class QevModel(nn.Module):
         checkpointed = getattr(layer, "gradient_checkpointing", False)
         layer.gradient_checkpointing = False
         handle = layer.register_forward_pre_hook(stop, with_kwargs=True)
-        try:
-            self.backbone(**inputs)
-        except _Deferred as deferred:
-            # This exception is internal control flow. Its traceback retains the
-            # decoder frames and their large cache forks until cyclic GC runs.
-            # Callers only need residuals and RoPE, not the writable child cache.
-            deferred.__traceback__ = None
-            deferred.kwargs = {"position_embeddings": deferred.kwargs["position_embeddings"]}
-            return deferred
-        finally:
-            handle.remove()
-            layer.gradient_checkpointing = checkpointed
+        with attention:
+            try:
+                self.backbone(**inputs)
+            except _Deferred as deferred:
+                # This exception is internal control flow. Its traceback retains the
+                # decoder frames and their large cache forks until cyclic GC runs.
+                # Callers only need residuals and RoPE, not the writable child cache.
+                deferred.__traceback__ = None
+                deferred.kwargs = {"position_embeddings": deferred.kwargs["position_embeddings"]}
+                return deferred
+            finally:
+                handle.remove()
+                layer.gradient_checkpointing = checkpointed
         raise RuntimeError("joint layer was not reached")
 
     def reference_features(self, encoded):
@@ -451,8 +459,20 @@ class QevModel(nn.Module):
         features = self.tree_batch_features(records) if tree else self.reference_batch_features(records)
         return [self._probabilities(item) for item in features]
 
+    @property
+    def shares_prefix(self):
+        """Forks read parent KV in place only under audited Qwen3/Qwen3.5 attention modules.
+
+        Other layouts keep full per-fork copies: their attention may not follow
+        the cache-update/attention-interface contract the shared path relies on.
+        """
+        from transformers.models.qwen3.modeling_qwen3 import Qwen3Attention
+        from transformers.models.qwen3_5.modeling_qwen3_5 import Qwen3_5Attention
+        modules = [layer.self_attn for layer in _base_model(self.backbone).layers if hasattr(layer, "self_attn")]
+        return bool(modules) and all(type(m) in (Qwen3Attention, Qwen3_5Attention) for m in modules)
+
     def fork_cache(self, cache, copies=1):
-        return fork_inference_cache(cache, copies)
+        return fork_inference_cache(cache, copies, share_prefix=self.shares_prefix)
 
     def _candidate_chunks(self, candidates):
         """Preserve candidate order while bounding newly computed padded tokens."""
@@ -494,23 +514,33 @@ class QevModel(nn.Module):
         k = attn.k_norm(attn.k_proj(x).view(count, width, kv_heads, d)).transpose(1, 2)
         v = attn.v_proj(x).view(count, width, kv_heads, d).transpose(1, 2)
         k, _ = rope(k, k, cos, sin)
-        k = k.float().repeat_interleave(heads // kv_heads, 1)
-        v = v.float().repeat_interleave(heads // kv_heads, 1)
-        parent = cache.layers[self.joint_layer]
-        pk = parent.keys[0].float().repeat_interleave(heads // kv_heads, 0)
-        pv = parent.values[0].float().repeat_interleave(heads // kv_heads, 0)
+        groups = heads // kv_heads
+        k = k.float().repeat_interleave(groups, 1)
+        v = v.float().repeat_interleave(groups, 1)
+        # Prefix KV is read per segment and per KV head (no head repeat), without copying the cache.
+        segments = [(pk[0].float(), pv[0].float()) for pk, pv in kv_segments(cache.layers[self.joint_layer])]
         ri, last = torch.arange(count, device=self.device), widths - 1
         q, gate = attn.q_proj(x[ri, last]).view(count, heads, 2 * d).chunk(2, -1)
         q = attn.q_norm(q)[:, :, None]
         q, _ = rope(q, q, cos[ri, last][:, None], sin[ri, last][:, None])
         q = q[:, :, 0].float()
-        prefix_scores = fp32_einsum("bhd,hpd->bhp", q, pk) * attn.scaling
-        own_scores = fp32_einsum("bhd,bhwd->bhw", q, k) * attn.scaling
-        own_scores = own_scores.masked_fill(~valid[:, None, :], float("-inf"))
-        weights = torch.cat([prefix_scores, own_scores], -1).softmax(-1)
-        prefix_len = pk.shape[-2]
-        own = (fp32_einsum("bhp,hpd->bhd", weights[:, :, :prefix_len], pv)
-               + fp32_einsum("bhw,bhwd->bhd", weights[:, :, prefix_len:], v))
+        own = []
+        # Candidate blocks bound the FP32 prefix scores to rows_per_forward x heads x prefix.
+        for start in range(0, count, self.spec.rows_per_forward):
+            rows = slice(start, start + self.spec.rows_per_forward)
+            grouped = q[rows].unflatten(1, (kv_heads, groups))
+            prefix_scores = torch.cat([fp32_einsum("bkgd,kpd->bkgp", grouped, pk) for pk, _ in segments],
+                                      -1).flatten(1, 2) * attn.scaling
+            own_scores = fp32_einsum("bhd,bhwd->bhw", q[rows], k[rows]) * attn.scaling
+            own_scores = own_scores.masked_fill(~valid[rows, None, :], float("-inf"))
+            weights = torch.cat([prefix_scores, own_scores], -1).softmax(-1)
+            prefix, offset = 0, 0
+            for pk, pv in segments:
+                part = weights[:, :, offset:offset + pk.shape[-2]].unflatten(1, (kv_heads, groups))
+                prefix = prefix + fp32_einsum("bkgp,kpd->bkgd", part, pv).flatten(1, 2)
+                offset += pk.shape[-2]
+            own.append(prefix + fp32_einsum("bhw,bhwd->bhd", weights[:, :, offset:], v[rows]))
+        own = torch.cat(own)
         # Same sibling-only attention and tanh gate as the reference final layer.
         scores = fp32_einsum("bhd,shwd->bhsw", q, k) * attn.scaling
         keys = valid
