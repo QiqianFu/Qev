@@ -4,6 +4,7 @@ from dataclasses import replace
 from .checkpoint import load_model
 from .encoding import Encoder
 from .predict import predict_request
+from .session import QevSession
 
 
 class Qev:
@@ -29,3 +30,7 @@ class Qev:
     def predict(self, request):
         return predict_request(self.model, self.encoder, request,
                                cached=self.execution == 'cached', tree=self.execution == 'tree')
+
+    def session(self, state='', *, session_id='session'):
+        """Start a growing state whose prefix cache is reused by later questions."""
+        return QevSession(self.model, self.encoder, state, execution=self.execution, session_id=session_id)

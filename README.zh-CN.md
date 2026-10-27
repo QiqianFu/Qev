@@ -80,6 +80,20 @@ print(answers["department"]["probabilities"])
 
 是非问题使用 `noul`，返回 `P(true)`；评分问题使用 `score`，返回等级分布及其期望。[三种任务的完整示例](examples/requests.jsonl)与[输入输出约定](docs/data.md)。
 
+### 持续增长的状态
+
+如果状态会不断追加，例如对话或智能体轨迹，可以打开一个会话。每段新追加的状态只在已缓存状态之上计算一次，问题在该缓存的分叉上执行：
+
+```python
+session = model.session("订单 812：客户反映被重复扣款。")
+session.predict({"human": {"type": "noul", "instructions": "是否需要人工客服介入？"}})
+session.extend("\n客服：已办理退款。")
+answers = session.predict({"resolved": {"type": "noul", "instructions": "问题是否已经解决？"}})
+session.close()  # 释放缓存的状态
+```
+
+会话状态是各段文本分别分词后的拼接；分词、长度限制与显存说明见[增量会话](docs/checkpoints.md#incremental-sessions)。
+
 ### JSONL 批量推理
 
 ```bash

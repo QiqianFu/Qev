@@ -173,3 +173,9 @@ Three focused CPU tests passed: portable export, legacy loading and Python API; 
 <!-- qev-0.8b-publication:start -->
 Published [Qev-0.8B v0.1.0](https://huggingface.co/AustinFu/Qev-0.8B/tree/v0.1.0) at `9fc71346c2aed987c7c3e5a3d8e01c02a3e97f5c`. Downloaded all 25 files anonymously into a fresh cache and compared them with the prepared package. The tag and main resolve to the verified public checkpoint.
 <!-- qev-0.8b-publication:end -->
+
+## Incremental sessions — 2026-10-26
+
+CPU: the full test suite passed (333 passed, 10 skipped; the skips need CUDA or do not apply to an interaction mode). `tests/test_session.py` checks that only appended state tokens are computed, that questions leave the state cache bit-identical, and that cached, reference and tree sessions agree.
+
+GPU (one A40, PyTorch 2.8.0, Transformers 5.17.0): the session, prefix-inference and tree-inference tests passed on CUDA with the fused `causal-conv1d` 1.7.0 and `fla` 0.5.2 kernels and with the PyTorch reference kernels (82 passed, 4 skipped each). With the released Qev-0.8B and Qev-9B v0.3.0 weights in BF16, a six-chunk session computed only appended tokens, including a single-token chunk, and left the state cache bit-identical after questions. Against reference execution on the same tokens, the largest probability difference was 0.025 (0.8B) and 0.020 (9B), already 0.025 before any extension; one 0.8B prediction differed. Session tokenization effects are described in [incremental sessions](checkpoints.md#incremental-sessions). Single-run timing is not a benchmark. Task scores were not measured for sessions.

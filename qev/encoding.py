@@ -60,18 +60,22 @@ class Encoder:
     def text(self, text):
         return tuple(self.tokenizer.encode(_SPECIAL_RE.sub(r"<¦\1¦>", text), add_special_tokens=False))
 
+    def state_tokens(self, text):
+        return (self.special[0],) + self.text(text)
+
     def candidate_tokens(self, text):
         _, _, op, end, _ = self.special
         return (op,) + self.text(text) + (end,)
 
-    def __call__(self, record):
+    def __call__(self, record, *, state=None):
+        """``state`` optionally supplies pre-tokenized state IDs, e.g. a session's appended chunks."""
         if self.choice_none_policy in ALWAYS:
             for q in record.questions:
                 if q.type == "choice" and none_candidate(q) is None and len(q.candidates) >= min(255, self.limits.max_candidates):
                     raise ContextOverflow(f"{record.id}/{q.id}: no room for required None candidate")
             record = ensure_choice_none(record, varied=self.choice_none_policy == "always-varied")
-        st, qu, op, end, read = self.special
-        state = (st,) + self.text(record.state)
+        _, qu, _, _, read = self.special
+        state = self.state_tokens(record.state) if state is None else tuple(state)
         if len(state) > self.limits.max_state:
             raise ContextOverflow(f"{record.id}: state length {len(state)} > {self.limits.max_state}")
         questions = []

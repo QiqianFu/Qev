@@ -16,7 +16,10 @@ from .encoding import Encoder
 
 def predict_request(model, encoder, request, *, request_id='request', cached=True, tree=False):
     encoded = encoder(typed_record(request, source='inference', record_id=request_id))
-    predictions = model.predict(encoded, cached=cached, tree=tree)
+    return format_predictions(encoded, model.predict(encoded, cached=cached, tree=tree))
+
+
+def format_predictions(encoded, predictions):
     output = {}
     for q, p in zip(encoded.record.questions, predictions, strict=True):
         ids = [c.id for c in q.candidates]

@@ -80,6 +80,20 @@ print(answers["department"]["probabilities"])
 
 Use `noul` for a yes/no question and receive `P(true)`. Use `score` for a rubric and receive its level distribution and expectation. [All three tasks](examples/requests.jsonl) · [Input/output contract](docs/data.md).
 
+### Growing state
+
+When the state keeps growing, such as a conversation or an agent trajectory, open a session. Each appended chunk is computed once on top of the cached state, and questions run on forks of that cache:
+
+```python
+session = model.session("Order 812: the customer reports a duplicate charge.")
+session.predict({"human": {"type": "noul", "instructions": "Does this need a human agent?"}})
+session.extend("\nAgent: a refund has been issued.")
+answers = session.predict({"resolved": {"type": "noul", "instructions": "Is the issue resolved?"}})
+session.close()  # release the cached state
+```
+
+The session state is the concatenation of each chunk's tokens; see [incremental sessions](docs/checkpoints.md#incremental-sessions) for tokenization, limits and memory.
+
 ### JSONL inference
 
 ```bash

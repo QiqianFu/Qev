@@ -21,7 +21,7 @@ state
 
 Ordinary backbone layers keep each candidate on its own causal path. A candidate reads its state, its question, and its own preceding tokens. Sibling order does not change its logical positions. Question readouts only read state and question. User text resembling a reserved delimiter is escaped before tokenization.
 
-The reference execution expands full causal paths. Cached inference computes shared prefixes once, then forks their KV and recurrent state. Tree execution evaluates shared prefixes and branches in one traversal. Qwen3.5 mixes full attention with Gated DeltaNet: branching the recurrent state is necessary for isolation; an attention mask alone does not handle those recurrent layers.
+The reference execution expands full causal paths. Cached inference computes shared prefixes once, then forks their KV and recurrent state. Tree execution evaluates shared prefixes and branches in one traversal. [Incremental sessions](checkpoints.md#incremental-sessions) keep a state-only cache across calls and append new state tokens to it. Qwen3.5 mixes full attention with Gated DeltaNet: branching the recurrent state is necessary for isolation; an attention mask alone does not handle those recurrent layers.
 
 Implementations: [encoding.py](../qev/encoding.py), [cache.py](../qev/cache.py), [tree.py](../qev/tree.py).
 

@@ -91,6 +91,17 @@ A Qev checkpoint uses `model.json`, `adapter/`, `tokenizer/`, `head.safetensors`
 
 The Python API and prediction CLI use shared-prefix caching by default. Set `execution="reference"` in Python or `--reference` in the CLI for the execution used in the benchmark reports. Optional `max_state` and `max_path` settings control accepted input sizes.
 
+## Incremental sessions
+
+`model.session(state)` returns a `QevSession` for a state that grows over time. `session.extend(text)` appends a chunk; `session.predict(questions)` takes the `questions` mapping of a request and returns the same output as `model.predict`.
+
+With the default `cached` execution the session keeps a cache that contains only state tokens: full-attention KV and Gated DeltaNet convolution/recurrent state. Pending chunks are appended to it on the next prediction, so each state token is computed once per session. Each question runs on a fork of the cache, which is never modified by questions. Sessions created from a `reference` or `tree` model recompute the full state for every prediction and serve as numerical checks.
+
+- **Tokenization.** The state is the concatenation of each chunk's own tokens. Tokenizing the joined text in one request can split a chunk boundary differently, so session predictions can differ from a one-shot request. In the GPU check, appending `"!"` after a sentence changed the tokens: Qev-0.8B then differed by up to 0.14 in probability and changed one prediction, while Qev-9B differed by up to 0.03. Starting a chunk with whitespace or a newline usually avoids this but does not guarantee it. Released models were trained on one-shot tokenization; incremental use has not been benchmarked.
+- **Limits.** The state is checked against `max_state` on every `extend`; an overflow raises `ContextOverflow` and leaves the session unchanged. The session cannot drop old tokens, because the recurrent state cannot remove a prefix; start a new session instead.
+- **Memory.** A session holds its cache until `close()`. Full-attention KV grows with the state; the DeltaNet state has a fixed size. If a forward pass fails, the cache is discarded and rebuilt from the full state on the next prediction.
+- **Concurrency.** A session is not safe for concurrent use. Caches are not shared between sessions or with `model.predict`.
+
 ## Continue training
 
 `--init-checkpoint` starts a new fine-tuning run from model weights with a fresh optimizer and schedule. `--resume` restores an interrupted run, including optimizer state and the training position, and checks that its data and settings are unchanged. Inference exports support initialization; resuming requires the full training checkpoint.

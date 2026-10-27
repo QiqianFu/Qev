@@ -536,35 +536,66 @@ class QevModel(nn.Module):
         from transformers import DynamicCache
         if not encoded.questions:
             return []
+        if len(encoded.questions) > 1:
+            return self.state_cache_features(encoded, self.extend_state_cache(None, encoded.state, 0))
+        # No other question needs S alone: avoid a separate forward/fork.
+        q = encoded.questions[0]
+        cache_sq = DynamicCache(config=self.backbone.config)
+        qout = self._run_rows([encoded.state + q.prefix], cache=cache_sq)
+        return [self._candidate_features(q, cache_sq, qout.last_hidden_state[0, -1].float(),
+                                         len(encoded.state) + len(q.prefix))]
+
+    def _candidate_features(self, q, cache_sq, hq, p):
+        """Candidate branches over a question cache of length p; cache_sq is only forked."""
+        cs = []
+        for chunk in self._candidate_chunks(q.candidates):
+            fork = self.fork_cache(cache_sq, len(chunk))
+            if self.joint_layer is None:
+                hidden = self._run_rows(chunk, offset=p, cache=fork).last_hidden_state
+                cs.extend(hidden[b, len(c) - 1].float() for b, c in enumerate(chunk))
+            else:
+                deferred = self._run_rows(chunk, offset=p, cache=fork, defer=True)
+                cos, sin = deferred.kwargs["position_embeddings"]
+                cs.extend((deferred.hidden[b, :len(c)], cos[b, :len(c)], sin[b, :len(c)])
+                          for b, c in enumerate(chunk))
+        return ((hq, torch.stack(cs)) if self.joint_layer is None else
+                self._cached_joint_features(cs, cache_sq, hq))
+
+    @torch.no_grad()
+    def extend_state_cache(self, cache, tokens, offset):
+        """Append state tokens to a state-only cache in place: S[:offset] -> S[:offset] + tokens.
+
+        A new cache starts at offset 0. The cache must never contain question or
+        candidate tokens; questions are evaluated on forks of it.
+        """
+        if self.training:
+            raise RuntimeError("inference cache cannot be used for training")
+        if not tokens:
+            raise ValueError("state extension must contain tokens")
+        if cache is None:
+            if offset:
+                raise ValueError("a new state cache starts at offset 0")
+            from transformers import DynamicCache
+            cache = DynamicCache(config=self.backbone.config)
+        self._run_rows([tokens], offset=offset, cache=cache)
+        return cache
+
+    @torch.no_grad()
+    def state_cache_features(self, encoded, cache):
+        """Cached features for questions over a state already held in ``cache``.
+
+        ``cache`` must hold exactly ``encoded.state``; it is forked per question
+        and left unchanged, so later questions or extensions can reuse it.
+        """
+        if self.training:
+            raise RuntimeError("inference cache cannot be used for training")
         ls = len(encoded.state)
-        single = len(encoded.questions) == 1
-        if not single:
-            cache_s = DynamicCache(config=self.backbone.config)
-            self._run_rows([encoded.state], cache=cache_s)
         features = []
         for q in encoded.questions:
-            if single:
-                # No other question needs S alone: avoid a separate forward/fork.
-                cache_sq = DynamicCache(config=self.backbone.config)
-                qout = self._run_rows([encoded.state + q.prefix], cache=cache_sq)
-            else:
-                cache_sq = self.fork_cache(cache_s)
-                qout = self._run_rows([q.prefix], offset=ls, cache=cache_sq)
-            hq = qout.last_hidden_state[0, -1].float()
-            p = ls + len(q.prefix)
-            cs = []
-            for chunk in self._candidate_chunks(q.candidates):
-                fork = self.fork_cache(cache_sq, len(chunk))
-                if self.joint_layer is None:
-                    hidden = self._run_rows(chunk, offset=p, cache=fork).last_hidden_state
-                    cs.extend(hidden[b, len(c) - 1].float() for b, c in enumerate(chunk))
-                else:
-                    deferred = self._run_rows(chunk, offset=p, cache=fork, defer=True)
-                    cos, sin = deferred.kwargs["position_embeddings"]
-                    cs.extend((deferred.hidden[b, :len(c)], cos[b, :len(c)], sin[b, :len(c)])
-                              for b, c in enumerate(chunk))
-            features.append((hq, torch.stack(cs)) if self.joint_layer is None else
-                            self._cached_joint_features(cs, cache_sq, hq))
+            cache_sq = self.fork_cache(cache)
+            qout = self._run_rows([q.prefix], offset=ls, cache=cache_sq)
+            features.append(self._candidate_features(q, cache_sq, qout.last_hidden_state[0, -1].float(),
+                                                     ls + len(q.prefix)))
         return features
 
     def tree_features(self, encoded):
@@ -578,6 +609,13 @@ class QevModel(nn.Module):
         context = nullcontext() if self.training and not self.head_only else torch.no_grad()
         with context:
             return tree_batch_features(self, records)
+
+    @torch.no_grad()
+    def predict_state_cache(self, encoded, cache):
+        self._validate_choice_policy([encoded])
+        if self.training:
+            raise RuntimeError("call eval() before prediction")
+        return self._probabilities(self.state_cache_features(encoded, cache))
 
     @torch.no_grad()
     def predict(self, encoded, *, cached=True, tree=False):

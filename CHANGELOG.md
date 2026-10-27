@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added incremental sessions (`Qev.session`, `QevSession`): a growing state reuses its state-only KV/DeltaNet cache across predictions, computing only appended tokens. One-shot prediction is unchanged.
 - Added Qev-0.8B seed 17 (step 2,786): direct base initialization and 9B probability distillation, with 169/231 public JevBench and 24.70% MMLU-Pro. Includes model selection, portable packaging, training recipes and bilingual documentation.
 - Added NanoJev-0.6B results. Removed native Qwen Base columns from displayed tables and the matrix, while preserving their recorded measurements. Unmeasured small-model Decision Index scores are shown as dashes.
 
