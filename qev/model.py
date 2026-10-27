@@ -160,6 +160,8 @@ class QevModel(nn.Module):
         self.prefix_execution = "leaf-rows"
         self.shared_checkpointing = False
         self.tree_checkpointing = False
+        # New state tokens per cached forward: bounds activations of long-state prefill.
+        self.prefill_chunk = 8192
         self.head.to(next(backbone.parameters()).device)
         self.joint_layer = None
         if spec.candidate_interaction != "none":
@@ -571,9 +573,21 @@ class QevModel(nn.Module):
         # No other question needs S alone: avoid a separate forward/fork.
         q = encoded.questions[0]
         cache_sq = DynamicCache(config=self.backbone.config)
-        qout = self._run_rows([encoded.state + q.prefix], cache=cache_sq)
+        qout = self._prefill(cache_sq, encoded.state + q.prefix, 0)
         return [self._candidate_features(q, cache_sq, qout.last_hidden_state[0, -1].float(),
                                          len(encoded.state) + len(q.prefix))]
+
+    def _prefill(self, cache, tokens, offset):
+        """Append one row to ``cache`` in forwards of at most ``prefill_chunk`` tokens; return the last output.
+
+        Each chunk extends the stored KV one layer at a time, so the transient
+        copy is a single layer's KV rather than the whole cache.
+        """
+        if self.prefill_chunk < 1:
+            raise ValueError("prefill_chunk must be positive")
+        for start in range(0, len(tokens), self.prefill_chunk):
+            output = self._run_rows([tokens[start:start + self.prefill_chunk]], offset=offset + start, cache=cache)
+        return output
 
     def _candidate_features(self, q, cache_sq, hq, p):
         """Candidate branches over a question cache of length p; cache_sq is only forked."""
@@ -607,7 +621,7 @@ class QevModel(nn.Module):
                 raise ValueError("a new state cache starts at offset 0")
             from transformers import DynamicCache
             cache = DynamicCache(config=self.backbone.config)
-        self._run_rows([tokens], offset=offset, cache=cache)
+        self._prefill(cache, tokens, offset)
         return cache
 
     @torch.no_grad()

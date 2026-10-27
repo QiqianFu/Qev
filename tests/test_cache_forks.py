@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Cache forks must read the parent's attention KV in place."""
+"""Cache forks must read the parent's attention KV in place and prefill in bounded chunks."""
 from dataclasses import replace
 import os
 from types import SimpleNamespace
@@ -9,6 +9,7 @@ import torch
 from transformers import DynamicCache
 from transformers.cache_utils import DynamicLayer
 
+from qev import Qev
 from qev.cache import (SharedPrefixCache, SharedPrefixLayer, _attention_forward, fork_inference_cache,
                        shared_prefix_attention)
 from qev.encoding import Encoder, Limits
@@ -166,6 +167,36 @@ def test_fork_cannot_run_under_other_attention(fork_model, encoder):
                        past_key_values=child, use_cache=True)
     with pytest.raises(ValueError, match="share_prefix"):
         fork_inference_cache(child, 1)
+
+
+@pytest.mark.parametrize("chunk", [1, 3, 8])
+def test_chunked_prefill_matches_single_forward(fork_model, encoder, monkeypatch, chunk):
+    model = fork_model
+    enc, single = encoder(long_record()), encoder(long_record(1))
+    whole = model.extend_state_cache(None, enc.state, 0)
+    expected, expected_single = model.cached_features(enc), model.cached_features(single)
+    calls = []
+    original = model._run_rows
+
+    def trace(rows, **kwargs):
+        calls.append((rows, kwargs.get("offset", 0)))
+        return original(rows, **kwargs)
+
+    monkeypatch.setattr(model, "_run_rows", trace)
+    model.prefill_chunk = chunk
+    chunked = model.extend_state_cache(None, enc.state, 0)
+    assert [offset for _, offset in calls] == list(range(0, len(enc.state), chunk))
+    assert [list(r) for rows, _ in calls for r in rows] == [list(enc.state[i:i + chunk])
+                                                            for i in range(0, len(enc.state), chunk)]
+    for a, b in zip(all_tensors(whole), all_tensors(chunked), strict=True):
+        torch.testing.assert_close(a, b, atol=2e-5, rtol=2e-5)
+    assert_features(expected, model.cached_features(enc))
+    assert_features(expected_single, model.cached_features(single))
+    calls.clear()
+    session = Qev(model, encoder).session(long_record().state)
+    session.predict({"known": {"type": "noul", "instructions": "Is the color stated?"}})
+    assert all(len(r) <= chunk for rows, offset in calls if offset < len(enc.state) for r in rows)
+    assert session.cached_tokens == len(enc.state)
 
 
 @pytest.mark.skipif(DEVICE != "cuda", reason="allocator accounting needs CUDA")

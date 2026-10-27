@@ -16,7 +16,8 @@ class Qev:
 
     @classmethod
     def from_pretrained(cls, checkpoint, *, device='cuda', revision=None, base=None,
-                        weights_dtype='checkpoint', execution='cached', max_state=None, max_path=None):
+                        weights_dtype='checkpoint', execution='cached', max_state=None, max_path=None,
+                        prefill_chunk=None):
         if weights_dtype not in {'checkpoint', 'fp32'}:
             raise ValueError('weights_dtype must be checkpoint or fp32')
         model, tokenizer, encoder, _ = load_model(checkpoint, device, revision=revision, base=base,
@@ -25,6 +26,8 @@ class Qev:
             limits = replace(encoder.limits, max_state=max_state or encoder.limits.max_state,
                              max_path=max_path or encoder.limits.max_path)
             encoder = Encoder(tokenizer, limits, choice_none_policy=encoder.choice_none_policy)
+        if prefill_chunk is not None:
+            model.prefill_chunk = prefill_chunk
         return cls(model, encoder, execution=execution)
 
     def predict(self, request):
