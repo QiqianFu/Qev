@@ -199,6 +199,14 @@ def test_chunked_prefill_matches_single_forward(fork_model, encoder, monkeypatch
     assert session.cached_tokens == len(enc.state)
 
 
+def test_raising_max_state_keeps_question_and_candidate_allowance():
+    released = Limits(4096, 512, 256, 4096, 128)
+    assert released.resized(50_000) == Limits(50_000, 512, 256, 50_000, 128)
+    assert released.resized(50_000, 52_000).max_path == 52_000
+    assert released.resized(None, 6000) == Limits(4096, 512, 256, 6000, 128)
+    assert released.resized(1024) == Limits(1024, 512, 256, 4096, 128)
+
+
 @pytest.mark.skipif(DEVICE != "cuda", reason="allocator accounting needs CUDA")
 def test_question_memory_does_not_scale_with_state_and_candidates(tokenizer, monkeypatch):
     torch.manual_seed(5)

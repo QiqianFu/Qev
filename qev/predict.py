@@ -4,7 +4,6 @@
 import argparse
 import json
 from pathlib import Path
-from dataclasses import replace
 
 from .checkpoint import load_model
 from .choice_policy import none_candidate
@@ -56,9 +55,7 @@ def main():
     model, tokenizer, encoder, _ = load_model(a.checkpoint, a.device, revision=a.revision, base=a.base,
                         weights_dtype='fp32' if a.weights_dtype == 'fp32' else None)
     if a.max_state or a.max_path:
-        encoder = Encoder(tokenizer, replace(encoder.limits,
-                          max_state=a.max_state or encoder.limits.max_state,
-                          max_path=a.max_path or encoder.limits.max_path),
+        encoder = Encoder(tokenizer, encoder.limits.resized(a.max_state, a.max_path),
                           choice_none_policy=encoder.choice_none_policy)
     model.prepare_inference()
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)

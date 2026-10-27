@@ -1,6 +1,4 @@
 """Small Python API backed by the same checkpoint and prediction code as the CLI."""
-from dataclasses import replace
-
 from .checkpoint import load_model
 from .encoding import Encoder
 from .predict import predict_request
@@ -23,9 +21,8 @@ class Qev:
         model, tokenizer, encoder, _ = load_model(checkpoint, device, revision=revision, base=base,
                                                 weights_dtype='fp32' if weights_dtype == 'fp32' else None)
         if max_state is not None or max_path is not None:
-            limits = replace(encoder.limits, max_state=max_state or encoder.limits.max_state,
-                             max_path=max_path or encoder.limits.max_path)
-            encoder = Encoder(tokenizer, limits, choice_none_policy=encoder.choice_none_policy)
+            encoder = Encoder(tokenizer, encoder.limits.resized(max_state, max_path),
+                              choice_none_policy=encoder.choice_none_policy)
         if prefill_chunk is not None:
             model.prefill_chunk = prefill_chunk
         return cls(model, encoder, execution=execution)

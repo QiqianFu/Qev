@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Adapted for Qev in 2026; see NOTICE and THIRD_PARTY_NOTICES.md.
 """Two-level candidate tree; logical positions never depend on sibling order."""
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import re
 from .schema import Record, Question
 from .choice_policy import ALWAYS, POLICIES, ensure_choice_none, none_candidate
@@ -19,6 +19,11 @@ class Limits:
     max_candidate: int = 256
     max_path: int = 2048
     max_candidates: int = 128
+
+    def resized(self, max_state=None, max_path=None):
+        """Override state/path limits. Raising only max_state keeps the question and candidate allowance."""
+        state = max_state or self.max_state
+        return replace(self, max_state=state, max_path=max_path or self.max_path + max(0, state - self.max_state))
 
 
 class ContextOverflow(ValueError):
