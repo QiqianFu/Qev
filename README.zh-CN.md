@@ -92,7 +92,7 @@ answers = session.predict({"resolved": {"type": "noul", "instructions": "问题�
 session.close()  # 释放缓存的状态
 ```
 
-会话状态是各段文本分别分词后的拼接；分词、长度限制与显存说明见[增量会话](docs/checkpoints.md#incremental-sessions)。
+会话状态是各段文本分别分词后的拼接；分词、长度限制与显存说明见[增量会话](docs/checkpoints.md#incremental-sessions)。问题直接读取已缓存的状态而不复制，长状态分块计算，因此 `Qev.from_pretrained(..., max_state=50000)` 可以处理远超发布上限 4,096 token 的状态；模型只在 4,096 token 以内的状态上训练，状态前有大段无关文本时准确率会下降（[实测](docs/validation.md#long-unrelated-prefix-on-jevbench--2026-10-27)）。
 
 ### JSONL 批量推理
 

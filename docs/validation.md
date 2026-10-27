@@ -199,4 +199,17 @@ Qev-9B sessions (single runs on the shared GPU; not a benchmark). Peak is the al
 | 50,000 | previous | 44.2 s | 10.75 GiB | 0.79 s, 10.95 GiB | 0.59 s, 6.45 GiB | 0.90 s, 13.28 GiB |
 | 50,000 | new | 50.4 s | 3.99 GiB | 0.32 s, 0.66 GiB | 0.32 s, 0.55 GiB | 0.34 s, 0.72 GiB |
 
-The 50,000-token state cache holds 1.59 GiB. The remaining growth of question peaks with state length is the FP32 copy of one layer's prefix KV in the candidate-interaction readout. On these inputs, long-state predictions agreed with the previous implementation within 0.009 and kept every prediction. Task scores were not measured for states beyond the released 4,096-token limit.
+The 50,000-token state cache holds 1.59 GiB. The remaining growth of question peaks with state length is the FP32 copy of one layer's prefix KV in the candidate-interaction readout. On these inputs, long-state predictions agreed with the previous implementation within 0.009 and kept every prediction. Task accuracy beyond the released 4,096-token limit is measured in [long unrelated prefix](#long-unrelated-prefix-on-jevbench--2026-10-27).
+
+## Long unrelated prefix on JevBench — 2026-10-27
+
+Qev-9B v0.3.0 (BF16, cached execution, `max_state` raised to 58,192) answered the 231 public JevBench questions with unrelated text placed before each state (`filler + "\n\n" + state`). The filler was computed once per condition and reused for every record; the reused cache stayed bit-identical, and at 50,000 tokens five records computed from scratch agreed with the reused-prefix answers (largest probability difference 0.028, no changed prediction). Without filler the cached path matched the released result, 187/231. Accuracy and exact McNemar p-values against no filler:
+
+| Filler tokens | Prose (git and PCRE2 manuals) | Python standard-library source |
+|---:|---:|---:|
+| 8,192 | 73.2% (p = 0.004) | 80.1% (p = 0.85) |
+| 16,384 | 66.7% (p < 0.001) | 81.0% (p = 1.00) |
+| 32,768 | 76.2% (p = 0.06) | 80.1% (p = 0.86) |
+| 50,000 | 74.5% (p = 0.014) | 72.3% (p = 0.004) |
+
+Prose hurt more than code, and accuracy did not fall monotonically with length; 26–59 predictions changed in every condition. Almost all losses were on the `original` subset of short policy questions (67/72 without filler, 43/72 with 16K of prose); `easy` was unchanged. The models were trained on states up to 4,096 tokens, so this measures robustness outside the training range, not a release score. With the filler prefix, the 50,000-token cache took 1.58 GiB, its ingest 51 s, and each record answered over it took a median 0.60 s on an A40 shared with an unrelated load.

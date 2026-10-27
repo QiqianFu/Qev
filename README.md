@@ -92,7 +92,7 @@ answers = session.predict({"resolved": {"type": "noul", "instructions": "Is the 
 session.close()  # release the cached state
 ```
 
-The session state is the concatenation of each chunk's tokens; see [incremental sessions](docs/checkpoints.md#incremental-sessions) for tokenization, limits and memory.
+The session state is the concatenation of each chunk's tokens; see [incremental sessions](docs/checkpoints.md#incremental-sessions) for tokenization, limits and memory. Questions read the cached state in place, and long states are computed in chunks, so `Qev.from_pretrained(..., max_state=50000)` serves states far beyond the released 4,096-token limit; the models were trained on states up to 4,096 tokens, and accuracy drops when long unrelated text precedes the state ([measurement](docs/validation.md#long-unrelated-prefix-on-jevbench--2026-10-27)).
 
 ### JSONL inference
 
