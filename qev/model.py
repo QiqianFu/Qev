@@ -473,6 +473,19 @@ class QevModel(nn.Module):
         modules = [layer.self_attn for layer in _base_model(self.backbone).layers if hasattr(layer, "self_attn")]
         return bool(modules) and all(type(m) in (Qwen3Attention, Qwen3_5Attention) for m in modules)
 
+    @property
+    def batches_questions(self):
+        """Questions over a state cache run as packed trees only for audited Qwen3.5 decoders.
+
+        Other layouts evaluate each question on its own cache forks.
+        """
+        from transformers.models.qwen3_5.modeling_qwen3_5 import Qwen3_5DecoderLayer, Qwen3_5GatedDeltaNet
+        base = _base_model(self.backbone)
+        return (self.shares_prefix and base.config.model_type == "qwen3_5_text"
+                and all(type(layer) is Qwen3_5DecoderLayer for layer in base.layers)
+                and all(type(layer.linear_attn) is Qwen3_5GatedDeltaNet for layer in base.layers
+                        if layer.block_type == "linear_attention"))
+
     def fork_cache(self, cache, copies=1):
         return fork_inference_cache(cache, copies, share_prefix=self.shares_prefix)
 
@@ -492,13 +505,15 @@ class QevModel(nn.Module):
             yield candidates[start:end]
             start = end
 
-    def _cached_joint_features(self, rows, cache, question):
+    def _cached_joint_features(self, rows, segments, question):
         """Joint final layer from candidate-only residuals and shared prefix KV.
 
         The ordinary causal prefix forward already computed the question readout
-        and final-layer prefix KV. Prefix scores are broadcast across candidates;
-        neither prefix projections nor prefix hidden states are recomputed here.
-        Candidate branches remain independent until this final readout.
+        and final-layer prefix KV, given as FP32 (keys, values) segments
+        [kv_heads, length, head_dim] in position order. Prefix scores are
+        broadcast across candidates; neither prefix projections nor prefix
+        hidden states are recomputed here. Candidate branches remain independent
+        until this final readout.
         """
         from torch.nn.utils.rnn import pad_sequence
         base = _base_model(self.backbone)
@@ -519,8 +534,6 @@ class QevModel(nn.Module):
         groups = heads // kv_heads
         k = k.float().repeat_interleave(groups, 1)
         v = v.float().repeat_interleave(groups, 1)
-        # Prefix KV is read per segment and per KV head (no head repeat), without copying the cache.
-        segments = [(pk[0].float(), pv[0].float()) for pk, pv in kv_segments(cache.layers[self.joint_layer])]
         ri, last = torch.arange(count, device=self.device), widths - 1
         q, gate = attn.q_proj(x[ri, last]).view(count, heads, 2 * d).chunk(2, -1)
         q = attn.q_norm(q)[:, :, None]
@@ -602,8 +615,11 @@ class QevModel(nn.Module):
                 cos, sin = deferred.kwargs["position_embeddings"]
                 cs.extend((deferred.hidden[b, :len(c)], cos[b, :len(c)], sin[b, :len(c)])
                           for b, c in enumerate(chunk))
-        return ((hq, torch.stack(cs)) if self.joint_layer is None else
-                self._cached_joint_features(cs, cache_sq, hq))
+        if self.joint_layer is None:
+            return hq, torch.stack(cs)
+        # Prefix KV is read per segment and per KV head (no head repeat), without copying the cache.
+        segments = [(pk[0].float(), pv[0].float()) for pk, pv in kv_segments(cache_sq.layers[self.joint_layer])]
+        return self._cached_joint_features(cs, segments, hq)
 
     @torch.no_grad()
     def extend_state_cache(self, cache, tokens, offset):
@@ -628,18 +644,38 @@ class QevModel(nn.Module):
     def state_cache_features(self, encoded, cache):
         """Cached features for questions over a state already held in ``cache``.
 
-        ``cache`` must hold exactly ``encoded.state``; it is forked per question
-        and left unchanged, so later questions or extensions can reuse it.
+        ``cache`` must hold exactly ``encoded.state``; it is only read, so later
+        questions or extensions can reuse it. On audited Qwen3.5 decoders,
+        consecutive questions whose tokens fit ``max_padded_tokens`` run as one
+        packed tree over the cache; other questions run on their own forks.
         """
         if self.training:
             raise RuntimeError("inference cache cannot be used for training")
-        ls = len(encoded.state)
-        features = []
-        for q in encoded.questions:
-            cache_sq = self.fork_cache(cache)
-            qout = self._run_rows([q.prefix], offset=ls, cache=cache_sq)
-            features.append(self._candidate_features(q, cache_sq, qout.last_hidden_state[0, -1].float(),
-                                                     ls + len(q.prefix)))
+        from .tree import state_tree_features
+        ls, questions = len(encoded.state), encoded.questions
+        budget = self.spec.max_padded_tokens if self.batches_questions else 0
+        features = [None] * len(questions)
+        group, tokens = [], 0
+
+        def run(group):
+            for i, f in zip(group, state_tree_features(self, [questions[i] for i in group], ls, cache), strict=True):
+                features[i] = f
+
+        for i, q in enumerate(questions):
+            count = len(q.prefix) + sum(map(len, q.candidates))
+            if count > budget:
+                cache_sq = self.fork_cache(cache)
+                qout = self._run_rows([q.prefix], offset=ls, cache=cache_sq)
+                features[i] = self._candidate_features(q, cache_sq, qout.last_hidden_state[0, -1].float(),
+                                                       ls + len(q.prefix))
+                continue
+            if group and tokens + count > budget:
+                run(group)
+                group, tokens = [], 0
+            group.append(i)
+            tokens += count
+        if group:
+            run(group)
         return features
 
     def tree_features(self, encoded):

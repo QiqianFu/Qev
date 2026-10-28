@@ -9,6 +9,7 @@ import weakref
 import pytest
 import torch
 
+import qev.tree
 from qev.model import QevModel, ModelSpec
 from qev.schema import Candidate
 from conftest import tiny_backbone
@@ -29,37 +30,50 @@ def prefix_model(request, tokenizer):
     return model
 
 
+@pytest.mark.parametrize("batched", [False, True])
 @pytest.mark.parametrize("single", [False, True])
-def test_prefix_tokens_computed_once(prefix_model, encoder, record, monkeypatch, single):
+def test_prefix_tokens_computed_once(prefix_model, encoder, record, monkeypatch, single, batched):
     model = prefix_model
     if single:
         record = replace(record, questions=record.questions[:1])
+    if not batched:  # per-question forks, the path of unaudited layouts
+        monkeypatch.setattr(QevModel, "batches_questions", property(lambda self: False))
     enc = encoder(record)
     reference = model.predict(enc, cached=False)
-    calls = []
-    original = model._run_rows
+    calls, packed = [], []
+    original, tree = model._run_rows, qev.tree.state_tree_features
 
     def trace(rows, **kwargs):
         calls.append((rows, kwargs.get("offset", 0)))
         return original(rows, **kwargs)
 
+    def trace_tree(model, questions, *args):
+        packed.append(questions)
+        return tree(model, questions, *args)
+
     def forbidden(*args, **kwargs):
         raise AssertionError("cached inference must not fall back to full leaf rows")
 
     monkeypatch.setattr(model, "_run_rows", trace)
+    monkeypatch.setattr(qev.tree, "state_tree_features", trace_tree)
     monkeypatch.setattr(model, "reference_features", forbidden)
     monkeypatch.setattr(model, "reference_batch_features", forbidden)
     result = model.predict(enc)
     for a, b in zip(reference, result, strict=True):
         torch.testing.assert_close(a, b, atol=2e-6, rtol=2e-5)
     expected_tokens = len(enc.state) + sum(len(q.prefix) + sum(map(len, q.candidates)) for q in enc.questions)
-    assert sum(len(row) for rows, _ in calls for row in rows) == expected_tokens
-    assert len(calls) == (2 if single else 1 + 2 * len(enc.questions))
+    computed = sum(len(row) for rows, _ in calls for row in rows)
+    computed += sum(len(q.prefix) + sum(map(len, q.candidates)) for questions in packed for q in questions)
+    assert computed == expected_tokens
     if single:
         assert calls[0] == ([enc.state + enc.questions[0].prefix], 0)
+        assert len(calls) == 2 and not packed
+    elif batched:  # the state once, then one traversal for all questions
+        assert calls == [([enc.state], 0)] and packed == [list(enc.questions)]
     else:
         assert calls[0] == ([enc.state], 0)
-    assert calls[-1][1] == len(enc.state) + len(enc.questions[-1].prefix)
+        assert len(calls) == 1 + 2 * len(enc.questions)
+        assert calls[-1][1] == len(enc.state) + len(enc.questions[-1].prefix)
 
 
 @pytest.mark.parametrize("gate", [0.0, 1.3])
@@ -136,6 +150,7 @@ def test_single_candidate_and_candidate_token_budget(prefix_model, encoder, reco
 
 
 def test_prediction_releases_cache_forks_without_cyclic_gc(prefix_model, encoder, record, monkeypatch):
+    monkeypatch.setattr(QevModel, "batches_questions", property(lambda self: False))
     refs = []
     original = prefix_model.fork_cache
 

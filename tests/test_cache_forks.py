@@ -89,6 +89,8 @@ def test_shared_prefix_attention_matches_dense_attention(past):
 
 def test_forks_reference_parent_kv_and_leave_it_bit_identical(fork_model, encoder, monkeypatch):
     model = fork_model
+    # Per-question forks; batched questions read the state cache without forks (test_batched_questions.py).
+    monkeypatch.setattr(QevModel, "batches_questions", property(lambda self: False))
     enc = encoder(long_record())
     forks, states = [], []
     fork, extend = model.fork_cache, model.extend_state_cache

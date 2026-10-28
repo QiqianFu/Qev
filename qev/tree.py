@@ -12,6 +12,8 @@ import sys
 
 import torch
 from torch.nn import functional as F
+from .cache import _attend, kv_segments, merge_attention, segment_attention
+from .encoding import EncodedRecord
 from .execution import fp32_einsum
 
 
@@ -34,7 +36,14 @@ class TreeLayout:
         layout._build(records, device, max_tokens)
         return layout
 
-    def _build(self, records, device, max_tokens):
+    @classmethod
+    def over_state(cls, questions, state_length, device, max_tokens):
+        """Question prefixes as roots continuing a cached state of ``state_length`` tokens."""
+        layout = cls.__new__(cls)
+        layout._build([EncodedRecord(None, (), tuple(questions))], device, max_tokens, state_length)
+        return layout
+
+    def _build(self, records, device, max_tokens, state_length=None):
         count = sum(unique_tokens(r) for r in records)
         if count > max_tokens:
             raise ValueError(f"packed tree has {count} unique tokens, exceeding max_padded_tokens={max_tokens}")
@@ -43,12 +52,15 @@ class TreeLayout:
         self.record_questions = [len(r.questions) for r in records]
         self.record_spans = []
         self.batched = len(records) > 1
+        # Roots continuing a state cache take its positions, convolution window and recurrence.
+        self.continues = state_length is not None
+        offset = state_length or 0
 
         def add(tokens, parent, qi=-1, ci=-1):
             start, index = len(ids), len(self.nodes)
             path = self.nodes[parent].path if parent >= 0 else ()
             ids.extend(tokens)
-            positions.extend(range(len(path), len(path) + len(tokens)))
+            positions.extend(range(offset + len(path), offset + len(path) + len(tokens)))
             owners.extend([index] * len(tokens))
             question_ids.extend([qi] * len(tokens))
             candidate_ids.extend([ci] * len(tokens))
@@ -64,9 +76,11 @@ class TreeLayout:
             start = len(ids)
             # Independent roots reset positions, convolution and recurrence.
             single = len(encoded.questions) == 1
-            root = add(encoded.state + encoded.questions[0].prefix if single else encoded.state, -1)
+            if not self.continues:
+                root = add(encoded.state + encoded.questions[0].prefix if single else encoded.state, -1)
             for q in encoded.questions:
-                parent = root if single else add(q.prefix, root, qi)
+                parent = (add(q.prefix, -1, qi) if self.continues else
+                          root if single else add(q.prefix, root, qi))
                 readouts = [self.nodes[parent].end - 1]
                 for ci, candidate in enumerate(q.candidates):
                     node = add(candidate, parent, qi, ci)
@@ -96,7 +110,7 @@ class TreeLayout:
         self.indices = torch.arange(count, device=device)
         self._allow = None
         self.read_indices = tensor([i for group in self.readouts for i in group])
-        self._groups = {}
+        self._groups, self._node_groups, self._state_groups = {}, {}, {}
         self._attention_groups = {}
 
     def allow_between(self, query, key):
@@ -153,20 +167,20 @@ class TreeLayout:
         self._attention_groups[key] = result
         return result
 
-    def groups(self, kernel, max_rows, max_tokens):
-        """Precompute gathers; padded parent steps use exactly zero gate and beta."""
-        key = kernel, max_rows, max_tokens
-        if key in self._groups:
-            return self._groups[key]
+    def node_groups(self, max_rows, max_tokens):
+        """Execution rows: nodes of one depth (and parent length, unless padding is allowed), in order."""
+        key = max_rows, max_tokens
+        if key in self._node_groups:
+            return self._node_groups[key]
         parents = {n.parent for n in self.nodes}
         buckets = {}
         for i, n in enumerate(self.nodes):
             # Batched trees may pad parents: beta=0 and g=0 make padding an
             # identity recurrence, including gradients to the prefix state.
-            bucket = n.depth, n.end - n.start if i in parents and not self.batched else -1
+            exact = i in parents and not (self.batched or self.continues)
+            bucket = n.depth, n.end - n.start if exact else -1
             buckets.setdefault(bucket, []).append(i)
         groups = []
-        total, device = self.ids.numel(), self.ids.device
         for _, nodes in sorted(buckets.items()):
             start = 0
             while start < len(nodes):
@@ -179,18 +193,60 @@ class TreeLayout:
                     width, stop = proposed, stop + 1
                 if stop == start:
                     raise ValueError("tree segment exceeds execution token budget")
-                group = nodes[start:stop]
-                gathers, history = [], []
-                for i in group:
-                    n = self.nodes[i]
-                    gathers.append(list(range(n.start, n.end)) + [total] * (width - (n.end - n.start)))
-                    path = self.nodes[n.parent].path if n.parent >= 0 else ()
-                    past = list(path[-kernel:])
-                    history.append([total] * (kernel - len(past)) + past)
-                groups.append((group, torch.tensor(gathers, device=device),
-                               torch.tensor(history, device=device)))
+                groups.append((nodes[start:stop], width))
                 start = stop
+        self._node_groups[key] = groups
+        return groups
+
+    def groups(self, kernel, max_rows, max_tokens):
+        """Precompute gathers; padded parent steps use exactly zero gate and beta."""
+        key = kernel, max_rows, max_tokens
+        if key in self._groups:
+            return self._groups[key]
+        total, device = self.ids.numel(), self.ids.device
+        # Rows after the zero row hold a continued state's convolution window.
+        root = tuple(range(total + 1, total + 1 + kernel)) if self.continues else ()
+        groups = []
+        for group, width in self.node_groups(max_rows, max_tokens):
+            gathers, history = [], []
+            for i in group:
+                n = self.nodes[i]
+                gathers.append(list(range(n.start, n.end)) + [total] * (width - (n.end - n.start)))
+                path = self.nodes[n.parent].path if n.parent >= 0 else ()
+                past = list((root + path)[-kernel:])
+                history.append([total] * (kernel - len(past)) + past)
+            groups.append((group, torch.tensor(gathers, device=device),
+                           torch.tensor(history, device=device)))
         self._groups[key] = groups
+        return groups
+
+    def state_groups(self, max_rows, max_tokens):
+        """Attention rows over a continued state: question prefixes, then candidates.
+
+        Each candidate group also lists runs of consecutive rows that share a
+        question as (first token, end token, first row, end row) of that question.
+        """
+        key = max_rows, max_tokens
+        if key in self._state_groups:
+            return self._state_groups[key]
+        total, device = self.ids.numel(), self.ids.device
+        groups = []
+        for group, width in self.node_groups(max_rows, max_tokens):
+            gather, runs = [], []
+            for row, i in enumerate(group):
+                n = self.nodes[i]
+                gather.append(list(range(n.start, n.end)) + [total] * (width - (n.end - n.start)))
+                if n.parent < 0:
+                    continue
+                parent = self.nodes[n.parent]
+                if runs and runs[-1][:2] == (parent.start, parent.end):
+                    runs[-1] = (*runs[-1][:3], row + 1)
+                else:
+                    runs.append((parent.start, parent.end, row, row + 1))
+            gather = torch.tensor(gather, device=device)
+            valid = gather != total
+            groups.append((gather, valid, gather[valid], runs))
+        self._state_groups[key] = groups
         return groups
 
 
@@ -229,8 +285,12 @@ def full_attention_tree(attn, hidden, rope_values, layout, spec):
     return attn.o_proj(out * gate.sigmoid())
 
 
-def linear_tree(module, hidden, layout, spec):
-    """Qwen3.5 mixer with one projection per unique token and forked recurrence."""
+def linear_tree(module, hidden, layout, spec, state=None):
+    """Qwen3.5 mixer with one projection per unique token and forked recurrence.
+
+    ``state`` is a cached (convolution, recurrent) state that the roots of a
+    continuing layout start from; it is read, never written.
+    """
     impl = sys.modules[type(module).__module__]
     total = hidden.shape[1]
     projected = module.in_proj_qkv(hidden)[0]
@@ -242,6 +302,8 @@ def linear_tree(module, hidden, layout, spec):
         return torch.cat([x, x.new_zeros(1, *x.shape[1:])])
 
     projected, beta, g = map(with_zero, (projected, beta, g))
+    if layout.continues:  # HF keeps the last conv_kernel_size inputs, zero-padded for a short state.
+        projected = torch.cat([projected, state[0][0].transpose(0, 1).to(projected.dtype)])
     states, outputs = {}, [None] * len(layout.nodes)
     parents = {n.parent for n in layout.nodes}
     for nodes, indices, history in layout.groups(module.conv_kernel_size, spec.rows_per_forward,
@@ -257,7 +319,8 @@ def linear_tree(module, hidden, layout, spec):
         if copies > 1:
             q, k = q.repeat_interleave(copies, 2), k.repeat_interleave(copies, 2)
         initial = (torch.cat([states[layout.nodes[i].parent] for i in nodes], 0)
-                   if layout.nodes[nodes[0]].parent >= 0 else None)
+                   if layout.nodes[nodes[0]].parent >= 0 else
+                   state[1].expand(batch, *state[1].shape[1:]).contiguous() if layout.continues else None)
         keep_state = any(i in parents for i in nodes)
         # Fused recurrent is an inference kernel; training needs the chunk
         # kernel's gradients with respect to both initial and final states.
@@ -273,6 +336,43 @@ def linear_tree(module, hidden, layout, spec):
     core = torch.cat(outputs).reshape(-1, module.head_v_dim)
     core = module.norm(core, z).reshape(1, total, -1)
     return module.out_proj(core)
+
+
+def full_attention_over_state(attn, hidden, rope_values, layout, spec, segments, candidates=True):
+    """Gated attention of a continuing layout; also returns the packed keys and values.
+
+    Every token reads the state ``segments`` in place and candidates read their
+    question's KV; both are fully visible and merged by log-sum-exp with causal
+    attention over a row's own tokens, as in cache forks. Question and candidate
+    rows are padded separately, so padding is only visible to padding. Without
+    ``candidates`` only question rows are computed; candidate outputs are zero.
+    """
+    impl = sys.modules[type(attn).__module__]
+    n, d = hidden.shape[1], attn.head_dim
+    q, gate = attn.q_proj(hidden).view(1, n, -1, 2 * d).chunk(2, -1)
+    gate = gate.reshape(1, n, -1)
+    q = attn.q_norm(q).transpose(1, 2)
+    k = attn.k_norm(attn.k_proj(hidden).view(1, n, -1, d)).transpose(1, 2)
+    v = attn.v_proj(hidden).view(1, n, -1, d).transpose(1, 2)
+    q, k = impl.apply_rotary_pos_emb(q, k, *rope_values)
+    # Token-major [n + 1, heads, d]; the last row pads gathers.
+    q, k, v = (torch.cat([t[0].transpose(0, 1), t.new_zeros(1, t.shape[1], d)]) for t in (q, k, v))
+    heads, kv_heads = q.shape[1], k.shape[1]
+    out = q.new_zeros(n, heads, d)
+    for gather, valid, tokens, runs in layout.state_groups(spec.rows_per_forward, spec.max_padded_tokens):
+        if runs and not candidates:
+            continue
+        query, key, value = (t[gather].transpose(1, 2) for t in (q, k, v))
+        if heads > kv_heads:  # HF repeat_kv order: query head h reads KV head h // groups
+            key, value = (x.repeat_interleave(heads // kv_heads, 1) for x in (key, value))
+        parts = [_attend(query, key, value, attn.scaling, True)]
+        parts.extend(segment_attention(query, keys, values, attn.scaling) for keys, values in segments)
+        if runs:  # one fold per question, over its unpadded KV
+            question = [segment_attention(query[a:b], k[s:e].transpose(0, 1)[None], v[s:e].transpose(0, 1)[None],
+                                          attn.scaling) for s, e, a, b in runs]
+            parts.append(tuple(torch.cat(t) for t in zip(*question)))
+        out[tokens] = merge_attention(parts).to(q.dtype).transpose(1, 2)[valid]
+    return attn.o_proj(out.reshape(1, n, -1) * gate.sigmoid()), k[:n], v[:n]
 
 
 def joint_readouts(model, hidden, rope_values, layout):
@@ -405,3 +505,52 @@ def _execute_tree(model, records):
         output.append(features[start:start + count])
         start += count
     return output
+
+
+def state_tree_features(model, questions, state_length, cache):
+    """Questions over a state-only cache in one packed traversal; the cache is read, never written.
+
+    Question prefixes are roots continuing the cached positions, convolution
+    window and recurrence; they are padded together with identity steps, so
+    each candidate starts from its own question's final state. The candidate
+    interaction layer runs per question, over that question's siblings only.
+    """
+    from .model import _base_model
+    base = _base_model(model.backbone)
+    layout = TreeLayout.over_state(questions, state_length, model.device, model.spec.max_padded_tokens)
+    hidden = base.embed_tokens(layout.ids)
+    rope = base.rotary_emb(hidden, layout.positions[None].expand(3, -1, -1))
+    for i, layer in enumerate(base.layers):
+        x, state = layer.input_layernorm(hidden), cache.layers[i]
+        if layer.block_type == "linear_attention":
+            mixed = linear_tree(layer.linear_attn, x, layout, model.spec,
+                                (state.conv_states[0], state.recurrent_states[0]))
+        else:
+            mixed, keys, values = full_attention_over_state(layer.self_attn, x, rope, layout, model.spec,
+                                                            kv_segments(state), i != model.joint_layer)
+        if i == model.joint_layer:
+            break
+        hidden = hidden + mixed
+        hidden = hidden + layer.mlp(layer.post_attention_layernorm(hidden))
+    else:
+        result = base.norm(hidden[0, layout.read_indices]).float()
+        features, start = [], 0
+        for reads in layout.readouts:
+            features.append((result[start], result[start + 1:start + len(reads)]))
+            start += len(reads)
+        return features
+    # Question readouts take the ordinary final layer; candidates take the joint one.
+    roots = [i for i, n in enumerate(layout.nodes) if n.parent < 0]
+    read = torch.tensor([layout.nodes[i].end - 1 for i in roots], device=hidden.device)
+    h = hidden[0, read] + mixed[0, read]
+    hq = base.norm(h + layer.mlp(layer.post_attention_layernorm(h))).float()
+    prefix = [(pk[0].float(), pv[0].float()) for pk, pv in kv_segments(cache.layers[model.joint_layer])]
+    cos, sin = rope
+    features = []
+    for qi, root in enumerate(roots):
+        node = layout.nodes[root]
+        rows = [(hidden[0, c.start:c.end], cos[0, c.start:c.end], sin[0, c.start:c.end])
+                for c in layout.nodes if c.parent == root]
+        own = keys[node.start:node.end].transpose(0, 1).float(), values[node.start:node.end].transpose(0, 1).float()
+        features.append(model._cached_joint_features(rows, [*prefix, own], hq[qi]))
+    return features

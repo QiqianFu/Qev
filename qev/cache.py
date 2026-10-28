@@ -139,19 +139,17 @@ def _attention_forward(module, query, key, value, attention_mask, scaling=None, 
                        sliding_window=None, **kwargs):
     """Fork attention without materializing the parent KV per row.
 
-    Parent segments are visible to every new token, so they need no mask: the
-    queries of all rows and of each KV head's query group fold into one sequence,
-    one fused call per segment. Own tokens are causal; right padding is only
-    visible to padding. Partial results are merged by log-sum-exp in FP32.
+    Parent segments are visible to every new token, so they need no mask (see
+    ``segment_attention``). Own tokens are causal; right padding is only visible
+    to padding. Partial results are merged by log-sum-exp in FP32.
     """
     cache = _ACTIVE.get()
     layer = None if cache is None else cache.layers[module.layer_idx]
     if type(layer) is not SharedPrefixLayer or attention_mask is not None or sliding_window or dropout:
         raise NotImplementedError("shared-prefix attention supports full causal attention over a fork only")
     layer.unread = False
-    rows, heads, length, dim = query.shape
-    kv_heads = key.shape[1]
-    groups = heads // kv_heads
+    heads, length, dim = query.shape[1:]
+    groups = heads // key.shape[1]
     scale = dim ** -0.5 if scaling is None else scaling
     if groups > 1:  # own tokens are few; HF repeat_kv order: query head h reads KV head h // groups
         key, value = (x.repeat_interleave(groups, 1) for x in (key, value))
@@ -159,14 +157,29 @@ def _attention_forward(module, query, key, value, attention_mask, scaling=None, 
     parts = [_attend(query, key[:, :, past:], value[:, :, past:], scale, True)]
     if past:
         parts.append(_attend(query, key[:, :, :past], value[:, :, :past], scale, False))
+    parts.extend(segment_attention(query, keys, values, scale) for keys, values in layer.segments)
+    return merge_attention(parts).to(query.dtype).transpose(1, 2).contiguous(), None
+
+
+def segment_attention(query, keys, values, scale):
+    """Attention of every row of ``query`` [rows, heads, length, dim] to one fully visible single-row segment.
+
+    The rows and each KV head's query group fold into one sequence: one fused
+    call, and the segment is read in place instead of repeated per row or head.
+    """
+    rows, heads, length, dim = query.shape
+    kv_heads = keys.shape[1]
+    groups = heads // kv_heads
     folded = query.unflatten(1, (kv_heads, groups)).transpose(0, 1).reshape(1, kv_heads, -1, dim)
-    for keys, values in layer.segments:
-        output, lse = _attend(folded, keys, values, scale, False)
-        parts.append((output.reshape(kv_heads, rows, groups, length, dim).transpose(0, 1).flatten(1, 2),
-                      lse.reshape(kv_heads, rows, groups, length).transpose(0, 1).flatten(1, 2)))
+    output, lse = _attend(folded, keys, values, scale, False)
+    return (output.reshape(kv_heads, rows, groups, length, dim).transpose(0, 1).flatten(1, 2),
+            lse.reshape(kv_heads, rows, groups, length).transpose(0, 1).flatten(1, 2))
+
+
+def merge_attention(parts):
+    """Combine (output, log-sum-exp) attention over disjoint key sets, in FP32."""
     total = torch.logsumexp(torch.stack([lse for _, lse in parts]), 0)
-    output = sum(o.float() * (lse - total).exp()[..., None] for o, lse in parts)
-    return output.to(query.dtype).transpose(1, 2).contiguous(), None
+    return sum(o.float() * (lse - total).exp()[..., None] for o, lse in parts)
 
 
 AttentionInterface.register(SHARED_PREFIX, _attention_forward)
