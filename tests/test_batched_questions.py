@@ -5,8 +5,10 @@ import os
 
 import pytest
 import torch
+from transformers.cache_utils import DynamicLayer
 
 from qev import Qev
+from qev.encoding import Encoder, Limits
 from qev.model import QevModel, ModelSpec
 from qev.schema import typed_record
 import qev.tree
@@ -243,3 +245,30 @@ def test_unaudited_layouts_use_sequential_forks(tokenizer, encoder, record, monk
     features = batch_model.state_cache_features(enc, batch_model.extend_state_cache(None, enc.state, 0))
     assert_features(batch_model.reference_features(enc), features)
     assert not groups
+
+
+@pytest.mark.skipif(DEVICE != "cuda", reason="allocator accounting needs CUDA")
+def test_memory_does_not_scale_with_state_times_questions(tokenizer):
+    torch.manual_seed(5)
+    spec = ModelSpec("tiny", head_dim=32, head_heads=4, head_layers=1, lora_rank=0, weights_dtype="fp32",
+                     attention="sdpa", rows_per_forward=8)
+    backbone = tiny_backbone(len(tokenizer), hybrid=True)
+    backbone.config._attn_implementation = "sdpa"
+    model = QevModel(backbone, spec, tokenizer.pad_token_id).to("cuda").eval()
+    encoder = Encoder(tokenizer, Limits(8192, 128, 128, 8192, 32))
+
+    def measure(repeats):
+        enc = encode(encoder, state="The signal is blue. " * repeats)
+        state = model.extend_state_cache(None, enc.state, 0)
+        expected = model.state_cache_features(enc, state)
+        torch.cuda.synchronize()
+        torch.cuda.reset_peak_memory_stats()
+        before = torch.cuda.memory_allocated()
+        assert_features(expected, model.state_cache_features(enc, state), atol=0)
+        kv = sum(t.numel() * t.element_size() for layer in state.layers if isinstance(layer, DynamicLayer)
+                 for t in (layer.keys, layer.values))
+        return torch.cuda.max_memory_allocated() - before, kv
+
+    (short, short_kv), (long, long_kv) = measure(10), measure(300)
+    # All questions and candidates read the state in place: no state-sized buffer per question or row.
+    assert long - short < (long_kv - short_kv) / 4, (short, long, short_kv, long_kv)

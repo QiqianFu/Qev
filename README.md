@@ -82,7 +82,7 @@ Use `noul` for a yes/no question and receive `P(true)`. Use `score` for a rubric
 
 ### Growing state
 
-When the state keeps growing, such as a conversation or an agent trajectory, open a session. Each appended chunk is computed once on top of the cached state, and questions run on forks of that cache:
+When the state keeps growing, such as a conversation or an agent trajectory, open a session. Each appended chunk is computed once on top of the cached state, and all questions of a prediction read that cache together in shared forward passes:
 
 ```python
 session = model.session("Order 812: the customer reports a duplicate charge.")

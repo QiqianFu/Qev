@@ -213,3 +213,44 @@ Qev-9B v0.3.0 (BF16, cached execution, `max_state` raised to 58,192) answered th
 | 50,000 | 74.5% (p = 0.014) | 72.3% (p = 0.004) |
 
 Prose hurt more than code, and accuracy did not fall monotonically with length; 26–59 predictions changed in every condition. Almost all losses were on the `original` subset of short policy questions (67/72 without filler, 43/72 with 16K of prose); `easy` was unchanged. The models were trained on states up to 4,096 tokens, so this measures robustness outside the training range, not a release score. With the filler prefix, the 50,000-token cache took 1.58 GiB, its ingest 51 s, and each record answered over it took a median 0.60 s on an A40 shared with an unrelated load.
+
+## Batched questions over a state cache — 2026-10-27
+
+On Qwen3.5 models, the questions of a session prediction or of a cached request with several questions now run as one packed tree over the state cache instead of one question forward and one or more candidate forwards per question. Question prefixes continue the cached positions, convolution window and DeltaNet state and are padded together with identity steps (zero gate and update); candidates continue from their own question's final state. Every token reads the state KV in place and candidates also read their question's KV, merged by log-sum-exp with causal attention over their own tokens. The candidate-interaction layer still runs per question over its siblings only. Passes are bounded by `max_padded_tokens` question and candidate tokens, with attention rows padded in groups of at most `rows_per_forward`; larger questions and other model layouts keep the per-question forks. Single-question one-shot requests, reference and tree execution are unchanged.
+
+CPU: the full test suite passed (394 passed, 12 skipped; the new skip is a CUDA-only allocator test). `tests/test_batched_questions.py` checks, for every interaction mode and several `rows_per_forward` values, that batched questions with mixed types, ragged prefixes and candidates match the per-question forks and reference execution; that passes respect the token budget and fall back per question; that each question is unaffected by the others and by their padding; that short states and prefixes shorter than the convolution window continue correctly; that the state cache stays bit-identical; that sessions use one pass; and that unaudited layouts keep the forks.
+
+GPU (A40 shared with an unrelated GEMM load, PyTorch 2.8.0, Transformers 5.17.0): the batched-question, fork, session, prefix-inference, tree-inference, tree-batching and model tests passed on CUDA with the fused kernels and with the PyTorch reference kernels (230 passed, 4 skipped each), including a check that peak memory does not grow with state length times questions.
+
+Released Qev-0.8B and Qev-9B v0.3.0 (BF16) were compared with the previous implementation on the 231 public JevBench records: as released (one question each, one-shot and through a state cache) and as synthetic records that put each record's question among 5 or 29 questions taken from other records over its state (231 and 39 records). One-shot single-question, reference and tree probabilities were bit-identical. Largest probability difference from the previous cached execution, with agreeing predictions:
+
+| Input | Qev-0.8B | Qev-9B |
+|---|---:|---:|
+| One question via a state cache | 0.022 (231/231) | 0.039 (231/231) |
+| 6 questions per record | 0.030 (1,369/1,386) | 0.051 (1,372/1,386) |
+| 30 questions per record | 0.027 (1,162/1,170) | 0.040 (1,160/1,170) |
+
+On the same multi-question inputs, previous cached execution already differed from reference by up to 0.037 (0.8B) and 0.103 (9B); the new execution differs by up to 0.033 and 0.096. Every changed prediction had its two candidates within 0.042 of each other in both versions. Accuracy on each record's own question was unchanged: Qev-9B 187/231 in every mode (as released), Qev-0.8B 168/231 cached and 169/231 reference.
+
+Qev-9B latency (median of five) and allocator peak above the held cache, on a GPU shared with a continuous GEMM load; timings are noisy and launch-bound work suffers most from the shared load. `mixed-30` has 10 noul, 10 score (3–5 levels) and 10 choice (3–10 candidates) questions with instructions of different lengths:
+
+| State tokens | Questions | Candidates | Previous | New | Previous peak | New peak |
+|---:|---|---:|---:|---:|---:|---:|
+| 4,090 | 1 noul | 2 | 0.22 s | 0.20 s | 0.18 GiB | 0.03 GiB |
+| 4,090 | 30 noul | 60 | 6.56 s | 0.94 s | 0.18 GiB | 0.23 GiB |
+| 4,090 | 30 mixed | 118 | 7.00 s | 1.89 s | 0.60 GiB | 0.33 GiB |
+| 4,090 | 1 choice | 30 | 0.47 s | 0.38 s | 1.64 GiB | 0.14 GiB |
+| 4,090 | 10 choice | 300 | 4.69 s | 2.84 s | 1.64 GiB | 0.46 GiB |
+| 16,378 | 1 noul | 2 | 0.24 s | 0.22 s | 0.28 GiB | 0.13 GiB |
+| 16,378 | 30 noul | 60 | 7.24 s | 1.00 s | 0.28 GiB | 0.23 GiB |
+| 16,378 | 30 mixed | 118 | 7.74 s | 2.22 s | 0.70 GiB | 0.33 GiB |
+| 16,378 | 1 choice | 30 | 0.51 s | 0.42 s | 1.74 GiB | 0.23 GiB |
+| 16,378 | 10 choice | 300 | 5.12 s | 3.15 s | 1.75 GiB | 0.47 GiB |
+| 49,994 | 1 noul | 2 | 0.31 s | 0.29 s | 0.55 GiB | 0.40 GiB |
+| 49,994 | 30 noul | 60 | 9.21 s | 1.26 s | 0.55 GiB | 0.42 GiB |
+| 49,994 | 30 mixed | 118 | 9.79 s | 3.07 s | 1.02 GiB | 0.53 GiB |
+| 49,994 | 1 choice | 30 | 0.63 s | 0.53 s | 2.18 GiB | 0.67 GiB |
+| 49,994 | 10 choice | 300 | 6.25 s | 3.93 s | 2.18 GiB | 0.74 GiB |
+
+An earlier run of the same benchmark on a less loaded GPU of the same machine gave 0.57 s for 30 noul questions over 49,994 tokens (previous 7.06 s), 1.35 s for 30 mixed (7.19 s) and 1.66 s for 10 choice questions (3.26 s). On these long-state inputs the new probabilities agreed with the previous ones within 0.028 (214/216 predictions). The new path is no longer bound by the number of questions: the remaining time is mostly the projections and MLPs of all question and candidate tokens, the per-question candidate-interaction readout and DeltaNet groups bounded by `rows_per_forward`. Peaks no longer include a DeltaNet state copy per candidate row; the remaining growth with state length is the FP32 copy of one layer's state KV in the candidate-interaction readout.
+
